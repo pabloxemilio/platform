@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Referrals — AVAITOR Admin</title><link rel="stylesheet" href="css/admin.css"></head>
+<body><div class="admin-shell">
+<aside class="admin-sidebar">
+  <div class="sidebar-brand"><div class="brand-icon">✈</div><div class="brand-text">AVAITOR <span>Admin</span></div></div>
+  <div class="sidebar-section"><span class="sidebar-section-label">Overview</span></div>
+  <a href="dashboard.html" class="nav-link"><span class="nav-icon">📊</span>Dashboard</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">Management</span></div>
+  <a href="users.html"       class="nav-link"><span class="nav-icon">👥</span>Users</a>
+  <a href="deposits.html"    class="nav-link"><span class="nav-icon">💳</span>Deposits</a>
+  <a href="withdrawals.html" class="nav-link"><span class="nav-icon">💸</span>Withdrawals</a>
+  <a href="wallet.html"      class="nav-link"><span class="nav-icon">👛</span>Wallets</a>
+  <a href="referrals.html"   class="nav-link active"><span class="nav-icon">🤝</span>Referrals</a>
+  <a href="games.html"       class="nav-link"><span class="nav-icon">🎮</span>Games</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">System</span></div>
+  <a href="payment-methods.html" class="nav-link"><span class="nav-icon">🏦</span>Payment Methods</a>
+  <a href="settings.html"    class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  <a href="logs.html"        class="nav-link"><span class="nav-icon">📋</span>Audit Logs</a>
+  <div class="sidebar-footer">
+    <div class="admin-info"><div class="admin-avatar" id="sidebarAdminInit">A</div><div><div class="admin-name" id="sidebarAdminName">Admin</div><div class="admin-role" id="sidebarAdminRole">Super Admin</div></div></div>
+    <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+  </div>
+</aside>
+
+<div class="admin-main">
+  <header class="admin-header">
+    <div class="page-title">🤝 Referral Management</div>
+    <div class="header-right"><div class="header-badge"><div class="pulse-dot"></div>Live</div></div>
+  </header>
+  <div class="admin-body">
+    <!-- Tab switcher -->
+    <div style="display:flex;gap:10px;margin-bottom:18px">
+      <button class="btn btn-gold" id="tabRefBtn" onclick="switchTab('refs')">🤝 Referrals</button>
+      <button class="btn btn-ghost" id="tabEarnBtn" onclick="switchTab('earns')">💰 Earnings History</button>
+    </div>
+
+    <!-- Referrals Tab -->
+    <div id="refsTab">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <span class="section-title">All Referral Relationships</span>
+          <div class="table-count" id="refCount" style="margin-left:auto"></div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Referrer</th><th>Referee (Invited)</th><th>Status</th><th>Total Earned</th><th>Rewarded At</th><th>Joined</th></tr></thead>
+            <tbody id="refsTable"><tr><td colspan="6" class="table-empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="table-footer"><div class="pagination" id="refPagination"></div></div>
+      </div>
+    </div>
+
+    <!-- Earnings Tab -->
+    <div id="earnsTab" style="display:none">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <span class="section-title">All Referral Earnings</span>
+          <div class="table-count" id="earnCount" style="margin-left:auto"></div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Referrer</th><th>Referee</th><th>Amount</th><th>Type</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody id="earnsTable"><tr><td colspan="6" class="table-empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="table-footer"><div class="pagination" id="earnPagination"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/api.js"></script>
+<script>
+guardAuth();
+let refPage = 1, earnPage = 1; const LIMIT = 20;
+
+function switchTab(tab) {
+  document.getElementById('refsTab').style.display  = tab === 'refs'  ? '' : 'none';
+  document.getElementById('earnsTab').style.display = tab === 'earns' ? '' : 'none';
+  document.getElementById('tabRefBtn').className  = 'btn ' + (tab === 'refs'  ? 'btn-gold' : 'btn-ghost');
+  document.getElementById('tabEarnBtn').className = 'btn ' + (tab === 'earns' ? 'btn-gold' : 'btn-ghost');
+  if (tab === 'earns' && earnPage === 1) loadEarnings();
+}
+
+async function loadRefs(page = 1) {
+  refPage = page;
+  try {
+    const d = await GET(`/admin/referrals?page=${page}&limit=${LIMIT}`);
+    document.getElementById('refCount').textContent = `${d.total} referrals`;
+    document.getElementById('refsTable').innerHTML = (d.referrals || []).map(r => `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar-sm">${avatarLetter(r.referrer?.username)}</div>
+            <div class="user-cell-info">
+              <div class="uname">${r.referrer?.username || '—'}</div>
+              <div class="uid">${r.referrer?.phone || '—'}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar-sm" style="background:linear-gradient(135deg,#7C4DFF,#5C6BC0)">${avatarLetter(r.referee?.username)}</div>
+            <div class="user-cell-info">
+              <div class="uname">${r.referee?.username || '—'}</div>
+              <div class="uid">${r.referee?.phone || '—'}</div>
+            </div>
+          </div>
+        </td>
+        <td>${badge(r.status)}</td>
+        <td class="text-gold font-bold">${fmtPKR(r.total_earned)}</td>
+        <td class="text-sm text-muted">${r.rewarded_at ? fmtDate(r.rewarded_at) : '—'}</td>
+        <td class="text-sm text-muted">${fmtDate(r.created_at)}</td>
+      </tr>`).join('') || '<tr><td colspan="6" class="table-empty">No referrals found</td></tr>';
+    renderPagination('refPagination', page, d.total, LIMIT, loadRefs);
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loadEarnings(page = 1) {
+  earnPage = page;
+  try {
+    const d = await GET(`/admin/referrals/earnings?page=${page}&limit=${LIMIT}`);
+    document.getElementById('earnCount').textContent = `${d.total} earnings`;
+    document.getElementById('earnsTable').innerHTML = (d.earnings || []).map(e => `
+      <tr>
+        <td class="font-bold">${e.referrer?.username || '—'}</td>
+        <td class="text-muted text-sm">${e.referee?.username || '—'}</td>
+        <td class="text-gold font-bold">${fmtPKR(e.amount)}</td>
+        <td><span class="tag">${e.type}</span></td>
+        <td>${badge(e.status)}</td>
+        <td class="text-sm text-muted">${fmtDate(e.created_at)}</td>
+      </tr>`).join('') || '<tr><td colspan="6" class="table-empty">No earnings</td></tr>';
+    renderPagination('earnPagination', page, d.total, LIMIT, loadEarnings);
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+loadRefs();
+</script>
+</body></html>

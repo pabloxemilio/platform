@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Games — AVAITOR Admin</title><link rel="stylesheet" href="css/admin.css"></head>
+<body><div class="admin-shell">
+<aside class="admin-sidebar">
+  <div class="sidebar-brand"><div class="brand-icon">✈</div><div class="brand-text">AVAITOR <span>Admin</span></div></div>
+  <div class="sidebar-section"><span class="sidebar-section-label">Overview</span></div>
+  <a href="dashboard.html" class="nav-link"><span class="nav-icon">📊</span>Dashboard</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">Management</span></div>
+  <a href="users.html"       class="nav-link"><span class="nav-icon">👥</span>Users</a>
+  <a href="deposits.html"    class="nav-link"><span class="nav-icon">💳</span>Deposits</a>
+  <a href="withdrawals.html" class="nav-link"><span class="nav-icon">💸</span>Withdrawals</a>
+  <a href="wallet.html"      class="nav-link"><span class="nav-icon">👛</span>Wallets</a>
+  <a href="referrals.html"   class="nav-link"><span class="nav-icon">🤝</span>Referrals</a>
+  <a href="games.html"       class="nav-link active"><span class="nav-icon">🎮</span>Games</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">System</span></div>
+  <a href="payment-methods.html" class="nav-link"><span class="nav-icon">🏦</span>Payment Methods</a>
+  <a href="settings.html"    class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  <a href="logs.html"        class="nav-link"><span class="nav-icon">📋</span>Audit Logs</a>
+  <div class="sidebar-footer">
+    <div class="admin-info"><div class="admin-avatar" id="sidebarAdminInit">A</div><div><div class="admin-name" id="sidebarAdminName">Admin</div><div class="admin-role" id="sidebarAdminRole">Super Admin</div></div></div>
+    <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+  </div>
+</aside>
+
+<div class="admin-main">
+  <header class="admin-header">
+    <div class="page-title">🎮 Game Management</div>
+    <div class="header-right">
+      <button class="btn btn-gold btn-sm" onclick="openModal('addGameModal')">+ Add Game</button>
+    </div>
+  </header>
+  <div class="admin-body">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <select class="form-control" style="width:140px" id="catFilter">
+          <option value="">All Categories</option>
+          <option value="crash">Crash</option>
+          <option value="slots">Slots</option>
+          <option value="live">Live Casino</option>
+          <option value="sports">Sports</option>
+          <option value="fishing">Fishing</option>
+          <option value="lottery">Lottery</option>
+        </select>
+        <div class="table-count" id="gamesCount" style="margin-left:auto"></div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>#</th><th>Game</th><th>Provider</th><th>Category</th><th>RTP</th><th>Min Bet</th><th>Max Bet</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="gamesTable"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Add Game Modal -->
+<div class="modal-backdrop" id="addGameModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">🎮 Add New Game</div><button class="modal-close" onclick="closeModal('addGameModal')">✕</button></div>
+    <div class="modal-body">
+      <form id="addGameForm">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Game Name *</label><input class="form-control" name="name" required placeholder="e.g. Aviator"></div>
+          <div class="form-group"><label class="form-label">Provider *</label><input class="form-control" name="provider" required placeholder="e.g. Spribe, JILI"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Category *</label>
+            <select class="form-control" name="category" required>
+              <option value="crash">Crash</option><option value="slots">Slots</option>
+              <option value="live">Live Casino</option><option value="sports">Sports</option>
+              <option value="fishing">Fishing</option><option value="lottery">Lottery</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">RTP %</label><input class="form-control" name="rtp" type="number" value="96" step="0.01" min="0" max="100"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Min Bet (PKR)</label><div class="input-group"><span class="input-prefix">₨</span><input class="form-control" name="min_bet" type="number" value="10" min="1"></div></div>
+          <div class="form-group"><label class="form-label">Max Bet (PKR)</label><div class="input-group"><span class="input-prefix">₨</span><input class="form-control" name="max_bet" type="number" value="100000" min="1"></div></div>
+        </div>
+        <div class="form-group"><label class="form-label">Thumbnail URL (optional)</label><input class="form-control" name="thumbnail_url" placeholder="https://…"></div>
+        <div class="form-group"><label class="form-label">Sort Order</label><input class="form-control" name="sort_order" type="number" value="0" min="0"></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('addGameModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="addGame()">+ Add Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Game Modal -->
+<div class="modal-backdrop" id="editGameModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">✏️ Edit Game</div><button class="modal-close" onclick="closeModal('editGameModal')">✕</button></div>
+    <div class="modal-body">
+      <form id="editGameForm">
+        <input type="hidden" id="editGameId">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Game Name</label><input class="form-control" id="editGameName" name="name"></div>
+          <div class="form-group"><label class="form-label">Provider</label><input class="form-control" id="editGameProvider" name="provider"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">RTP %</label><input class="form-control" id="editGameRtp" type="number" step="0.01"></div>
+          <div class="form-group"><label class="form-label">Status</label>
+            <select class="form-control" id="editGameStatus">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="maintenance">Maintenance</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Min Bet (PKR)</label><div class="input-group"><span class="input-prefix">₨</span><input class="form-control" id="editGameMinBet" type="number"></div></div>
+          <div class="form-group"><label class="form-label">Max Bet (PKR)</label><div class="input-group"><span class="input-prefix">₨</span><input class="form-control" id="editGameMaxBet" type="number"></div></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('editGameModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveGame()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/api.js"></script>
+<script>
+guardAuth();
+let allGames = [];
+
+async function loadGames() {
+  try {
+    const d = await GET('/admin/games');
+    allGames = d.games || [];
+    renderGames();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function renderGames() {
+  const cat = document.getElementById('catFilter').value;
+  const games = cat ? allGames.filter(g => g.category === cat) : allGames;
+  document.getElementById('gamesCount').textContent = `${games.length} games`;
+  document.getElementById('gamesTable').innerHTML = games.map((g, i) => `
+    <tr>
+      <td class="text-muted text-sm">${g.sort_order || i+1}</td>
+      <td class="font-bold">${g.name}</td>
+      <td class="text-sm text-muted">${g.provider}</td>
+      <td><span class="tag">${g.category}</span></td>
+      <td class="text-gold">${g.rtp}%</td>
+      <td class="text-sm">${fmtPKR(g.min_bet)}</td>
+      <td class="text-sm">${fmtPKR(g.max_bet)}</td>
+      <td>${badge(g.status)}</td>
+      <td>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-blue btn-sm" onclick="openEdit('${g.id}')">✏️ Edit</button>
+          <button class="btn ${g.status==='active'?'btn-red':'btn-green'} btn-sm" onclick="toggleGame('${g.id}','${g.status}')">
+            ${g.status==='active'?'⏸ Disable':'▶ Enable'}
+          </button>
+        </div>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="9" class="table-empty">No games found</td></tr>';
+}
+
+function openEdit(id) {
+  const g = allGames.find(x => x.id === id);
+  if (!g) return;
+  document.getElementById('editGameId').value       = g.id;
+  document.getElementById('editGameName').value     = g.name;
+  document.getElementById('editGameProvider').value = g.provider;
+  document.getElementById('editGameRtp').value      = g.rtp;
+  document.getElementById('editGameStatus').value   = g.status;
+  document.getElementById('editGameMinBet').value   = g.min_bet;
+  document.getElementById('editGameMaxBet').value   = g.max_bet;
+  openModal('editGameModal');
+}
+
+async function saveGame() {
+  const id = document.getElementById('editGameId').value;
+  const updates = {
+    name:     document.getElementById('editGameName').value,
+    provider: document.getElementById('editGameProvider').value,
+    rtp:      parseFloat(document.getElementById('editGameRtp').value),
+    status:   document.getElementById('editGameStatus').value,
+    min_bet:  parseFloat(document.getElementById('editGameMinBet').value),
+    max_bet:  parseFloat(document.getElementById('editGameMaxBet').value),
+  };
+  try {
+    await PATCH(`/admin/games/${id}`, updates);
+    showToast('✅ Game updated!');
+    closeModal('editGameModal');
+    loadGames();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function toggleGame(id, status) {
+  const newStatus = status === 'active' ? 'inactive' : 'active';
+  try {
+    await PATCH(`/admin/games/${id}`, { status: newStatus });
+    showToast(`Game ${newStatus === 'active' ? 'enabled ✅' : 'disabled'}`);
+    loadGames();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function addGame() {
+  const formData = new FormData(document.getElementById('addGameForm'));
+  const data = {};
+  formData.forEach((v, k) => { data[k] = v; });
+  if (!data.name || !data.provider) { showToast('Name and provider required', 'warning'); return; }
+  try {
+    await POST('/admin/games', data);
+    showToast('✅ Game added!');
+    closeModal('addGameModal');
+    document.getElementById('addGameForm').reset();
+    loadGames();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+document.getElementById('catFilter').addEventListener('change', renderGames);
+loadGames();
+</script>
+</body></html>

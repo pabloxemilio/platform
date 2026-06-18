@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="AVAITOR Casino — Play Aviator, Slots, Live Casino, Sports Betting & more. Get welcome bonus up to 500%!">
+  <meta name="keywords" content="Aviator, Casino, Slots, Live Casino, Sports Betting, Online Gambling, JILI, Spribe">
+  <meta property="og:title" content="AVAITOR Casino — Online Gaming Platform">
+  <meta property="og:description" content="Play the best casino games. Aviator, Slots, Live Casino, Sports & more!">
+  <meta name="theme-color" content="#0A0A0F">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>AVAITOR Casino — Online Gaming Platform</title>
+  <link rel="icon" href="images/logo_icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="images/logo_icon.png">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<!-- ── Sidebar Overlay (mobile) ── -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ═══════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════ -->
+<aside class="sidebar" id="mainSidebar">
+
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <img src="images/logo_icon.png" alt="AVAITOR Logo">
+    <span class="logo-text">AVAITOR</span>
+  </div>
+
+  <!-- Balance (hidden when logged out) -->
+  <div class="sidebar-balance" id="sidebarBalance" style="display:none;">
+    <div class="balance-label">Total Balance</div>
+    <div class="balance-amount" id="sidebalance">₨ 0.00</div>
+    <div class="balance-currency">Pakistani Rupee · PKR</div>
+  </div>
+
+  <!-- Deposit / Withdraw Buttons -->
+  <div class="sidebar-btn-group">
+    <button class="btn btn-gold btn-sm" id="depositBtn">💳 Deposit</button>
+    <button class="btn btn-ghost btn-sm" id="withdrawBtn">💸 Withdraw</button>
+  </div>
+
+  <!-- Navigation -->
+  <span class="sidebar-section-label">Main Menu</span>
+
+  <nav>
+    <div class="nav-item active" data-page="home" onclick="switchView('homeView')">
+      <span class="nav-icon">🏠</span> Home
+    </div>
+    <div class="nav-item" data-page="promotions" onclick="window.location.href='pages/promotions.html'">
+      <span class="nav-icon">🎁</span> Promotions
+      <span class="nav-badge">5</span>
+    </div>
+    <div class="nav-item" data-page="vip" onclick="switchView('vipView')">
+      <div class="nav-icon text-yellow">👑</div>
+      VIP Club
+    </div>
+    <div class="nav-item" data-page="referral" onclick="openModal('loginModal')">
+      <span class="nav-icon">🤝</span> Invite & Earn
+    </div>
+  </nav>
+
+  <span class="sidebar-section-label">Games</span>
+  <nav>
+    <div class="nav-item" data-page="crash">
+      <span class="nav-icon">✈️</span> Crash Games
+      <span class="nav-hot">HOT</span>
+    </div>
+    <div class="nav-item" data-page="slots">
+      <span class="nav-icon">🎰</span> Slots
+    </div>
+    <div class="nav-item" data-page="live">
+      <span class="nav-icon">🎲</span> Live Casino
+    </div>
+    <div class="nav-item" data-page="sports">
+      <span class="nav-icon">⚽</span> Sports
+    </div>
+    <div class="nav-item" data-page="fishing">
+      <span class="nav-icon">🎣</span> Fishing
+    </div>
+    <div class="nav-item" data-page="lottery">
+      <span class="nav-icon">🎟️</span> Lottery
+    </div>
+  </nav>
+
+  <span class="sidebar-section-label">Support</span>
+  <nav>
+    <div class="nav-item" data-page="transactions" onclick="switchView('transactionsView')">
+      <div class="nav-icon text-green">🧾</div> Transactions
+    </div>
+    <div class="nav-item" data-page="customer" onclick="switchView('customerView')">
+      <div class="nav-icon text-yellow">🎧</div> Live Support
+    </div>
+    <div class="nav-item" data-page="settings" onclick="switchView('settingsView')">
+      <div class="nav-icon text-muted">⚙️</div> Settings
+    </div>
+    <div class="nav-item" id="logoutBtn" style="margin-top:auto; display:none;" onclick="handleLogout()">
+      <span class="nav-icon">🚪</span> Logout
+    </div>
+  </nav>
+
+</aside>
+
+<!-- ═══════════════════════════════════════
+     MAIN CONTENT AREA
+═══════════════════════════════════════ -->
+<div class="main-content" id="mainContent">
+
+  <!-- ── TOP HEADER ── -->
+  <header class="top-header">
+
+    <!-- Sidebar toggle (mobile) -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">☰</button>
+
+    <!-- Logo (mobile) -->
+    <div class="sidebar-logo" style="border:none;padding:0;display:none;" id="mobileLogo">
+      <img src="images/logo_icon.png" alt="AVAITOR" style="width:28px;height:28px;border-radius:6px;">
+      <span class="logo-text" style="font-size:1rem;">AVAITOR</span>
+    </div>
+
+    <!-- Search -->
+    <div class="header-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search games, providers…" autocomplete="off">
+    </div>
+
+    <!-- Marquee -->
+    <div class="header-marquee">
+      <span class="marquee-icon">📢</span>
+      <div class="marquee-text-wrap">
+        <span class="marquee-text">
+          🏆 Ha***n won ₨ 78,500 on Aviator &nbsp;|&nbsp;
+          🎉 New game "Pirate Flip" now live! &nbsp;|&nbsp;
+          💥 Ra***i won ₨ 28,000 on Mines &nbsp;|&nbsp;
+          🎁 Deposit ₨ 500 and get 500% bonus! &nbsp;|&nbsp;
+          👑 VIP Cashback up to 30% every week &nbsp;|&nbsp;
+          🔥 Jackpot is growing — play now! &nbsp;|&nbsp;
+          ✅ Fast withdrawals — 24/7 support
+        </span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="header-actions">
+      <button class="icon-btn" title="Notifications" id="notifBtn">
+        🔔
+        <span class="notif-dot"></span>
+      </button>
+
+      <!-- Auth buttons (shown when logged out) -->
+      <div id="headerAuthBtns" style="display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" data-modal="loginModal">Login</button>
+        <button class="btn btn-gold btn-sm" data-modal="loginModal">Register</button>
+      </div>
+
+      <!-- User chip (shown when logged in) -->
+      <div class="user-chip" id="headerUserChip" style="display:none;" onclick="switchView('profileView')">
+        <div class="user-avatar" id="headerUserAvatar">U</div>
+        <div class="user-info">
+          <span class="user-name" id="headerUserName">User</span>
+          <span class="user-level" id="headerUserLevel">VIP Bronze</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── PAGE BODY ── -->
+  <main class="page-body">
+
+    <!-- HOME VIEW -->
+    <div id="homeView" class="view-section active" style="display:block;">
+      <!-- HERO CAROUSEL -->
+      <div class="hero-carousel" id="heroCarousel"></div>
+
+    <!-- JACKPOT BAR -->
+    <div class="jackpot-bar">
+      <div class="jackpot-label">
+        <span>🏆 MEGA</span>
+        <span>JACKPOT</span>
+      </div>
+      <div class="jackpot-amount counter" id="jackpotAmount">₨ 8,432,561.50</div>
+      <button class="btn btn-gold btn-sm" onclick="handlePlayBtn('Play Jackpot')">Play Now</button>
+    </div>
+
+    <!-- STATS BAR -->
+    <div class="stats-bar mb-24">
+      <div class="stat-card">
+        <div class="stat-icon gold">🌐</div>
+        <div>
+          <div class="stat-label">Online Now</div>
+          <div class="stat-value" id="statOnline">0</div>
+          <div class="stat-change up">▲ 12% today</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">🎉</div>
+        <div>
+          <div class="stat-label">Winners Today</div>
+          <div class="stat-value" id="statWinners">0</div>
+          <div class="stat-change up">▲ 8% vs yesterday</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">💸</div>
+        <div>
+          <div class="stat-label">Payout Rate</div>
+          <div class="stat-value"><span id="statPayout">0</span></div>
+          <div class="stat-change up">⭐ Verified Fair Play</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">⚡</div>
+        <div>
+          <div class="stat-label">Fastest Payout</div>
+          <div class="stat-value">~3 min</div>
+          <div class="stat-change up">🔥 Instant EasyPaisa</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE WINNERS TICKER -->
+    <div class="winners-ticker mb-24">
+      <div class="ticker-header">
+        <div class="ticker-dot"></div>
+        🏆 Live Winners
+        <span style="margin-left:auto;font-size:0.72rem;color:var(--text-muted);font-weight:400;">Real-time payouts</span>
+      </div>
+      <div class="ticker-list">
+        <div class="ticker-track" id="tickerTrack"></div>
+      </div>
+    </div>
+
+    <!-- CATEGORY PILLS -->
+    <div class="category-filters">
+      <button class="cat-pill active" data-cat="all"><span class="pill-icon">🎮</span>All Games</button>
+      <button class="cat-pill" data-cat="crash"><span class="pill-icon">✈️</span>Crash</button>
+      <button class="cat-pill" data-cat="hot"><span class="pill-icon">🔥</span>Hot</button>
+      <button class="cat-pill" data-cat="slots"><span class="pill-icon">🎰</span>Slots</button>
+      <button class="cat-pill" data-cat="live"><span class="pill-icon">🎲</span>Live</button>
+      <button class="cat-pill" data-cat="sports"><span class="pill-icon">⚽</span>Sports</button>
+      <button class="cat-pill" data-cat="fishing"><span class="pill-icon">🎣</span>Fishing</button>
+      <button class="cat-pill" data-cat="new"><span class="pill-icon">✨</span>New</button>
+      <button class="cat-pill" data-cat="popular"><span class="pill-icon">⭐</span>Popular</button>
+    </div>
+
+    <!-- GAME GRID SECTION -->
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-title-icon">🎮</div>
+        All Games
+      </div>
+      <div class="section-see-all">See All →</div>
+    </div>
+    <div class="game-grid" id="gameGrid"></div>
+
+    <!-- PROMOTIONS -->
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-title-icon">🎁</div>
+        Promotions
+      </div>
+      <div class="section-see-all">View All →</div>
+    </div>
+    <div class="promos-grid mb-24">
+      <div class="promo-card" onclick="openModal('loginModal')">
+        <img src="images/promo_banner1.png" alt="Welcome Bonus">
+        <div class="promo-card-badge">HOT</div>
+        <div class="promo-card-label">
+          <div style="font-size:0.72rem;color:var(--gold);margin-bottom:3px;">🎁 Welcome Offer</div>
+          500% First Deposit Bonus
+        </div>
+      </div>
+      <div class="promo-card" onclick="openModal('loginModal')">
+        <img src="images/promo_banner2.png" alt="VIP Program">
+        <div class="promo-card-badge" style="background:var(--purple);">VIP</div>
+        <div class="promo-card-label">
+          <div style="font-size:0.72rem;color:var(--purple);margin-bottom:3px;">👑 Exclusive</div>
+          VIP Weekly Cashback 30%
+        </div>
+      </div>
+      <div class="promo-card" onclick="openModal('loginModal')"
+           style="background:linear-gradient(135deg,#0d1a0d,#001a00)">
+        <img src="images/hero_banner.png" alt="Invite Friends" style="opacity:0.7">
+        <div class="promo-card-label">
+          <div style="font-size:0.72rem;color:var(--green);margin-bottom:3px;">🤝 Referral</div>
+          Invite Friends — Earn ₨ 555 Each
+        </div>
+      </div>
+    </div>
+
+    <!-- VIP BANNER -->
+    <div class="vip-banner">
+      <div class="vip-banner-left">
+        <div class="vip-label">👑 VIP Program</div>
+        <div class="vip-title">Unlock <span>Elite Rewards</span><br>& Privileges</div>
+        <p class="vip-desc">Climb the VIP ladder to unlock weekly cashback, higher limits, personal account managers, and exclusive bonuses.</p>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-gold" onclick="openModal('loginModal')">Join VIP Now</button>
+          <button class="btn btn-ghost btn-sm">Learn More</button>
+        </div>
+      </div>
+      <div class="vip-levels">
+        <div class="vip-level-chip">
+          <div class="vlc-icon">🥉</div>
+          <div class="vlc-name">Bronze</div>
+        </div>
+        <div class="vip-level-chip">
+          <div class="vlc-icon">🥈</div>
+          <div class="vlc-name">Silver</div>
+        </div>
+        <div class="vip-level-chip active">
+          <div class="vlc-icon">🥇</div>
+          <div class="vlc-name gold-text">Gold</div>
+        </div>
+        <div class="vip-level-chip">
+          <div class="vlc-icon">💎</div>
+          <div class="vlc-name">Diamond</div>
+        </div>
+        <div class="vip-level-chip">
+          <div class="vlc-icon">👑</div>
+          <div class="vlc-name">Royal</div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /homeView -->
+
+    <!-- PROFILE VIEW -->
+    <div id="profileView" class="view-section" style="display:none; animation: fadeUp 0.3s ease;">
+      <div class="section-header">
+        <div class="section-title"><div class="section-title-icon">👤</div> My Profile</div>
+      </div>
+      
+      <!-- Profile Header -->
+      <div class="profile-header mb-24" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;display:flex;align-items:center;gap:20px; flex-wrap:wrap;">
+        <div class="profile-avatar" style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#000;">🤠</div>
+        <div class="profile-info" style="overflow:hidden; max-width:100%;">
+          <h2 id="profUsername" style="margin:0 0 5px;font-size:1.5rem; word-break:break-all;">Loading...</h2>
+          <div style="display:flex;gap:10px;font-size:0.85rem;color:var(--text-muted); flex-wrap:wrap; align-items:center;">
+            <span id="profEmail" style="word-break:break-all;">...</span>
+            <span class="vip-badge" style="display:inline-block;white-space:nowrap;background:var(--gold);color:#000;padding:3px 10px;border-radius:12px;font-weight:700;font-size:0.75rem;">VIP Bronze</span>
+          </div>
+          <div style="margin-top:8px;font-size:0.8rem;color:var(--text-secondary);">Joined: <span id="profJoined">...</span></div>
+        </div>
+      </div>
+
+      <!-- Wallet Stats -->
+      <h3 style="margin-bottom:12px;font-size:1.1rem;color:var(--text-primary);">Wallet & Statistics</h3>
+      <div class="stats-bar mb-24" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));">
+        <div class="stat-card" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div class="stat-label" style="white-space:normal;">Main Balance</div>
+          <div class="stat-value text-gold" id="profMainBal" style="word-break:break-word;">₨ 0.00</div>
+        </div>
+        <div class="stat-card" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div class="stat-label" style="white-space:normal;">Bonus Balance</div>
+          <div class="stat-value text-green" id="profBonusBal" style="word-break:break-word;">₨ 0.00</div>
+        </div>
+        <div class="stat-card" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div class="stat-label" style="white-space:normal;">Total Deposited</div>
+          <div class="stat-value" id="profTotalDep" style="word-break:break-word;">₨ 0.00</div>
+        </div>
+        <div class="stat-card" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div class="stat-label" style="white-space:normal;">Total Withdrawn</div>
+          <div class="stat-value" id="profTotalWith" style="word-break:break-word;">₨ 0.00</div>
+        </div>
+        <div class="stat-card" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div class="stat-label" style="white-space:normal;">Total Wagered</div>
+          <div class="stat-value" id="profTotalWag" style="color:var(--purple); word-break:break-word;">₨ 0.00</div>
+        </div>
+      </div>
+
+      <!-- Settings / Security -->
+      <h3 style="margin-bottom:12px;font-size:1.1rem;color:var(--text-primary);">Security & Verification</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px;">
+        
+        <!-- KYC Card -->
+        <div class="stat-card" style="flex-direction:column; align-items:flex-start; justify-content:space-between; min-height:120px; gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="stat-icon purple" style="margin:0;">🛡️</div>
+            <div style="font-weight:700; line-height:1.2;">Identity Verification (KYC)</div>
+          </div>
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:10px;">
+            Status: <span id="profKycStatus" style="color:var(--red);font-weight:700;text-transform:uppercase;">Unverified</span>
+          </div>
+          <button class="btn btn-ghost btn-sm w-full" onclick="openKycModal()">Verify Identity Now</button>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="stat-card" style="flex-direction:column; align-items:flex-start; justify-content:space-between; min-height:120px; gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="stat-icon red" style="margin:0;">🔒</div>
+            <div style="font-weight:700; line-height:1.2;">Account Security</div>
+          </div>
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:10px;">
+            Keep your password secure and never share it.
+          </div>
+          <button class="btn btn-ghost btn-sm w-full" onclick="showToast('Password reset link sent to your email!','success')">Send Reset Link</button>
+        </div>
+      </div>
+      
+    </div>
+
+  
+    <!-- ── VIP CLUB ── -->
+    <section id="vipView" class="view-section" style="display: none;">
+      <div class="banner" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(205, 127, 50, 0.05)); border: 1px solid rgba(255,215,0,0.2);">
+        <h1 class="banner-title text-yellow">VIP Club</h1>
+        <p>Unlock exclusive rewards, faster withdrawals, and a personal account manager.</p>
+      </div>
+      <div style="padding:20px; max-width:800px; margin:0 auto;">
+        <div class="stat-card" style="margin-bottom:20px; flex-direction:column; align-items:flex-start; border: 1px solid rgba(255,215,0,0.3); background: rgba(25,25,35,0.8);">
+          <h2 style="margin-top:0; color: #fff;">Your VIP Status</h2>
+          <div style="font-size:2rem; font-weight:bold; color:var(--gold); margin-bottom:15px; text-transform: uppercase; letter-spacing: 2px;" id="vipCurrentTier">Bronze</div>
+          <div style="width:100%; background:var(--bg-lighter); height:12px; border-radius:6px; overflow:hidden; margin-bottom:8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
+            <div id="vipProgressBar" style="height:100%; width:0%; background:linear-gradient(90deg, var(--gold), #ffdf00); box-shadow: 0 0 10px rgba(255,215,0,0.5); transition: width 1s ease;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; width:100%; font-size:0.9rem; color:var(--text-muted); font-weight: 500;">
+            <span id="vipCurrentWager">₨0 wagered</span>
+            <span id="vipNextTier">Next Tier: Silver (₨10,000)</span>
+          </div>
+        </div>
+        <div class="game-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+          <div class="stat-card" style="flex-direction:column; text-align:center;">
+            <div class="stat-icon" style="background:linear-gradient(45deg,#cd7f32,#e6a87c); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">🥉</div>
+            <h3>Bronze</h3>
+            <p class="text-sm text-muted">0 - 9,999 PKR<br>Basic Support</p>
+          </div>
+          <div class="stat-card" style="flex-direction:column; text-align:center;">
+            <div class="stat-icon" style="background:linear-gradient(45deg,#c0c0c0,#ececec); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">🥈</div>
+            <h3>Silver</h3>
+            <p class="text-sm text-muted">10K - 99K PKR<br>2% Cashback</p>
+          </div>
+          <div class="stat-card" style="flex-direction:column; text-align:center;">
+            <div class="stat-icon text-gold">🥇</div>
+            <h3>Gold</h3>
+            <p class="text-sm text-muted">100K - 499K PKR<br>5% Cashback</p>
+          </div>
+          <div class="stat-card" style="flex-direction:column; text-align:center;">
+            <div class="stat-icon purple">💎</div>
+            <h3>Diamond</h3>
+            <p class="text-sm text-muted">500K+ PKR<br>10% Cashback</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TRANSACTIONS ── -->
+    <section id="transactionsView" class="view-section" style="display: none;">
+      <div class="banner">
+        <h1 class="banner-title text-green">Transaction History</h1>
+        <p>View your past deposits and withdrawals.</p>
+      </div>
+      <div style="padding:20px;">
+        <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto;">
+          <button class="btn btn-primary" id="btnTxAll" onclick="loadTransactions('all')">All</button>
+          <button class="btn btn-ghost" id="btnTxDep" onclick="loadTransactions('deposits')">Deposits</button>
+          <button class="btn btn-ghost" id="btnTxWit" onclick="loadTransactions('withdrawals')">Withdrawals</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsBody">
+              <tr><td colspan="5" class="table-empty">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SETTINGS ── -->
+    <section id="settingsView" class="view-section" style="display: none;">
+      <div class="banner">
+        <h1 class="banner-title text-muted">Settings</h1>
+        <p>Manage your account preferences and security.</p>
+      </div>
+      <div style="padding:20px; max-width:600px; margin:0 auto;">
+        <div class="stat-card" style="flex-direction:column; align-items:stretch;">
+          <h3>Profile Information</h3>
+          <form id="settingsForm" style="margin-top:15px; display:flex; flex-direction:column; gap:15px;" onsubmit="saveSettings(event)">
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" id="setUname" class="input" placeholder="Your username" required>
+            </div>
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="setFullName" class="input" placeholder="e.g. John Doe">
+            </div>
+            <button type="submit" class="btn btn-primary w-full" id="btnSaveSettings">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── LIVE SUPPORT ── -->
+    <section id="customerView" class="view-section" style="display: none;">
+      <div class="banner">
+        <h1 class="banner-title text-yellow">Live Support</h1>
+        <p>We're here to help you 24/7.</p>
+      </div>
+      <div style="padding:20px; display:flex; flex-wrap:wrap; gap:20px;">
+        <div style="flex:1; min-width:300px;">
+          <div class="stat-card" style="flex-direction:column; align-items:stretch; height:400px; background: rgba(25,25,35,0.7); border: 1px solid rgba(255,255,255,0.1);">
+            <div style="padding-bottom:10px; border-bottom:1px solid var(--border); margin-bottom:10px; font-weight:bold; display: flex; align-items: center; gap: 10px;">
+              <span class="text-green">●</span> Live Chat Agent
+            </div>
+            <div id="chatMessages" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:5px; margin-bottom:10px;">
+              <div style="background:var(--primary); padding:10px 15px; border-radius:15px 15px 15px 0; align-self:flex-start; max-width:80%; color:#fff;">
+                Hello! Welcome to AVAITOR Support. How can we help you today?
+              </div>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <input type="text" id="chatInput" class="input" placeholder="Type a message..." style="flex:1;" onkeypress="if(event.key==='Enter') sendChatMessage()">
+              <button class="btn btn-primary" onclick="sendChatMessage()">Send</button>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1; min-width:300px; display:flex; flex-direction:column; gap:20px;">
+          <div class="stat-card" style="flex-direction:column; align-items:flex-start;">
+            <h3>Frequently Asked Questions</h3>
+            <div style="margin-top:15px; width:100%;">
+              <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                <p style="font-weight:bold; margin-bottom:5px;">How long do withdrawals take?</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Usually processed within 15-30 minutes. Crypto is faster.</p>
+              </div>
+              <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                <p style="font-weight:bold; margin-bottom:5px;">What is the minimum deposit?</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">The minimum deposit is ₨100. Minimum withdrawal is ₨500.</p>
+              </div>
+              <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px;">
+                <p style="font-weight:bold; margin-bottom:5px;">Is KYC mandatory?</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">KYC is only required for withdrawals over ₨50,000.</p>
+              </div>
+            </div>
+          </div>
+          <div class="stat-card" style="flex-direction:column; align-items:flex-start; background: linear-gradient(135deg, rgba(230, 0, 0, 0.1), transparent);">
+            <h3>Contact Email</h3>
+            <p style="color:var(--text-muted); margin-top:5px; font-size: 1.1rem; font-weight:bold;">support@avaitor.com</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-text">✈ AVAITOR</div>
+        <p class="footer-desc">
+          AVAITOR Casino is a premium online gaming platform offering crash games, slots, live casino, sports betting and more. Play responsibly.
+        </p>
+        <div class="footer-social">
+          <div class="footer-social-btn" title="Telegram">📱</div>
+          <div class="footer-social-btn" title="WhatsApp">💬</div>
+          <div class="footer-social-btn" title="Facebook">📘</div>
+          <div class="footer-social-btn" title="Instagram">📸</div>
+          <div class="footer-social-btn" title="Twitter">🐦</div>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Games</div>
+        <div class="footer-links">
+          <span class="footer-link">✈️ Aviator</span>
+          <span class="footer-link">🎰 Slots</span>
+          <span class="footer-link">🎲 Live Casino</span>
+          <span class="footer-link">⚽ Sports</span>
+          <span class="footer-link">🎣 Fishing</span>
+          <span class="footer-link">💣 Mines</span>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Promotions</div>
+        <div class="footer-links">
+          <span class="footer-link">🎁 Welcome Bonus</span>
+          <span class="footer-link">👑 VIP Program</span>
+          <span class="footer-link">🤝 Refer & Earn</span>
+          <span class="footer-link">💰 Daily Cashback</span>
+          <span class="footer-link">🎟️ Lucky Spin</span>
+          <span class="footer-link">📅 Weekly Tasks</span>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Support</div>
+        <div class="footer-links">
+          <span class="footer-link">💬 Live Chat</span>
+          <span class="footer-link">📧 Email Support</span>
+          <span class="footer-link">❓ FAQ</span>
+          <span class="footer-link">🔒 Privacy Policy</span>
+          <span class="footer-link">📜 Terms of Service</span>
+          <span class="footer-link">⚖️ Responsible Gaming</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="payment-icons mb-16">
+      <div class="payment-icon">💳 EasyPaisa</div>
+      <div class="payment-icon">🏦 JazzCash</div>
+      <div class="payment-icon">🏛️ Bank Transfer</div>
+      <div class="payment-icon">₿ USDT</div>
+      <div class="payment-icon">💎 TRC20</div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copyright">© 2026 AVAITOR Casino. All rights reserved. 18+ Only.</div>
+      <div class="footer-badges">
+        <div class="footer-badge"><span>🔒</span> SSL Secured</div>
+        <div class="footer-badge"><span>✅</span> Provably Fair</div>
+        <div class="footer-badge"><span>🎮</span> Responsible Gaming</div>
+        <div class="footer-badge"><span>🔞</span> 18+</div>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /main-content -->
+
+<!-- ═══════════════════════════════════════
+     BOTTOM NAVIGATION (mobile)
+═══════════════════════════════════════ -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <div class="bnav-item active" data-cat="all" onclick="switchView('homeView')">
+      <span class="bnav-icon">🏠</span>
+      <span class="bnav-label">Home</span>
+    </div>
+    <div class="bnav-item" onclick="openModal('loginModal')">
+      <span class="bnav-icon">🎁</span>
+      <span class="bnav-label">Promo</span>
+    </div>
+    <div class="bnav-item-center" id="depositBtn2" onclick="document.getElementById('depositBtn').click()">
+      💳
+    </div>
+    <div class="bnav-item" onclick="if(loggedIn()) switchView('profileView'); else openModal('loginModal');">
+      <span class="bnav-icon">👤</span>
+      <span class="bnav-label">Profile</span>
+    </div>
+    <div class="bnav-item" onclick="toggleSidebar()">
+      <span class="bnav-icon">☰</span>
+      <span class="bnav-label">Menu</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     MODALS
+═══════════════════════════════════════ -->
+
+<!-- LOGIN / REGISTER MODAL -->
+<div class="modal-backdrop" id="loginModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🎮 Welcome to AVAITOR</div>
+      <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Tabs -->
+      <div class="modal-tabs">
+        <div class="modal-tab active" id="tabLogin" onclick="switchAuthTab('login')">Login</div>
+        <div class="modal-tab" id="tabRegister" onclick="switchAuthTab('register')">Register</div>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" style="display:block;">
+        <div id="googleLoginContainer" style="display:flex; justify-content:center; margin-bottom:14px;"></div>
+        <div class="form-divider">or continue with email/phone</div>
+        <div class="form-group">
+          <label class="form-label">Phone / Username</label>
+          <div class="form-input-icon">
+            <span class="input-icon">📱</span>
+            <input class="form-input" type="text" id="loginUser" placeholder="+92 300 0000000" autocomplete="tel">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="form-input-icon" style="position:relative;">
+            <span class="input-icon">🔒</span>
+            <input class="form-input" type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password">
+            <span class="input-password-toggle" style="position:absolute;right:13px;top:50%;transform:translateY(-50%);cursor:pointer;">👁️</span>
+          </div>
+        </div>
+        <div class="form-check-row">
+          <input type="checkbox" id="rememberMe" checked>
+          <label for="rememberMe">Remember me</label>
+          <span class="form-link" style="margin-left:auto;" onclick="showToast('Reset link sent!','success')">Forgot password?</span>
+        </div>
+        <button type="submit" class="btn btn-gold btn-full btn-lg" id="loginSubmitBtn">Login Now →</button>
+
+        <p id="loginError" style="color:var(--red);font-size:0.85rem;text-align:center;margin-top:10px;display:none;"></p>
+        <p style="text-align:center;margin-top:14px;font-size:0.8rem;color:var(--text-muted);">
+          No account? <span class="form-link" onclick="switchAuthTab('register')">Register here</span>
+        </p>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="registerForm" style="display:none;">
+        <div id="googleRegisterContainer" style="display:flex; justify-content:center; margin-bottom:14px;"></div>
+        <div class="form-divider">or continue with email/phone</div>
+        <div class="form-group">
+          <label class="form-label">Phone / Email</label>
+          <div class="form-input-icon">
+            <span class="input-icon">📱</span>
+            <input class="form-input" type="text" id="regLogin" placeholder="Enter Phone or Email" autocomplete="username">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="form-input-icon" style="position:relative;">
+            <span class="input-icon">🔒</span>
+            <input class="form-input" type="password" id="regPass" placeholder="Min. 6 characters" autocomplete="new-password">
+            <span class="input-password-toggle" style="position:absolute;right:13px;top:50%;transform:translateY(-50%);cursor:pointer;">👁️</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Invite Code (Optional)</label>
+          <div class="form-input-icon">
+            <span class="input-icon">🎟️</span>
+            <input class="form-input" type="text" id="regRefCode" placeholder="Enter referral code">
+          </div>
+        </div>
+        <div class="form-check-row">
+          <input type="checkbox" id="agreeTerms" required>
+          <label for="agreeTerms">I am 18+ and agree to <span class="form-link">Terms of Service</span></label>
+        </div>
+        <button type="submit" class="btn btn-gold btn-full btn-lg" id="registerSubmitBtn">🎁 Create Account & Get Bonus</button>
+
+        <p id="registerError" style="color:var(--red);font-size:0.85rem;text-align:center;margin-top:10px;display:none;"></p>
+        <p style="text-align:center;margin-top:14px;font-size:0.8rem;color:var(--text-muted);">
+          Already have an account? <span class="form-link" onclick="switchAuthTab('login')">Login</span>
+        </p>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- DEPOSIT MODAL -->
+<div class="modal-backdrop" id="depositModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">💳 Deposit Funds</div>
+      <button class="modal-close" onclick="closeModal('depositModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs" id="depositTabs" style="margin-bottom:16px;">
+        <!-- Filled via JS -->
+      </div>
+      <div id="depositInstructions" style="margin-bottom:16px;font-size:0.9rem;color:var(--text-muted);display:none;"></div>
+      <div id="depositDetails" style="background:var(--bg-card);padding:10px;border-radius:var(--radius-sm);margin-bottom:16px;display:none;font-family:monospace;font-size:0.85rem;"></div>
+
+      <form id="depositForm">
+        <input type="hidden" id="depositMethodId">
+        <input type="hidden" id="depositMethodName">
+        <div class="form-group">
+          <label class="form-label">Amount (PKR)</label>
+          <div class="form-input-icon">
+            <span class="input-icon">₨</span>
+            <input class="form-input" type="number" id="depositAmount" placeholder="Amount">
+          </div>
+        </div>
+        <!-- Quick amounts -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('depositAmount').value=500">₨ 500</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('depositAmount').value=1000">₨ 1,000</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('depositAmount').value=5000">₨ 5,000</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('depositAmount').value=10000">₨ 10,000</button>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Reference Number / TxID (Required)</label>
+          <input class="form-input" type="text" id="depositRef" required placeholder="Enter transaction reference">
+        </div>
+
+        <div style="background:rgba(0,230,118,0.07);border:1px solid rgba(0,230,118,0.2);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;font-size:0.8rem;color:var(--green);">
+          🎁 First deposit bonus: <strong>500% up to ₨ 50,000!</strong>
+        </div>
+        <button type="submit" class="btn btn-gold btn-full btn-lg">Submit Deposit Request →</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- WITHDRAWAL MODAL -->
+<div class="modal-backdrop" id="withdrawModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">💸 Withdraw Funds</div>
+      <button class="modal-close" onclick="closeModal('withdrawModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs" id="withdrawTabs" style="margin-bottom:16px;">
+        <!-- Filled via JS -->
+      </div>
+      <div id="withdrawInstructions" style="margin-bottom:16px;font-size:0.9rem;color:var(--text-muted);display:none;"></div>
+
+      <form id="withdrawForm">
+        <input type="hidden" id="withdrawMethodId">
+        <input type="hidden" id="withdrawMethodName">
+        <div class="form-group">
+          <label class="form-label">Amount (PKR)</label>
+          <div class="form-input-icon">
+            <span class="input-icon">₨</span>
+            <input class="form-input" type="number" id="withdrawAmount" placeholder="Amount">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Your Account Details (Account No, IBAN, Wallet Address)</label>
+          <textarea class="form-input" id="withdrawDetails" rows="2" required placeholder="Enter details on where to send the funds"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-gold btn-full btn-lg">Submit Withdrawal Request →</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast Container ── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// Inline helper for modal close buttons
+document.querySelectorAll('[data-close-modal]').forEach(btn => {
+  btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
+});
+
+// Auth tab switcher
+function switchAuthTab(tab) {
+  const loginForm    = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const tabLogin     = document.getElementById('tabLogin');
+  const tabRegister  = document.getElementById('tabRegister');
+  if (tab === 'login') {
+    loginForm.style.display    = 'block';
+    registerForm.style.display = 'none';
+    tabLogin.classList.add('active');
+    tabRegister.classList.remove('active');
+  } else {
+    loginForm.style.display    = 'none';
+    registerForm.style.display = 'block';
+    tabRegister.classList.add('active');
+    tabLogin.classList.remove('active');
+  }
+}
+
+// Mobile logo responsive
+function checkMobile() {
+  const ml = document.getElementById('mobileLogo');
+  if (ml) ml.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+}
+checkMobile();
+window.addEventListener('resize', checkMobile);
+
+</script>
+<script src="js/api.js"></script>
+<script src="js/main.js"></script>
+
+<!-- KYC Modal -->
+<div class="modal-overlay" id="kycModal" onclick="if(event.target===this) closeModal('kycModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Identity Verification (KYC)</h2>
+      <button class="close-btn" onclick="closeModal('kycModal')">×</button>
+    </div>
+    <div style="margin-bottom:15px; color:var(--text-muted); font-size:0.9rem;">
+      Upload a valid government-issued ID to verify your identity. This helps secure your account.
+    </div>
+    <form id="kycForm" onsubmit="submitKyc(event)">
+      <div class="form-group">
+        <label>Document Type</label>
+        <select class="input" id="kycDocType" required>
+          <option value="cnic">CNIC / ID Card</option>
+          <option value="passport">Passport</option>
+          <option value="license">Driver's License</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Upload Document Front Image</label>
+        <div style="border: 2px dashed var(--border); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.02);" onclick="document.getElementById('kycFrontFile').click()">
+          <span style="font-size:2rem; opacity:0.5;">📄</span>
+          <p style="margin:10px 0 0 0; color:var(--text-muted); font-size:0.85rem;">Click to browse or drag and drop</p>
+        </div>
+        <input type="file" id="kycFrontFile" style="display:none;" accept="image/*" required>
+      </div>
+      <div class="form-group" style="margin-top:15px;">
+        <button type="submit" class="btn btn-primary w-full" id="kycSubmitBtn">Submit for Verification</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

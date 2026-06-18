@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Payment Methods — AVAITOR Admin</title><link rel="stylesheet" href="css/admin.css"></head>
+<body><div class="admin-shell">
+<aside class="admin-sidebar">
+  <div class="sidebar-brand"><div class="brand-icon">✈</div><div class="brand-text">AVAITOR <span>Admin</span></div></div>
+  <div class="sidebar-section"><span class="sidebar-section-label">Overview</span></div>
+  <a href="dashboard.html" class="nav-link"><span class="nav-icon">📊</span>Dashboard</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">Management</span></div>
+  <a href="users.html"       class="nav-link"><span class="nav-icon">👥</span>Users</a>
+  <a href="deposits.html"    class="nav-link"><span class="nav-icon">💳</span>Deposits</a>
+  <a href="withdrawals.html" class="nav-link"><span class="nav-icon">💸</span>Withdrawals</a>
+  <a href="wallet.html"      class="nav-link"><span class="nav-icon">👛</span>Wallets</a>
+  <a href="referrals.html"   class="nav-link"><span class="nav-icon">🤝</span>Referrals</a>
+  <a href="games.html"       class="nav-link"><span class="nav-icon">🎮</span>Games</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">System</span></div>
+  <a href="payment-methods.html" class="nav-link active"><span class="nav-icon">🏦</span>Payment Methods</a>
+  <a href="settings.html"    class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  <a href="logs.html"        class="nav-link"><span class="nav-icon">📋</span>Audit Logs</a>
+  <div class="sidebar-footer">
+    <div class="admin-info"><div class="admin-avatar" id="sidebarAdminInit">A</div><div><div class="admin-name" id="sidebarAdminName">Admin</div><div class="admin-role" id="sidebarAdminRole">Super Admin</div></div></div>
+    <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+  </div>
+</aside>
+
+<div class="admin-main">
+  <header class="admin-header">
+    <div class="page-title">🏦 Payment Methods</div>
+    <div class="header-right">
+      <button class="btn btn-gold" onclick="openMethodModal()">➕ Add Method</button>
+    </div>
+  </header>
+  <div class="admin-body">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <span class="section-title">Manage Deposit & Withdrawal Methods</span>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Sort Order</th>
+              <th>Min / Max</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="methodsTable">
+            <tr><td colspan="6" class="table-empty">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="methodModal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add Payment Method</div>
+      <button class="modal-close" onclick="closeModal('methodModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="methodId">
+      
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Method Name</label>
+          <input type="text" class="form-control" id="mName" placeholder="e.g. EasyPaisa, USDT TRC20">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-control" id="mType">
+            <option value="both">Both (Deposit & Withdrawal)</option>
+            <option value="deposit">Deposit Only</option>
+            <option value="withdrawal">Withdrawal Only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Min Amount (PKR)</label>
+          <input type="number" class="form-control" id="mMin" placeholder="Leave blank for global setting">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Amount (PKR)</label>
+          <input type="number" class="form-control" id="mMax" placeholder="Leave blank for global setting">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-control" id="mStatus">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sort Order</label>
+          <input type="number" class="form-control" id="mSort" value="0">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Instructions for User</label>
+        <textarea class="form-control" id="mInstructions" rows="2" placeholder="e.g. Please send the amount to this number..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Account Details (JSON format - strictly {"key":"value"})</label>
+        <textarea class="form-control font-mono text-sm" id="mDetails" rows="3" placeholder='{"account_name": "John Doe", "account_number": "03001234567"}'></textarea>
+        <div class="text-sm text-muted" style="margin-top:4px">Used for deposits (to show your receiving details). Withdrawals will ask the user for these fields.</div>
+      </div>
+      
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('methodModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveMethod()" id="saveBtn">Save Method</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/api.js"></script>
+<script>
+guardAuth();
+
+let allMethods = [];
+
+async function loadMethods() {
+  try {
+    const d = await GET('/admin/payment-methods');
+    allMethods = d.payment_methods || [];
+    renderTable();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function renderTable() {
+  const tbody = document.getElementById('methodsTable');
+  if (allMethods.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No payment methods found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = allMethods.map(m => `
+    <tr>
+      <td class="font-bold">${m.name}</td>
+      <td><span class="tag">${m.type}</span></td>
+      <td>${badge(m.status)}</td>
+      <td>${m.sort_order}</td>
+      <td class="text-sm text-muted">
+        Min: ${m.min_amount ? fmtPKR(m.min_amount) : 'Global'} <br>
+        Max: ${m.max_amount ? fmtPKR(m.max_amount) : 'Global'}
+      </td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editMethod('${m.id}')">✏️ Edit</button>
+        <button class="btn btn-ghost btn-sm text-red" onclick="deleteMethod('${m.id}')">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openMethodModal() {
+  document.getElementById('modalTitle').textContent = 'Add Payment Method';
+  document.getElementById('methodId').value = '';
+  document.getElementById('mName').value = '';
+  document.getElementById('mType').value = 'both';
+  document.getElementById('mMin').value = '';
+  document.getElementById('mMax').value = '';
+  document.getElementById('mStatus').value = 'active';
+  document.getElementById('mSort').value = '0';
+  document.getElementById('mInstructions').value = '';
+  document.getElementById('mDetails').value = '{}';
+  openModal('methodModal');
+}
+
+function editMethod(id) {
+  const m = allMethods.find(x => x.id === id);
+  if (!m) return;
+  document.getElementById('modalTitle').textContent = 'Edit Payment Method';
+  document.getElementById('methodId').value = m.id;
+  document.getElementById('mName').value = m.name;
+  document.getElementById('mType').value = m.type;
+  document.getElementById('mMin').value = m.min_amount || '';
+  document.getElementById('mMax').value = m.max_amount || '';
+  document.getElementById('mStatus').value = m.status;
+  document.getElementById('mSort').value = m.sort_order;
+  document.getElementById('mInstructions').value = m.instructions || '';
+  document.getElementById('mDetails').value = JSON.stringify(m.details || {});
+  openModal('methodModal');
+}
+
+async function saveMethod() {
+  const id = document.getElementById('methodId').value;
+  
+  let parsedDetails = {};
+  try {
+    const rawDetails = document.getElementById('mDetails').value.trim() || '{}';
+    parsedDetails = JSON.parse(rawDetails);
+  } catch (e) {
+    showToast('Account Details must be valid JSON', 'error');
+    return;
+  }
+
+  const payload = {
+    name: document.getElementById('mName').value.trim(),
+    type: document.getElementById('mType').value,
+    status: document.getElementById('mStatus').value,
+    sort_order: parseInt(document.getElementById('mSort').value) || 0,
+    instructions: document.getElementById('mInstructions').value.trim(),
+    details: parsedDetails
+  };
+
+  const minA = document.getElementById('mMin').value;
+  const maxA = document.getElementById('mMax').value;
+  if (minA) payload.min_amount = parseFloat(minA); else payload.min_amount = null;
+  if (maxA) payload.max_amount = parseFloat(maxA); else payload.max_amount = null;
+
+  if (!payload.name) { showToast('Name is required', 'error'); return; }
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    if (id) {
+      await PATCH('/admin/payment-methods/' + id, payload);
+      showToast('✅ Method updated');
+    } else {
+      await POST('/admin/payment-methods', payload);
+      showToast('✅ Method created');
+    }
+    closeModal('methodModal');
+    loadMethods();
+  } catch(e) { showToast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Save Method'; }
+}
+
+async function deleteMethod(id) {
+  if (!confirm('Are you sure you want to delete this payment method?')) return;
+  try {
+    await DELETE('/admin/payment-methods/' + id);
+    showToast('✅ Method deleted');
+    loadMethods();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+document.addEventListener('DOMContentLoaded', loadMethods);
+</script>
+</body></html>

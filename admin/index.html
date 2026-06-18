@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Login — AVAITOR Casino</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="brand-icon" style="margin:0 auto 10px;">✈</div>
+      <h1>AVAITOR <span>Admin</span></h1>
+      <p>Secure management console</p>
+    </div>
+
+    <div id="loginError" style="display:none;background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.25);border-radius:8px;padding:10px 14px;font-size:0.82rem;color:#FF1744;margin-bottom:14px;"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label class="form-label">Admin Email</label>
+        <input class="form-control" type="email" id="loginEmail" placeholder="admin@avaitor.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-control" type="password" id="loginPassword" placeholder="Enter password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-gold btn-full" style="padding:11px;font-size:0.9rem;margin-top:4px;" id="loginBtn">
+        Sign In →
+      </button>
+    </form>
+
+    <div style="margin-top:20px;text-align:center;font-size:0.72rem;color:var(--text3);">
+      🔒 Secured Admin Access Only · AVAITOR Casino
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/api.js"></script>
+<script>
+  // Redirect if already logged in
+  if (isLoggedIn()) window.location.href = '/admin/dashboard.html';
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn   = document.getElementById('loginBtn');
+    const errEl = document.getElementById('loginError');
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    btn.textContent = 'Signing in…';
+    btn.disabled = true;
+    errEl.style.display = 'none';
+
+    try {
+      const data = await fetch('/api/auth/admin-login', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email, password }),
+      }).then(r => r.json());
+
+      if (data.error) throw new Error(data.error);
+
+      setToken(data.token);
+      setAdminInfo(data.admin);
+      showToast('✅ Welcome back, ' + data.admin.username + '!');
+      setTimeout(() => { window.location.href = '/admin/dashboard.html'; }, 600);
+    } catch (err) {
+      errEl.textContent = err.message || 'Login failed';
+      errEl.style.display = 'block';
+      btn.textContent = 'Sign In →';
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

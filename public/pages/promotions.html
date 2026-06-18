@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="AVAITOR Casino Promotions — Bonuses, VIP rewards, cashback and referral programs.">
+  <title>Promotions — AVAITOR Casino</title>
+  <link rel="icon" href="../images/logo_icon.png" type="image/png">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .promos-hero {
+      background: linear-gradient(135deg, #1a0a00, #0f0500);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .promos-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(255,215,0,0.12), transparent 70%);
+    }
+    .promos-hero h1 { font-size: 2.2rem; font-weight: 900; font-family: 'Outfit', sans-serif; margin-bottom: 10px; }
+    .promos-hero h1 span { color: var(--gold); }
+    .promos-hero p { color: var(--text-secondary); font-size: 0.95rem; max-width: 500px; margin: 0 auto 20px; }
+    .promo-full-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .promo-full-card:hover { border-color: var(--border-gold); transform: translateY(-2px); box-shadow: var(--shadow-gold); }
+    .promo-full-card-inner { display: flex; }
+    .promo-full-img { width: 240px; flex-shrink: 0; position: relative; overflow: hidden; }
+    .promo-full-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+    .promo-full-card:hover .promo-full-img img { transform: scale(1.05); }
+    .promo-full-body { padding: 24px; flex: 1; }
+    .promo-type-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .promo-full-title { font-size: 1.2rem; font-weight: 800; font-family: 'Outfit', sans-serif; margin-bottom: 8px; }
+    .promo-full-title span { color: var(--gold); }
+    .promo-full-desc { font-size: 0.83rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
+    .promo-details { display: flex; gap: 20px; margin-bottom: 18px; flex-wrap: wrap; }
+    .promo-detail { display: flex; flex-direction: column; }
+    .promo-detail-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 3px; }
+    .promo-detail-value { font-size: 0.9rem; font-weight: 700; }
+    .promo-timer { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; }
+    @media (max-width: 640px) {
+      .promo-full-card-inner { flex-direction: column; }
+      .promo-full-img { width: 100%; height: 160px; }
+      .promo-full-body { padding: 16px; }
+      .promos-hero h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="mainSidebar">
+  <div class="sidebar-logo">
+    <img src="../images/logo_icon.png" alt="AVAITOR">
+    <span class="logo-text">AVAITOR</span>
+  </div>
+  <div class="sidebar-btn-group">
+    <button class="btn btn-gold btn-sm" onclick="window.location.href='../index.html'">🏠 Home</button>
+    <button class="btn btn-ghost btn-sm" onclick="showToast('Login required','warning')">💳 Deposit</button>
+  </div>
+  <span class="sidebar-section-label">Main Menu</span>
+  <nav>
+    <div class="nav-item" onclick="window.location.href='../index.html'"><span class="nav-icon">🏠</span> Home</div>
+    <div class="nav-item active"><span class="nav-icon">🎁</span> Promotions</div>
+    <div class="nav-item"><span class="nav-icon">👑</span> VIP Club</div>
+    <div class="nav-item"><span class="nav-icon">🤝</span> Invite & Earn</div>
+  </nav>
+  <span class="sidebar-section-label">Games</span>
+  <nav>
+    <div class="nav-item" onclick="window.location.href='../index.html'"><span class="nav-icon">✈️</span> Crash Games <span class="nav-hot">HOT</span></div>
+    <div class="nav-item" onclick="window.location.href='../index.html'"><span class="nav-icon">🎰</span> Slots</div>
+    <div class="nav-item" onclick="window.location.href='../index.html'"><span class="nav-icon">🎲</span> Live Casino</div>
+    <div class="nav-item" onclick="window.location.href='../index.html'"><span class="nav-icon">⚽</span> Sports</div>
+  </nav>
+</aside>
+
+<div class="main-content">
+  <header class="top-header">
+    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+    <div class="header-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search promotions…">
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn">🔔</button>
+      <button class="btn btn-ghost btn-sm" onclick="window.location.href='../index.html'">Login</button>
+      <button class="btn btn-gold btn-sm" onclick="window.location.href='../index.html'">Register</button>
+    </div>
+  </header>
+
+  <main class="page-body">
+    <!-- Hero -->
+    <div class="promos-hero">
+      <h1>🎁 Exclusive <span>Promotions</span></h1>
+      <p>Claim bonuses, cashback and rewards designed to maximize your winnings.</p>
+      <button class="btn btn-gold btn-lg" onclick="window.location.href='../index.html'">Register & Claim Now</button>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="category-filters mb-24">
+      <button class="cat-pill active" onclick="filterPromos('all',this)"><span class="pill-icon">🎁</span>All</button>
+      <button class="cat-pill" onclick="filterPromos('deposit',this)"><span class="pill-icon">💰</span>Deposit</button>
+      <button class="cat-pill" onclick="filterPromos('cashback',this)"><span class="pill-icon">💸</span>Cashback</button>
+      <button class="cat-pill" onclick="filterPromos('vip',this)"><span class="pill-icon">👑</span>VIP</button>
+      <button class="cat-pill" onclick="filterPromos('referral',this)"><span class="pill-icon">🤝</span>Referral</button>
+    </div>
+
+    <div id="promosContainer">
+      <!-- Welcome Bonus -->
+      <div class="promo-full-card" data-type="deposit">
+        <div class="promo-full-card-inner">
+          <div class="promo-full-img"><img src="../images/promo_banner1.png" alt="Welcome Bonus"></div>
+          <div class="promo-full-body">
+            <span class="promo-type-badge" style="background:rgba(255,215,0,0.15);color:var(--gold);border:1px solid rgba(255,215,0,0.3);">💰 Deposit Bonus</span>
+            <div class="promo-full-title">Welcome Bonus <span>500%</span> Up To ₨ 50,000</div>
+            <p class="promo-full-desc">Make your first deposit and receive a massive 500% bonus. Start playing with 5x your money — the perfect launchpad for big wins!</p>
+            <div class="promo-details">
+              <div class="promo-detail"><span class="promo-detail-label">Bonus</span><span class="promo-detail-value text-gold">500%</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Max Bonus</span><span class="promo-detail-value">₨ 50,000</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Min Deposit</span><span class="promo-detail-value">₨ 100</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Wagering</span><span class="promo-detail-value">10x</span></div>
+            </div>
+            <button class="btn btn-gold" onclick="window.location.href='../index.html'">Claim Now →</button>
+            <div class="promo-timer">⏰ Limited time — Ends in: <strong style="color:var(--red)">48:22:11</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIP Cashback -->
+      <div class="promo-full-card" data-type="vip">
+        <div class="promo-full-card-inner">
+          <div class="promo-full-img"><img src="../images/promo_banner2.png" alt="VIP Cashback"></div>
+          <div class="promo-full-body">
+            <span class="promo-type-badge" style="background:rgba(124,77,255,0.15);color:var(--purple);border:1px solid rgba(124,77,255,0.3);">👑 VIP Program</span>
+            <div class="promo-full-title">Weekly Cashback Up To <span>30%</span></div>
+            <p class="promo-full-desc">VIP members enjoy automatic weekly cashback on net losses. The higher your VIP tier, the more you get back — every single week without exception.</p>
+            <div class="promo-details">
+              <div class="promo-detail"><span class="promo-detail-label">Cashback</span><span class="promo-detail-value text-gold">Up to 30%</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Frequency</span><span class="promo-detail-value">Weekly</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Eligible</span><span class="promo-detail-value">VIP Gold+</span></div>
+            </div>
+            <button class="btn btn-gold" onclick="window.location.href='../index.html'">Join VIP →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Cashback -->
+      <div class="promo-full-card" data-type="cashback">
+        <div class="promo-full-card-inner">
+          <div class="promo-full-img"><img src="../images/promo_banner3.png" alt="Daily Cashback"></div>
+          <div class="promo-full-body">
+            <span class="promo-type-badge" style="background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.3);">💸 Daily Cashback</span>
+            <div class="promo-full-title">Daily Loss Cashback <span>15%</span></div>
+            <p class="promo-full-desc">Never end a day empty-handed. Get 15% cashback on your daily net losses, credited directly to your account every midnight. No wagering requirements!</p>
+            <div class="promo-details">
+              <div class="promo-detail"><span class="promo-detail-label">Rate</span><span class="promo-detail-value text-gold">15%</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Max Cashback</span><span class="promo-detail-value">₨ 10,000</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Wagering</span><span class="promo-detail-value">0x ✅</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Paid</span><span class="promo-detail-value">Daily 00:00</span></div>
+            </div>
+            <button class="btn btn-gold" onclick="window.location.href='../index.html'">Activate →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Referral -->
+      <div class="promo-full-card" data-type="referral">
+        <div class="promo-full-card-inner">
+          <div class="promo-full-img"><img src="../images/refer_banner.png" alt="Refer & Earn"></div>
+          <div class="promo-full-body">
+            <span class="promo-type-badge" style="background:rgba(92,107,192,0.15);color:#7986CB;border:1px solid rgba(92,107,192,0.3);">🤝 Referral</span>
+            <div class="promo-full-title">Invite Friends — Earn <span>₨ 555</span> Per Friend</div>
+            <p class="promo-full-desc">Share your unique referral link and earn ₨ 555 for every friend who registers and makes a deposit. Unlimited earnings — no cap on how many friends you invite!</p>
+            <div class="promo-details">
+              <div class="promo-detail"><span class="promo-detail-label">Per Referral</span><span class="promo-detail-value text-gold">₨ 555</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Friends Limit</span><span class="promo-detail-value">Unlimited</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Min Deposit</span><span class="promo-detail-value">₨ 200</span></div>
+            </div>
+            <button class="btn btn-gold" onclick="window.location.href='../index.html'">Get My Link →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reload Bonus -->
+      <div class="promo-full-card" data-type="deposit">
+        <div class="promo-full-card-inner">
+          <div class="promo-full-img"><img src="../images/hero_banner.png" alt="Reload Bonus"></div>
+          <div class="promo-full-body">
+            <span class="promo-type-badge" style="background:rgba(255,170,9,0.15);color:#FFAA09;border:1px solid rgba(255,170,9,0.3);">🔄 Reload Bonus</span>
+            <div class="promo-full-title">Weekend <span>200%</span> Reload Bonus</div>
+            <p class="promo-full-desc">Every weekend is a new chance to boost your balance. Deposit any amount on Saturday or Sunday and get an automatic 200% reload bonus. Enjoy every week!</p>
+            <div class="promo-details">
+              <div class="promo-detail"><span class="promo-detail-label">Bonus</span><span class="promo-detail-value text-gold">200%</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Max Bonus</span><span class="promo-detail-value">₨ 20,000</span></div>
+              <div class="promo-detail"><span class="promo-detail-label">Days</span><span class="promo-detail-value">Sat & Sun</span></div>
+            </div>
+            <button class="btn btn-gold" onclick="window.location.href='../index.html'">Claim Reload →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-bottom">
+      <div class="footer-copyright">© 2026 AVAITOR Casino. All rights reserved. 18+ Only.</div>
+      <div class="footer-badges">
+        <div class="footer-badge"><span>🔒</span> SSL Secured</div>
+        <div class="footer-badge"><span>✅</span> Provably Fair</div>
+        <div class="footer-badge"><span>🔞</span> 18+</div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <div class="bnav-item" onclick="window.location.href='../index.html'"><span class="bnav-icon">🏠</span><span class="bnav-label">Home</span></div>
+    <div class="bnav-item active"><span class="bnav-icon">🎁</span><span class="bnav-label">Promo</span></div>
+    <div class="bnav-item-center">💳</div>
+    <div class="bnav-item"><span class="bnav-icon">👤</span><span class="bnav-label">Profile</span></div>
+    <div class="bnav-item" onclick="toggleSidebar()"><span class="bnav-icon">☰</span><span class="bnav-label">Menu</span></div>
+  </div>
+</nav>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+let sidebarOpen = false;
+function toggleSidebar() {
+  const sidebar = document.getElementById('mainSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebarOpen = !sidebarOpen;
+  sidebar?.classList.toggle('open', sidebarOpen);
+  overlay?.classList.toggle('open', sidebarOpen);
+}
+document.getElementById('sidebarToggle')?.addEventListener('click', toggleSidebar);
+document.getElementById('sidebarOverlay')?.addEventListener('click', () => { sidebarOpen = false; document.getElementById('mainSidebar')?.classList.remove('open'); document.getElementById('sidebarOverlay')?.classList.remove('open'); });
+
+function showToast(msg, type = 'success') {
+  const icons = { success:'✅', error:'❌', warning:'⚠️' };
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type !== 'success' ? type : ''}`;
+  t.innerHTML = `<span class="toast-icon">${icons[type]||'✅'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+function filterPromos(type, el) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.promo-full-card').forEach(card => {
+    if (type === 'all' || card.dataset.type === type) card.style.display = 'block';
+    else card.style.display = 'none';
+  });
+}
+
+// Countdown timer
+function updateTimers() {
+  const el = document.querySelector('.promo-timer strong');
+  if (!el) return;
+  const parts = el.textContent.split(':').map(Number);
+  parts[2]--;
+  if (parts[2] < 0) { parts[2] = 59; parts[1]--; }
+  if (parts[1] < 0) { parts[1] = 59; parts[0]--; }
+  if (parts[0] < 0) return;
+  el.textContent = parts.map(n => String(n).padStart(2,'0')).join(':');
+}
+setInterval(updateTimers, 1000);
+</script>
+</body>
+</html>

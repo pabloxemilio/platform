@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dashboard — AVAITOR Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="admin-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">✈</div>
+      <div class="brand-text">AVAITOR <span>Casino</span></div>
+      <div class="brand-badge">Admin</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="users.html"     class="nav-link"><span class="nav-icon">👥</span> Users</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Finance</div>
+      <a href="deposits.html"    class="nav-link"><span class="nav-icon">💰</span> Deposits</a>
+      <a href="withdrawals.html" class="nav-link"><span class="nav-icon">💸</span> Withdrawals</a>
+      <a href="wallets.html"     class="nav-link"><span class="nav-icon">👛</span> Wallets</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Platform</div>
+      <a href="referrals.html" class="nav-link"><span class="nav-icon">🔗</span> Referrals</a>
+      <a href="games.html"     class="nav-link"><span class="nav-icon">🎮</span> Games</a>
+      <a href="payment-methods.html" class="nav-link"><span class="nav-icon">🏦</span>Payment Methods</a>
+  <a href="settings.html"  class="nav-link"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="logs.html"      class="nav-link"><span class="nav-icon">📋</span> Audit Logs</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="admin-info">
+        <div class="admin-avatar" id="sidebarAdminInit">A</div>
+        <div>
+          <div class="admin-name" id="sidebarAdminName">Admin</div>
+          <div class="admin-role" id="sidebarAdminRole">Super Admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">🚪 Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="page-title">📊 Dashboard</div>
+      <div class="header-right">
+        <div class="header-badge"><div class="pulse-dot"></div> Live</div>
+        <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">↻ Refresh</button>
+      </div>
+    </header>
+
+    <div class="admin-body">
+
+      <!-- STAT CARDS -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><div class="stat-icon-wrap icon-gold">👥</div><div class="stat-body"><div class="stat-label">Total Users</div><div class="stat-value" id="statUsers">—</div><div class="stat-sub" id="statUsersToday">loading…</div></div></div>
+        <div class="stat-card"><div class="stat-icon-wrap icon-green">💰</div><div class="stat-body"><div class="stat-label">Total Deposited</div><div class="stat-value" id="statDeposits">—</div><div class="stat-sub up" id="statDepositsToday">loading…</div></div></div>
+        <div class="stat-card"><div class="stat-icon-wrap icon-red">💸</div><div class="stat-body"><div class="stat-label">Total Withdrawn</div><div class="stat-value" id="statWithdrawals">—</div><div class="stat-sub" id="statPending">loading…</div></div></div>
+        <div class="stat-card"><div class="stat-icon-wrap icon-purple">🎮</div><div class="stat-body"><div class="stat-label">Game Sessions</div><div class="stat-value" id="statSessions">—</div><div class="stat-sub" id="statGGR">loading…</div></div></div>
+      </div>
+
+      <!-- WEEKLY CHART + QUICK STATS -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:22px;">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">📈 Weekly Revenue (Last 7 Days)</div>
+          </div>
+          <div class="chart-area" id="weeklyChart" style="padding-bottom:24px;"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title" style="margin-bottom:14px;">⚡ Quick Stats</div>
+          <div class="info-row"><span class="label">Pending Deposits</span><span class="value text-gold" id="qPendingDep">—</span></div>
+          <div class="info-row"><span class="label">Pending Withdrawals</span><span class="value text-red" id="qPendingWd">—</span></div>
+          <div class="info-row"><span class="label">Active Users Today</span><span class="value text-green" id="qActiveToday">—</span></div>
+          <div class="info-row"><span class="label">New Users (7d)</span><span class="value" id="qNewUsers">—</span></div>
+          <div class="info-row"><span class="label">Net Revenue</span><span class="value text-gold" id="qNetRev">—</span></div>
+        </div>
+      </div>
+
+      <!-- RECENT ACTIVITY TABLES -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;">
+
+        <!-- Recent Deposits -->
+        <div class="table-card">
+          <div class="table-toolbar">
+            <div class="section-title">💰 Recent Deposits</div>
+            <a href="deposits.html" class="btn btn-ghost btn-sm" style="margin-left:auto;">View All →</a>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>User</th><th>Amount</th><th>Method</th><th>Status</th><th>Time</th></tr></thead>
+              <tbody id="recentDepositsBody"><tr><td colspan="5" class="table-empty">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Withdrawals -->
+        <div class="table-card">
+          <div class="table-toolbar">
+            <div class="section-title">💸 Recent Withdrawals</div>
+            <a href="withdrawals.html" class="btn btn-ghost btn-sm" style="margin-left:auto;">View All →</a>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>User</th><th>Amount</th><th>Method</th><th>Status</th><th>Time</th></tr></thead>
+              <tbody id="recentWithdrawalsBody"><tr><td colspan="5" class="table-empty">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Users -->
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="section-title">👥 New Users</div>
+          <a href="users.html" class="btn btn-ghost btn-sm" style="margin-left:auto;">View All →</a>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>User</th><th>Phone / Email</th><th>Status</th><th>Joined</th></tr></thead>
+            <tbody id="recentUsersBody"><tr><td colspan="4" class="table-empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/api.js"></script>
+<script>
+guardAuth();
+
+async function loadDashboard() {
+  try {
+    const d = await GET('/admin/dashboard');
+
+    // Stats
+    const s = d.stats || {};
+    document.getElementById('statUsers').textContent       = fmt(s.total_users || 0, 0);
+    document.getElementById('statUsersToday').textContent  = `+${s.new_users_today || 0} today`;
+    document.getElementById('statDeposits').textContent    = fmtPKR(s.total_deposited || 0);
+    document.getElementById('statDepositsToday').textContent = `${s.pending_deposits || 0} pending`;
+    document.getElementById('statWithdrawals').textContent = fmtPKR(s.total_withdrawn || 0);
+    document.getElementById('statPending').textContent     = `${s.pending_withdrawals || 0} pending`;
+    document.getElementById('statSessions').textContent    = fmt(s.total_sessions || 0, 0);
+    document.getElementById('statGGR').textContent         = `GGR: ${fmtPKR(s.total_ggr || 0)}`;
+
+    // Quick stats
+    document.getElementById('qPendingDep').textContent  = s.pending_deposits  || 0;
+    document.getElementById('qPendingWd').textContent   = s.pending_withdrawals || 0;
+    document.getElementById('qActiveToday').textContent = s.active_today || 0;
+    document.getElementById('qNewUsers').textContent    = s.new_users_week || 0;
+    document.getElementById('qNetRev').textContent      = fmtPKR((s.total_deposited || 0) - (s.total_withdrawn || 0));
+
+    // Weekly chart
+    const weekly = d.weeklyDeposits || [];
+    renderWeeklyChart(weekly);
+
+    // Recent deposits
+    const depRows = (d.recentDeposits || []).map(r => `
+      <tr>
+        <td><span class="font-mono text-sm">${r.user_id?.slice(0,8)}…</span></td>
+        <td class="text-gold font-mono">${fmtPKR(r.amount)}</td>
+        <td><span class="tag">${r.method || '—'}</span></td>
+        <td>${badge(r.status)}</td>
+        <td class="text-muted text-sm">${timeSince(r.created_at)}</td>
+      </tr>`).join('') || '<tr><td colspan="5" class="table-empty">No recent deposits</td></tr>';
+    document.getElementById('recentDepositsBody').innerHTML = depRows;
+
+    // Recent withdrawals
+    const wdRows = (d.recentWithdrawals || []).map(r => `
+      <tr>
+        <td><span class="font-mono text-sm">${r.user_id?.slice(0,8)}…</span></td>
+        <td class="text-red font-mono">${fmtPKR(r.amount)}</td>
+        <td><span class="tag">${r.method || '—'}</span></td>
+        <td>${badge(r.status)}</td>
+        <td class="text-muted text-sm">${timeSince(r.created_at)}</td>
+      </tr>`).join('') || '<tr><td colspan="5" class="table-empty">No recent withdrawals</td></tr>';
+    document.getElementById('recentWithdrawalsBody').innerHTML = wdRows;
+
+    // Recent users
+    const userRows = (d.recentUsers || []).map(r => `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar-sm">${avatarLetter(r.username)}</div>
+            <div class="user-cell-info">
+              <div class="uname">${r.username || '—'}</div>
+              <div class="uid">${r.id?.slice(0,10)}…</div>
+            </div>
+          </div>
+        </td>
+        <td class="text-muted text-sm">${r.phone || r.email || '—'}</td>
+        <td>${badge(r.status || 'active')}</td>
+        <td class="text-muted text-sm">${timeSince(r.created_at)}</td>
+      </tr>`).join('') || '<tr><td colspan="4" class="table-empty">No users yet</td></tr>';
+    document.getElementById('recentUsersBody').innerHTML = userRows;
+
+  } catch (e) {
+    showToast('Failed to load dashboard: ' + e.message, 'error');
+  }
+}
+
+function renderWeeklyChart(data) {
+  const el = document.getElementById('weeklyChart');
+  if (!data || data.length === 0) {
+    el.innerHTML = '<div style="margin:auto;color:var(--text3);font-size:0.8rem;">No data yet</div>';
+    return;
+  }
+
+  // Group by day
+  const days = {};
+  data.forEach(d => {
+    const day = new Date(d.created_at).toLocaleDateString('en-US', { weekday: 'short' });
+    days[day] = (days[day] || 0) + parseFloat(d.amount);
+  });
+
+  const vals = Object.values(days);
+  const max  = Math.max(...vals, 1);
+
+  el.innerHTML = Object.entries(days).map(([label, val]) => {
+    const h = Math.max(4, Math.round((val / max) * 160));
+    return `<div class="chart-bar" style="height:${h}px;" data-label="${label}" title="${label}: ${fmtPKR(val)}"></div>`;
+  }).join('');
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

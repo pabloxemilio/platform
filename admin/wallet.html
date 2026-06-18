@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wallet Management — AVAITOR Admin</title><link rel="stylesheet" href="css/admin.css"></head>
+<body><div class="admin-shell">
+<aside class="admin-sidebar">
+  <div class="sidebar-brand"><div class="brand-icon">✈</div><div class="brand-text">AVAITOR <span>Admin</span></div></div>
+  <div class="sidebar-section"><span class="sidebar-section-label">Overview</span></div>
+  <a href="dashboard.html" class="nav-link"><span class="nav-icon">📊</span>Dashboard</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">Management</span></div>
+  <a href="users.html"       class="nav-link"><span class="nav-icon">👥</span>Users</a>
+  <a href="deposits.html"    class="nav-link"><span class="nav-icon">💳</span>Deposits</a>
+  <a href="withdrawals.html" class="nav-link"><span class="nav-icon">💸</span>Withdrawals</a>
+  <a href="wallet.html"      class="nav-link active"><span class="nav-icon">👛</span>Wallets</a>
+  <a href="referrals.html"   class="nav-link"><span class="nav-icon">🤝</span>Referrals</a>
+  <a href="games.html"       class="nav-link"><span class="nav-icon">🎮</span>Games</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">System</span></div>
+  <a href="payment-methods.html" class="nav-link"><span class="nav-icon">🏦</span>Payment Methods</a>
+  <a href="settings.html"    class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  <a href="logs.html"        class="nav-link"><span class="nav-icon">📋</span>Audit Logs</a>
+  <div class="sidebar-footer">
+    <div class="admin-info"><div class="admin-avatar" id="sidebarAdminInit">A</div><div><div class="admin-name" id="sidebarAdminName">Admin</div><div class="admin-role" id="sidebarAdminRole">Super Admin</div></div></div>
+    <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+  </div>
+</aside>
+
+<div class="admin-main">
+  <header class="admin-header">
+    <div class="page-title">👛 Wallet & Fund Management</div>
+    <div class="header-right"><div class="header-badge"><div class="pulse-dot"></div>Live</div></div>
+  </header>
+  <div class="admin-body">
+
+    <!-- Lookup -->
+    <div class="chart-card mb-22">
+      <div class="chart-header"><div class="chart-title">🔍 Look Up User Wallet</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <div class="form-group" style="margin:0;flex:1">
+          <label class="form-label">User ID (UUID)</label>
+          <input class="form-control" id="walletUserId" placeholder="Paste user UUID here…">
+        </div>
+        <button class="btn btn-gold" onclick="loadWallet()">Load Wallet →</button>
+      </div>
+    </div>
+
+    <div id="walletSection" style="display:none">
+      <!-- Stats -->
+      <div class="stats-grid" style="margin-bottom:18px">
+        <div class="stat-card"><div class="stat-icon-wrap icon-gold">💰</div><div class="stat-body"><div class="stat-label">Main Balance</div><div class="stat-value" id="wMainBal">—</div></div></div>
+        <div class="stat-card"><div class="stat-icon-wrap icon-green">📥</div><div class="stat-body"><div class="stat-label">Total Deposited</div><div class="stat-value text-green" id="wTotalDep">—</div></div></div>
+        <div class="stat-card"><div class="stat-icon-wrap icon-red">📤</div><div class="stat-body"><div class="stat-label">Total Withdrawn</div><div class="stat-value text-red" id="wTotalWd">—</div></div></div>
+        <div class="stat-card"><div class="stat-icon-wrap icon-purple">🎲</div><div class="stat-body"><div class="stat-label">Total Wagered</div><div class="stat-value" id="wTotalWag">—</div></div></div>
+      </div>
+
+      <!-- Wagering Progress -->
+      <div class="chart-card mb-22">
+        <div class="chart-header"><div class="chart-title">🎯 Wagering Requirement Progress</div>
+          <button class="btn btn-red btn-sm" onclick="resetWager()">🔄 Reset Requirement</button>
+        </div>
+        <div class="info-row"><span class="label">Required to wager</span><span class="value" id="wWagReq">—</span></div>
+        <div class="info-row"><span class="label">Already wagered</span><span class="value text-gold" id="wWagComp">—</span></div>
+        <div class="info-row"><span class="label">Remaining</span><span class="value text-red" id="wWagRemain">—</span></div>
+        <div class="progress-wrap" style="margin:14px 0 4px"><div class="progress-bar" id="wagerBar" style="width:0%"></div></div>
+        <div id="wagerPct" class="text-sm text-muted">0% complete — withdrawal locked</div>
+      </div>
+
+      <!-- Actions grid -->
+      <div class="grid-2 mb-22">
+        <!-- Manual Adjustment -->
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">⚖️ Manual Balance Adjustment</div></div>
+          <div class="form-group">
+            <label class="form-label">Amount (positive = add, negative = deduct)</label>
+            <div class="input-group"><span class="input-prefix">₨</span>
+            <input class="form-control" type="number" id="adjustAmount" placeholder="e.g. 500 or -200"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Reason (required for audit log)</label>
+            <input class="form-control" id="adjustDesc" placeholder="e.g. Manual correction, Compensation…">
+          </div>
+          <button class="btn btn-gold btn-full" onclick="adjustBalance()">Apply Adjustment</button>
+        </div>
+
+        <!-- Apply Bonus -->
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">🎁 Apply Bonus</div></div>
+          <div class="form-group">
+            <label class="form-label">Bonus Amount (PKR)</label>
+            <div class="input-group"><span class="input-prefix">₨</span>
+            <input class="form-control" type="number" id="bonusAmount" placeholder="e.g. 1000" min="1"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Wagering Multiplier</label>
+            <input class="form-control" type="number" id="bonusMult" value="10" min="0" max="100" placeholder="10">
+            <div class="text-sm text-muted" style="margin-top:4px">0 = no wagering required</div>
+          </div>
+          <button class="btn btn-gold btn-full" onclick="applyBonus()">Apply Bonus</button>
+        </div>
+      </div>
+
+      <!-- Transaction History -->
+      <div class="table-card">
+        <div class="table-toolbar"><span class="section-title">📋 Transaction History (last 30)</span></div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Type</th><th>Amount</th><th>Before</th><th>After</th><th>Description</th><th>Date</th></tr></thead>
+            <tbody id="txTable"><tr><td colspan="6" class="table-empty">No transactions</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/api.js"></script>
+<script>
+guardAuth();
+let currentUserId = null;
+
+// Auto-fill from URL param ?uid=xxx
+const params = new URLSearchParams(window.location.search);
+if (params.get('uid')) {
+  document.getElementById('walletUserId').value = params.get('uid');
+  window.addEventListener('DOMContentLoaded', () => loadWallet());
+}
+
+async function loadWallet() {
+  const uid = document.getElementById('walletUserId').value.trim();
+  if (!uid) { showToast('Enter a User ID', 'warning'); return; }
+  currentUserId = uid;
+  try {
+    const d = await GET(`/admin/wallets/${uid}`);
+    const w = d.wallet;
+    document.getElementById('wMainBal').textContent   = fmtPKR(w.main_balance);
+    document.getElementById('wTotalDep').textContent  = fmtPKR(w.total_deposited);
+    document.getElementById('wTotalWd').textContent   = fmtPKR(w.total_withdrawn);
+    document.getElementById('wTotalWag').textContent  = fmtPKR(w.total_wagered);
+    document.getElementById('wWagReq').textContent    = fmtPKR(w.wagering_required);
+    document.getElementById('wWagComp').textContent   = fmtPKR(w.wagering_completed);
+    const remain = Math.max(0, w.wagering_required - w.wagering_completed);
+    document.getElementById('wWagRemain').textContent = fmtPKR(remain);
+    const pct = w.wagering_required > 0
+      ? Math.min(100, (w.wagering_completed / w.wagering_required) * 100).toFixed(0) : 100;
+    document.getElementById('wagerBar').style.width = pct + '%';
+    document.getElementById('wagerPct').textContent =
+      pct >= 100 ? '✅ 100% complete — withdrawal allowed' : `${pct}% complete — ₨${fmt(remain)} remaining`;
+
+    document.getElementById('txTable').innerHTML = (d.transactions || []).map(tx => `
+      <tr>
+        <td><span class="tag">${tx.type}</span></td>
+        <td class="${parseFloat(tx.amount) >= 0 ? 'text-green' : 'text-red'} font-bold">
+          ${parseFloat(tx.amount) >= 0 ? '+' : ''}${fmtPKR(tx.amount)}
+        </td>
+        <td class="text-sm">${fmtPKR(tx.balance_before)}</td>
+        <td class="text-sm">${fmtPKR(tx.balance_after)}</td>
+        <td class="text-sm text-muted">${tx.description || '—'}</td>
+        <td class="text-sm text-muted">${fmtDate(tx.created_at)}</td>
+      </tr>`).join('') || '<tr><td colspan="6" class="table-empty">No transactions</td></tr>';
+
+    document.getElementById('walletSection').style.display = 'block';
+    showToast('Wallet loaded ✅');
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function adjustBalance() {
+  const amount = parseFloat(document.getElementById('adjustAmount').value);
+  const desc   = document.getElementById('adjustDesc').value.trim();
+  if (isNaN(amount) || !desc) { showToast('Amount and reason required', 'warning'); return; }
+  if (!confirm(`Adjust balance by ₨${amount} for this user?\n\nReason: ${desc}`)) return;
+  try {
+    await POST(`/admin/wallets/${currentUserId}/adjust`, { amount, description: desc });
+    showToast('✅ Balance adjusted!');
+    document.getElementById('adjustAmount').value = '';
+    document.getElementById('adjustDesc').value   = '';
+    loadWallet();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function applyBonus() {
+  const amount = parseFloat(document.getElementById('bonusAmount').value);
+  const mult   = parseFloat(document.getElementById('bonusMult').value);
+  if (!amount || amount <= 0) { showToast('Valid bonus amount required', 'warning'); return; }
+  if (!confirm(`Apply ₨${amount} bonus with ${mult}x wagering to this user?`)) return;
+  try {
+    await POST(`/admin/wallets/${currentUserId}/bonus`, { amount, wager_multiplier: mult });
+    showToast('✅ Bonus applied!');
+    document.getElementById('bonusAmount').value = '';
+    loadWallet();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function resetWager() {
+  if (!confirm('Reset wagering requirement to 0?\nThe user will be able to withdraw freely after this.')) return;
+  try {
+    await POST(`/admin/wallets/${currentUserId}/reset-wager`);
+    showToast('✅ Wagering requirement reset!');
+    loadWallet();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+</script>
+</body></html>

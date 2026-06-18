@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Users — AVAITOR Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="admin-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">✈</div>
+      <div class="brand-text">AVAITOR <span>Casino</span></div>
+      <div class="brand-badge">Admin</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="users.html"     class="nav-link"><span class="nav-icon">👥</span> Users</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Finance</div>
+      <a href="deposits.html"    class="nav-link"><span class="nav-icon">💰</span> Deposits</a>
+      <a href="withdrawals.html" class="nav-link"><span class="nav-icon">💸</span> Withdrawals</a>
+      <a href="wallets.html"     class="nav-link"><span class="nav-icon">👛</span> Wallets</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Platform</div>
+      <a href="referrals.html" class="nav-link"><span class="nav-icon">🔗</span> Referrals</a>
+      <a href="games.html"     class="nav-link"><span class="nav-icon">🎮</span> Games</a>
+      <a href="payment-methods.html" class="nav-link"><span class="nav-icon">🏦</span>Payment Methods</a>
+  <a href="settings.html"  class="nav-link"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="logs.html"      class="nav-link"><span class="nav-icon">📋</span> Audit Logs</a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="admin-info">
+        <div class="admin-avatar" id="sidebarAdminInit">A</div>
+        <div>
+          <div class="admin-name" id="sidebarAdminName">Admin</div>
+          <div class="admin-role" id="sidebarAdminRole">Super Admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">🚪 Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="page-title">👥 User Management</div>
+      <div class="header-right">
+        <span class="text-muted text-sm" id="totalLabel"></span>
+      </div>
+    </header>
+
+    <div class="admin-body">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search username, phone, email…">
+          </div>
+          <select class="form-control" id="statusFilter" style="width:140px;">
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="suspended">Suspended</option>
+          </select>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Phone / Email</th>
+                <th>Referral Code</th>
+                <th>Status</th>
+                <th>Admin</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersBody">
+              <tr><td colspan="7" class="table-empty">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer">
+          <div class="table-count" id="usersCount"></div>
+          <div class="pagination" id="usersPagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- USER DETAIL MODAL -->
+<div class="modal-backdrop" id="userModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <div class="modal-title" id="modalUserTitle">User Details</div>
+      <button class="modal-close" onclick="closeModal('userModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="userDetailContent"></div>
+      <div class="divider"></div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-control" id="modalStatusSelect">
+          <option value="active">Active</option>
+          <option value="blocked">Blocked</option>
+          <option value="suspended">Suspended</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Admin Note</label>
+        <textarea class="form-control" id="modalAdminNote" rows="2" placeholder="Optional reason…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('userModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveUserStatus()" id="saveStatusBtn">Save Changes</button>
+      <a href="#" class="btn btn-blue btn-sm" id="viewWalletBtn">👛 View Wallet</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/api.js"></script>
+<script>
+guardAuth();
+
+let currentPage = 1, totalUsers = 0, selectedUserId = null;
+const LIMIT = 20;
+
+async function loadUsers(page = 1) {
+  currentPage = page;
+  const search = document.getElementById('searchInput').value.trim();
+  const status = document.getElementById('statusFilter').value;
+  let path = `/admin/users?page=${page}&limit=${LIMIT}`;
+  if (search) path += `&search=${encodeURIComponent(search)}`;
+  if (status) path += `&status=${status}`;
+  try {
+    const d = await GET(path);
+    totalUsers = d.total || 0;
+    document.getElementById('totalLabel').textContent = `${totalUsers} users`;
+    document.getElementById('usersCount').textContent = `Showing ${((page-1)*LIMIT)+1}–${Math.min(page*LIMIT,totalUsers)} of ${totalUsers}`;
+
+    const rows = (d.users || []).map(u => `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar-sm">${avatarLetter(u.username)}</div>
+            <div class="user-cell-info">
+              <div class="uname">${u.username || '—'}</div>
+              <div class="uid">${u.id.slice(0,12)}…</div>
+            </div>
+          </div>
+        </td>
+        <td class="text-muted text-sm">${u.phone || u.email || '—'}</td>
+        <td><span class="tag font-mono">${u.referral_code || '—'}</span></td>
+        <td>${badge(u.status || 'active')}</td>
+        <td class="text-gold">${fmtPKR((Array.isArray(u.wallets) ? u.wallets[0] : u.wallets)?.main_balance)}</td>
+        <td class="text-green text-sm">${fmtPKR((Array.isArray(u.wallets) ? u.wallets[0] : u.wallets)?.total_deposited)}</td>
+        <td class="text-sm">${fmtPKR((Array.isArray(u.wallets) ? u.wallets[0] : u.wallets)?.total_wagered)}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="openUserModal('${u.id}','${(u.username||'').replace(/'/g,"\\'")}','${u.status||'active'}')">Edit</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="8" class="table-empty">No users found</td></tr>';
+    document.getElementById('usersBody').innerHTML = rows;
+    renderPagination('usersPagination', page, totalUsers, LIMIT, loadUsers);
+  } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+function openUserModal(id, username, status) {
+  selectedUserId = id;
+  document.getElementById('modalUserTitle').textContent = `User: ${username}`;
+  document.getElementById('modalStatusSelect').value = status;
+  document.getElementById('modalAdminNote').value = '';
+  document.getElementById('userDetailContent').innerHTML =
+    `<div class="info-row"><span class="label">User ID</span><span class="value font-mono text-sm">${id}</span></div>`;
+  document.getElementById('viewWalletBtn').href = `wallet.html?uid=${id}`;
+  openModal('userModal');
+}
+
+async function saveUserStatus() {
+  const btn = document.getElementById('saveStatusBtn');
+  const status = document.getElementById('modalStatusSelect').value;
+  const admin_note = document.getElementById('modalAdminNote').value.trim();
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    await PATCH(`/admin/users/${selectedUserId}`, { status, admin_note });
+    showToast('✅ User updated');
+    closeModal('userModal');
+    loadUsers(currentPage);
+  } catch(e) { showToast(e.message, 'error'); }
+  finally { btn.textContent = 'Save Changes'; btn.disabled = false; }
+}
+
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => loadUsers(1), 400);
+});
+document.getElementById('statusFilter').addEventListener('change', () => loadUsers(1));
+
+loadUsers();
+</script>
+</body>
+</html>

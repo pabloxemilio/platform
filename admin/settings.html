@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Settings — AVAITOR Admin</title><link rel="stylesheet" href="css/admin.css"></head>
+<body><div class="admin-shell">
+<aside class="admin-sidebar">
+  <div class="sidebar-brand"><div class="brand-icon">✈</div><div class="brand-text">AVAITOR <span>Admin</span></div></div>
+  <div class="sidebar-section"><span class="sidebar-section-label">Overview</span></div>
+  <a href="dashboard.html" class="nav-link"><span class="nav-icon">📊</span>Dashboard</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">Management</span></div>
+  <a href="users.html"       class="nav-link"><span class="nav-icon">👥</span>Users</a>
+  <a href="deposits.html"    class="nav-link"><span class="nav-icon">💳</span>Deposits</a>
+  <a href="withdrawals.html" class="nav-link"><span class="nav-icon">💸</span>Withdrawals</a>
+  <a href="wallet.html"      class="nav-link"><span class="nav-icon">👛</span>Wallets</a>
+  <a href="referrals.html"   class="nav-link"><span class="nav-icon">🤝</span>Referrals</a>
+  <a href="games.html"       class="nav-link"><span class="nav-icon">🎮</span>Games</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">System</span></div>
+  <a href="payment-methods.html" class="nav-link"><span class="nav-icon">🏦</span>Payment Methods</a>
+  <a href="settings.html"    class="nav-link active"><span class="nav-icon">⚙️</span>Settings</a>
+  <a href="logs.html"        class="nav-link"><span class="nav-icon">📋</span>Audit Logs</a>
+  <div class="sidebar-footer">
+    <div class="admin-info"><div class="admin-avatar" id="sidebarAdminInit">A</div><div><div class="admin-name" id="sidebarAdminName">Admin</div><div class="admin-role" id="sidebarAdminRole">Super Admin</div></div></div>
+    <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+  </div>
+</aside>
+
+<div class="admin-main">
+  <header class="admin-header">
+    <div class="page-title">⚙️ Platform Settings</div>
+    <div class="header-right">
+      <button class="btn btn-gold" onclick="saveSettings()">💾 Save All Settings</button>
+    </div>
+  </header>
+  <div class="admin-body">
+    <form id="settingsForm">
+      <div class="grid-2">
+        <!-- Deposit Settings -->
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">💳 Deposit Settings</div></div>
+          <div class="form-group">
+            <label class="form-label">Minimum Deposit (PKR)</label>
+            <div class="input-group"><span class="input-prefix">₨</span><input class="form-control" name="min_deposit" type="number" min="1"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Maximum Deposit (PKR)</label>
+            <div class="input-group"><span class="input-prefix">₨</span><input class="form-control" name="max_deposit" type="number" min="1"></div>
+          </div>
+          <div class="divider"></div>
+          <div class="form-group">
+            <label class="form-label">Welcome Bonus %</label>
+            <input class="form-control" name="welcome_bonus_pct" type="number" min="0" max="10000" placeholder="e.g. 500">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Welcome Bonus (PKR)</label>
+            <div class="input-group"><span class="input-prefix">₨</span><input class="form-control" name="welcome_bonus_max" type="number" min="0"></div>
+          </div>
+        </div>
+
+        <!-- Withdrawal Settings -->
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">💸 Withdrawal Settings</div></div>
+          <div class="form-group">
+            <label class="form-label">Minimum Withdrawal (PKR)</label>
+            <div class="input-group"><span class="input-prefix">₨</span><input class="form-control" name="min_withdrawal" type="number" min="1"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Maximum Withdrawal (PKR)</label>
+            <div class="input-group"><span class="input-prefix">₨</span><input class="form-control" name="max_withdrawal" type="number" min="1"></div>
+          </div>
+          <div class="divider"></div>
+          <div class="form-group">
+            <label class="form-label">Wagering Multiplier</label>
+            <input class="form-control" name="wager_multiplier" type="number" min="0" max="100" placeholder="e.g. 10">
+            <div class="text-sm text-muted" style="margin-top:5px">
+              e.g. 10 means users must wager 10× any bonus before withdrawing. 0 = no requirement.
+            </div>
+          </div>
+        </div>
+
+        <!-- Referral Settings -->
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">🤝 Referral Settings</div></div>
+          <div class="form-group">
+            <label class="form-label">Signup Bonus per Referral (PKR)</label>
+            <div class="input-group"><span class="input-prefix">₨</span><input class="form-control" name="referral_signup_bonus" type="number" min="0"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ongoing Commission % (of referee net losses)</label>
+            <input class="form-control" name="referral_commission_pct" type="number" min="0" max="100" step="0.5">
+          </div>
+        </div>
+
+        <!-- Platform Settings -->
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">🌐 Platform Settings</div></div>
+          <div class="form-group">
+            <label class="form-label">Site Name</label>
+            <input class="form-control" name="site_name" placeholder="AVAITOR Casino">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Site Status</label>
+            <select class="form-control" name="site_status">
+              <option value="active">🟢 Active — Open to all users</option>
+              <option value="maintenance">🔴 Maintenance Mode — Site closed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Maintenance Message</label>
+            <textarea class="form-control" name="maintenance_message" rows="2" placeholder="We are under maintenance…"></textarea>
+          </div>
+        </div>
+
+        <!-- Support -->
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">💬 Support Channels</div></div>
+          <div class="form-group">
+            <label class="form-label">WhatsApp Number</label>
+            <input class="form-control" name="support_whatsapp" placeholder="+923001234567">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Telegram Handle</label>
+            <input class="form-control" name="support_telegram" placeholder="@avaitor_support">
+          </div>
+        </div>
+
+        <!-- Currency -->
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">💱 Currency</div></div>
+          <div class="form-group">
+            <label class="form-label">Currency Code</label>
+            <input class="form-control" name="currency_code" placeholder="PKR">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Currency Symbol</label>
+            <input class="form-control" name="currency_symbol" placeholder="₨">
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:4px">
+        <button type="button" class="btn btn-gold" style="padding:12px 32px;font-size:0.95rem" onclick="saveSettings()">
+          💾 Save All Settings
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/api.js"></script>
+<script>
+guardAuth();
+
+async function loadSettings() {
+  try {
+    const d = await GET('/admin/settings');
+    const s = d.settings;
+    document.querySelectorAll('[name]').forEach(inp => {
+      if (s[inp.name] !== undefined) inp.value = s[inp.name];
+    });
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function saveSettings() {
+  const settings = {};
+  new FormData(document.getElementById('settingsForm')).forEach((v, k) => { settings[k] = v; });
+  try {
+    await PATCH('/admin/settings', { settings });
+    showToast('✅ Settings saved successfully!');
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+loadSettings();
+</script>
+</body></html>

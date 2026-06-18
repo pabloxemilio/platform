@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Audit Logs — AVAITOR Admin</title><link rel="stylesheet" href="css/admin.css"></head>
+<body><div class="admin-shell">
+<aside class="admin-sidebar">
+  <div class="sidebar-brand"><div class="brand-icon">✈</div><div class="brand-text">AVAITOR <span>Admin</span></div></div>
+  <div class="sidebar-section"><span class="sidebar-section-label">Overview</span></div>
+  <a href="dashboard.html" class="nav-link"><span class="nav-icon">📊</span>Dashboard</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">Management</span></div>
+  <a href="users.html"       class="nav-link"><span class="nav-icon">👥</span>Users</a>
+  <a href="deposits.html"    class="nav-link"><span class="nav-icon">💳</span>Deposits</a>
+  <a href="withdrawals.html" class="nav-link"><span class="nav-icon">💸</span>Withdrawals</a>
+  <a href="wallet.html"      class="nav-link"><span class="nav-icon">👛</span>Wallets</a>
+  <a href="referrals.html"   class="nav-link"><span class="nav-icon">🤝</span>Referrals</a>
+  <a href="games.html"       class="nav-link"><span class="nav-icon">🎮</span>Games</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">System</span></div>
+  <a href="payment-methods.html" class="nav-link"><span class="nav-icon">🏦</span>Payment Methods</a>
+  <a href="settings.html"    class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  <a href="logs.html"        class="nav-link active"><span class="nav-icon">📋</span>Audit Logs</a>
+  <div class="sidebar-footer">
+    <div class="admin-info"><div class="admin-avatar" id="sidebarAdminInit">A</div><div><div class="admin-name" id="sidebarAdminName">Admin</div><div class="admin-role" id="sidebarAdminRole">Super Admin</div></div></div>
+    <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+  </div>
+</aside>
+
+<div class="admin-main">
+  <header class="admin-header">
+    <div class="page-title">📋 Admin Audit Logs</div>
+    <div class="header-right"><div class="header-badge"><div class="pulse-dot"></div>Live</div></div>
+  </header>
+  <div class="admin-body">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="actionFilter" placeholder="Filter by action type…">
+        </div>
+        <div class="table-count" id="logsCount" style="margin-left:auto"></div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Admin</th>
+              <th>Action</th>
+              <th>Target</th>
+              <th>Target ID</th>
+              <th>Details</th>
+              <th>IP Address</th>
+              <th>Date & Time</th>
+            </tr>
+          </thead>
+          <tbody id="logsTable"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <div class="table-count" id="logsCount2"></div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/api.js"></script>
+<script>
+guardAuth();
+let currentPage = 1; const LIMIT = 30;
+let allLogs = [];
+
+async function loadLogs(page = 1) {
+  currentPage = page;
+  try {
+    const d = await GET(`/admin/logs?page=${page}&limit=${LIMIT}`);
+    allLogs = d.logs || [];
+    document.getElementById('logsCount').textContent  = `${d.total} total entries`;
+    document.getElementById('logsCount2').textContent = `Showing ${(page-1)*LIMIT+1}–${Math.min(page*LIMIT, d.total)} of ${d.total}`;
+    renderLogs();
+    renderPagination('pagination', page, d.total, LIMIT, loadLogs);
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function renderLogs() {
+  const filter = document.getElementById('actionFilter').value.toLowerCase();
+  const logs = filter ? allLogs.filter(l => l.action.toLowerCase().includes(filter)) : allLogs;
+
+  const actionColors = {
+    'deposit_approved':   'color:var(--green)',
+    'deposit_rejected':   'color:var(--red)',
+    'withdrawal_approved':'color:var(--green)',
+    'withdrawal_rejected':'color:var(--red)',
+    'user_blocked':       'color:var(--red)',
+    'user_unblocked':     'color:var(--green)',
+    'balance_adjust':     'color:var(--blue)',
+    'bonus_applied':      'color:var(--gold)',
+    'wager_reset':        'color:var(--orange)',
+    'admin_login':        'color:var(--purple)',
+    'settings_updated':   'color:var(--blue)',
+    'game_updated':       'color:var(--text2)',
+  };
+
+  document.getElementById('logsTable').innerHTML = logs.map(l => {
+    const style = actionColors[l.action] || '';
+    const details = l.new_value ? JSON.stringify(l.new_value) : '—';
+    const shortDetails = details.length > 60 ? details.slice(0, 60) + '…' : details;
+    return `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar-sm" style="width:24px;height:24px;font-size:0.6rem">${avatarLetter(l.admin?.username)}</div>
+            <span class="font-bold text-sm">${l.admin?.username || '—'}</span>
+          </div>
+        </td>
+        <td><span class="tag" style="${style}">${l.action}</span></td>
+        <td class="text-sm text-muted">${l.target_type || '—'}</td>
+        <td class="text-sm font-mono text-muted">${l.target_id ? l.target_id.slice(0,10) + '…' : '—'}</td>
+        <td class="text-sm text-muted" title="${details.replace(/"/g, '&quot;')}" style="max-width:200px;cursor:help">
+          ${shortDetails}
+        </td>
+        <td class="text-sm font-mono text-muted">${l.ip_address || '—'}</td>
+        <td class="text-sm text-muted">${fmtDate(l.created_at)}</td>
+      </tr>`;
+  }).join('') || '<tr><td colspan="7" class="table-empty">No audit logs found</td></tr>';
+}
+
+document.getElementById('actionFilter').addEventListener('input', renderLogs);
+loadLogs();
+</script>
+</body></html>
