@@ -31,6 +31,7 @@
       <div class="sidebar-section-label">Platform</div>
       <a href="referrals.html" class="nav-link"><span class="nav-icon">🔗</span> Referrals</a>
       <a href="games.html"     class="nav-link"><span class="nav-icon">🎮</span> Games</a>
+  <a href="content.html"     class="nav-link"><span class="nav-icon">📣</span>Content</a>
       <a href="payment-methods.html" class="nav-link"><span class="nav-icon">🏦</span>Payment Methods</a>
   <a href="settings.html"  class="nav-link"><span class="nav-icon">⚙️</span> Settings</a>
       <a href="logs.html"      class="nav-link"><span class="nav-icon">📋</span> Audit Logs</a>
@@ -118,6 +119,14 @@
         </select>
       </div>
       <div class="form-group">
+        <label class="form-label">Display Currency</label>
+        <select class="form-control" id="modalCurrencySelect">
+          <option value="PKR">PKR — ₨ Pakistani Rupee</option>
+          <option value="INR">INR — ₹ Indian Rupee</option>
+          <option value="USD">USD — $ US Dollar</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label class="form-label">Admin Note</label>
         <textarea class="form-control" id="modalAdminNote" rows="2" placeholder="Optional reason…"></textarea>
       </div>
@@ -169,7 +178,7 @@ async function loadUsers(page = 1) {
         <td class="text-green text-sm">${fmtPKR((Array.isArray(u.wallets) ? u.wallets[0] : u.wallets)?.total_deposited)}</td>
         <td class="text-sm">${fmtPKR((Array.isArray(u.wallets) ? u.wallets[0] : u.wallets)?.total_wagered)}</td>
         <td>
-          <button class="btn btn-ghost btn-sm" onclick="openUserModal('${u.id}','${(u.username||'').replace(/'/g,"\\'")}','${u.status||'active'}')">Edit</button>
+          <button class="btn btn-ghost btn-sm" onclick="openUserModal('${u.id}','${(u.username||'').replace(/'/g,"\\'")}','${u.status||'active'}','${u.currency||'PKR'}')">Edit</button>
         </td>
       </tr>`).join('') || '<tr><td colspan="8" class="table-empty">No users found</td></tr>';
     document.getElementById('usersBody').innerHTML = rows;
@@ -177,10 +186,11 @@ async function loadUsers(page = 1) {
   } catch(e) { showToast('Failed: ' + e.message, 'error'); }
 }
 
-function openUserModal(id, username, status) {
+function openUserModal(id, username, status, currency) {
   selectedUserId = id;
   document.getElementById('modalUserTitle').textContent = `User: ${username}`;
   document.getElementById('modalStatusSelect').value = status;
+  document.getElementById('modalCurrencySelect').value = currency || 'PKR';
   document.getElementById('modalAdminNote').value = '';
   document.getElementById('userDetailContent').innerHTML =
     `<div class="info-row"><span class="label">User ID</span><span class="value font-mono text-sm">${id}</span></div>`;
@@ -191,10 +201,11 @@ function openUserModal(id, username, status) {
 async function saveUserStatus() {
   const btn = document.getElementById('saveStatusBtn');
   const status = document.getElementById('modalStatusSelect').value;
+  const currency = document.getElementById('modalCurrencySelect').value;
   const admin_note = document.getElementById('modalAdminNote').value.trim();
   btn.textContent = 'Saving…'; btn.disabled = true;
   try {
-    await PATCH(`/admin/users/${selectedUserId}`, { status, admin_note });
+    await PATCH(`/admin/users/${selectedUserId}`, { status, currency, admin_note });
     showToast('✅ User updated');
     closeModal('userModal');
     loadUsers(currentPage);

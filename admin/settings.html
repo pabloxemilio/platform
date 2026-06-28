@@ -13,6 +13,7 @@
   <a href="wallet.html"      class="nav-link"><span class="nav-icon">👛</span>Wallets</a>
   <a href="referrals.html"   class="nav-link"><span class="nav-icon">🤝</span>Referrals</a>
   <a href="games.html"       class="nav-link"><span class="nav-icon">🎮</span>Games</a>
+  <a href="content.html"     class="nav-link"><span class="nav-icon">📣</span>Content</a>
   <div class="sidebar-section"><span class="sidebar-section-label">System</span></div>
   <a href="payment-methods.html" class="nav-link"><span class="nav-icon">🏦</span>Payment Methods</a>
   <a href="settings.html"    class="nav-link active"><span class="nav-icon">⚙️</span>Settings</a>
@@ -132,6 +133,29 @@
           <div class="form-group">
             <label class="form-label">Currency Symbol</label>
             <input class="form-control" name="currency_symbol" placeholder="₨">
+          </div>
+        </div>
+
+        <!-- Game Win Ratio (RTP) -->
+        <div class="chart-card" style="border:1px solid var(--border-gold, rgba(230,179,37,0.25));">
+          <div class="chart-header"><div class="chart-title">🎮 Game Win Ratio (RTP)</div></div>
+          <div class="form-group">
+            <label class="form-label">Win Ratio % — applies to ALL games</label>
+            <input class="form-control" name="game_win_ratio" type="number" min="50" max="99" step="1" placeholder="e.g. 95">
+            <div class="text-sm text-muted" style="margin-top:6px">
+              Sets the house payout ratio for <strong>every</strong> game on the platform (Aviator, Chicken Road, and any future game).
+              <br>• <strong>Higher %</strong> → players win more often, house earns less.
+              <br>• <strong>Lower %</strong> → house earns more.
+              <br>Allowed range <strong>50–99%</strong>. Takes effect on new rounds within seconds — no restart needed.
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="form-group">
+            <label class="form-label">Max Win Per Round</label>
+            <input class="form-control" name="max_win_amount" type="number" min="0" step="100" placeholder="0 = unlimited">
+            <div class="text-sm text-muted" style="margin-top:6px">
+              Caps the payout a player can win in a <strong>single round</strong> of any game — protects the house from one lucky max-bet round. <strong>0 = no cap.</strong> The amount is in your base units (same number across PKR/INR/USD).
+            </div>
           </div>
         </div>
       </div>

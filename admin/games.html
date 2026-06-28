@@ -13,6 +13,7 @@
   <a href="wallet.html"      class="nav-link"><span class="nav-icon">👛</span>Wallets</a>
   <a href="referrals.html"   class="nav-link"><span class="nav-icon">🤝</span>Referrals</a>
   <a href="games.html"       class="nav-link active"><span class="nav-icon">🎮</span>Games</a>
+  <a href="content.html"     class="nav-link"><span class="nav-icon">📣</span>Content</a>
   <div class="sidebar-section"><span class="sidebar-section-label">System</span></div>
   <a href="payment-methods.html" class="nav-link"><span class="nav-icon">🏦</span>Payment Methods</a>
   <a href="settings.html"    class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
@@ -46,8 +47,8 @@
       </div>
       <div class="table-wrapper">
         <table>
-          <thead><tr><th>#</th><th>Game</th><th>Provider</th><th>Category</th><th>RTP</th><th>Min Bet</th><th>Max Bet</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="gamesTable"><tr><td colspan="9" class="table-empty">Loading…</td></tr></tbody>
+          <thead><tr><th>#</th><th>Image</th><th>Game</th><th>Provider</th><th>Category</th><th>RTP</th><th>Min Bet</th><th>Max Bet</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="gamesTable"><tr><td colspan="10" class="table-empty">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -80,7 +81,13 @@
           <div class="form-group"><label class="form-label">Min Bet (PKR)</label><div class="input-group"><span class="input-prefix">₨</span><input class="form-control" name="min_bet" type="number" value="10" min="1"></div></div>
           <div class="form-group"><label class="form-label">Max Bet (PKR)</label><div class="input-group"><span class="input-prefix">₨</span><input class="form-control" name="max_bet" type="number" value="100000" min="1"></div></div>
         </div>
-        <div class="form-group"><label class="form-label">Thumbnail URL (optional)</label><input class="form-control" name="thumbnail_url" placeholder="https://…"></div>
+        <div class="form-group"><label class="form-label">Game Image / Thumbnail</label>
+          <input class="form-control" id="addGameThumb" name="thumbnail_url" placeholder="https://… or click Upload">
+          <div style="display:flex; gap:10px; align-items:center; margin-top:8px;">
+            <button type="button" class="btn btn-ghost btn-sm" id="addGameThumb_btn">⬆ Upload image</button>
+            <img id="addGameThumb_prev" style="height:42px; border-radius:6px; display:none; border:1px solid var(--border)">
+          </div>
+        </div>
         <div class="form-group"><label class="form-label">Sort Order</label><input class="form-control" name="sort_order" type="number" value="0" min="0"></div>
       </form>
     </div>
@@ -116,6 +123,13 @@
           <div class="form-group"><label class="form-label">Min Bet (PKR)</label><div class="input-group"><span class="input-prefix">₨</span><input class="form-control" id="editGameMinBet" type="number"></div></div>
           <div class="form-group"><label class="form-label">Max Bet (PKR)</label><div class="input-group"><span class="input-prefix">₨</span><input class="form-control" id="editGameMaxBet" type="number"></div></div>
         </div>
+        <div class="form-group"><label class="form-label">Game Image / Thumbnail</label>
+          <input class="form-control" id="editGameThumb" placeholder="https://… or click Upload">
+          <div style="display:flex; gap:10px; align-items:center; margin-top:8px;">
+            <button type="button" class="btn btn-ghost btn-sm" id="editGameThumb_btn">⬆ Upload image</button>
+            <img id="editGameThumb_prev" style="height:42px; border-radius:6px; display:none; border:1px solid var(--border)">
+          </div>
+        </div>
       </form>
     </div>
     <div class="modal-footer">
@@ -146,6 +160,7 @@ function renderGames() {
   document.getElementById('gamesTable').innerHTML = games.map((g, i) => `
     <tr>
       <td class="text-muted text-sm">${g.sort_order || i+1}</td>
+      <td>${g.thumbnail_url ? `<img src="${g.thumbnail_url.startsWith('http') ? g.thumbnail_url : '/' + g.thumbnail_url.replace(/^\//,'')}" style="width:54px;height:32px;object-fit:cover;border-radius:5px" onerror="this.style.display='none'">` : '—'}</td>
       <td class="font-bold">${g.name}</td>
       <td class="text-sm text-muted">${g.provider}</td>
       <td><span class="tag">${g.category}</span></td>
@@ -161,7 +176,7 @@ function renderGames() {
           </button>
         </div>
       </td>
-    </tr>`).join('') || '<tr><td colspan="9" class="table-empty">No games found</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="10" class="table-empty">No games found</td></tr>';
 }
 
 function openEdit(id) {
@@ -174,6 +189,8 @@ function openEdit(id) {
   document.getElementById('editGameStatus').value   = g.status;
   document.getElementById('editGameMinBet').value   = g.min_bet;
   document.getElementById('editGameMaxBet').value   = g.max_bet;
+  document.getElementById('editGameThumb').value    = g.thumbnail_url || '';
+  previewImg('editGameThumb');
   openModal('editGameModal');
 }
 
@@ -186,6 +203,7 @@ async function saveGame() {
     status:   document.getElementById('editGameStatus').value,
     min_bet:  parseFloat(document.getElementById('editGameMinBet').value),
     max_bet:  parseFloat(document.getElementById('editGameMaxBet').value),
+    thumbnail_url: document.getElementById('editGameThumb').value.trim(),
   };
   try {
     await PATCH(`/admin/games/${id}`, updates);
@@ -219,6 +237,8 @@ async function addGame() {
 }
 
 document.getElementById('catFilter').addEventListener('change', renderGames);
+setupUploader('editGameThumb', 'games');
+setupUploader('addGameThumb', 'games');
 loadGames();
 </script>
 </body></html>

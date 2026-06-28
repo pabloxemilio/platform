@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Content — AVAITOR Admin</title><link rel="stylesheet" href="css/admin.css"></head>
+<body><div class="admin-shell">
+<aside class="admin-sidebar">
+  <div class="sidebar-brand"><div class="brand-icon">✈</div><div class="brand-text">AVAITOR <span>Admin</span></div></div>
+  <div class="sidebar-section"><span class="sidebar-section-label">Overview</span></div>
+  <a href="dashboard.html" class="nav-link"><span class="nav-icon">📊</span>Dashboard</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">Management</span></div>
+  <a href="users.html"       class="nav-link"><span class="nav-icon">👥</span>Users</a>
+  <a href="deposits.html"    class="nav-link"><span class="nav-icon">💳</span>Deposits</a>
+  <a href="withdrawals.html" class="nav-link"><span class="nav-icon">💸</span>Withdrawals</a>
+  <a href="wallet.html"      class="nav-link"><span class="nav-icon">👛</span>Wallets</a>
+  <a href="referrals.html"   class="nav-link"><span class="nav-icon">🤝</span>Referrals</a>
+  <a href="games.html"       class="nav-link"><span class="nav-icon">🎮</span>Games</a>
+  <a href="content.html"     class="nav-link active"><span class="nav-icon">📣</span>Content</a>
+  <div class="sidebar-section"><span class="sidebar-section-label">System</span></div>
+  <a href="payment-methods.html" class="nav-link"><span class="nav-icon">🏦</span>Payment Methods</a>
+  <a href="settings.html"    class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  <a href="logs.html"        class="nav-link"><span class="nav-icon">📋</span>Audit Logs</a>
+  <div class="sidebar-footer">
+    <div class="admin-info"><div class="admin-avatar" id="sidebarAdminInit">A</div><div><div class="admin-name" id="sidebarAdminName">Admin</div><div class="admin-role" id="sidebarAdminRole">Super Admin</div></div></div>
+    <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+  </div>
+</aside>
+
+<div class="admin-main">
+  <header class="admin-header">
+    <div class="page-title">📣 Content Management</div>
+  </header>
+  <div class="admin-body">
+    <!-- PROMOTIONS -->
+    <div class="table-card" style="margin-bottom:22px;">
+      <div class="table-toolbar">
+        <strong>Promotions</strong>
+        <span class="table-count" id="promoCount" style="margin-left:8px"></span>
+        <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="openPromo()">+ Add Promotion</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>#</th><th>Title</th><th>Badge</th><th>Button → Action</th><th>Status</th><th>Sort</th><th>Actions</th></tr></thead>
+          <tbody id="promoTable"><tr><td colspan="7" class="table-empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ANNOUNCEMENTS -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <strong>Announcements</strong>
+        <span class="table-count" id="annCount" style="margin-left:8px"></span>
+        <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="openAnn()">+ Add Announcement</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>#</th><th>Message</th><th>Type</th><th>Status</th><th>Sort</th><th>Actions</th></tr></thead>
+          <tbody id="annTable"><tr><td colspan="6" class="table-empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- HERO BANNERS -->
+    <div class="table-card" style="margin-top:22px;">
+      <div class="table-toolbar">
+        <strong>Hero Banners</strong>
+        <span class="table-count" id="banCount" style="margin-left:8px"></span>
+        <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="openBan()">+ Add Banner</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>#</th><th>Image</th><th>Title</th><th>Tag</th><th>Button → Action</th><th>Status</th><th>Sort</th><th>Actions</th></tr></thead>
+          <tbody id="banTable"><tr><td colspan="8" class="table-empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Banner Modal -->
+<div class="modal-backdrop" id="banModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="banModalTitle">Add Banner</div><button class="modal-close" onclick="closeModal('banModal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="bnId">
+      <div class="form-group"><label class="form-label">Image *</label>
+        <input class="form-control" id="bnImage" placeholder="https://…  or click Upload">
+        <div style="display:flex; gap:10px; align-items:center; margin-top:8px;">
+          <button type="button" class="btn btn-ghost btn-sm" id="bnImage_btn">⬆ Upload image</button>
+          <img id="bnImage_prev" style="height:38px; border-radius:6px; display:none; border:1px solid var(--border)">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Tag</label><input class="form-control" id="bnTag" placeholder="🔥 Most Popular"></div>
+        <div class="form-group"><label class="form-label">Title</label><input class="form-control" id="bnTitle" placeholder="Play Aviator"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Subtitle</label><input class="form-control" id="bnSubtitle" placeholder="The #1 crash game…"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Button text</label><input class="form-control" id="bnCta" placeholder="Play Now"></div>
+        <div class="form-group"><label class="form-label">Button action</label>
+          <select class="form-control" id="bnAction">
+            <option value="aviator">Launch Aviator</option>
+            <option value="chicken">Launch Chicken Road</option>
+            <option value="deposit">Open Deposit</option>
+            <option value="vip">Open VIP</option>
+            <option value="referral">Open Invite &amp; Earn</option>
+            <option value="link">External link</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Link URL (for "External link")</label><input class="form-control" id="bnLink" placeholder="https://…"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="bnStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+        <div class="form-group"><label class="form-label">Sort order</label><input class="form-control" id="bnSort" type="number" value="0"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('banModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveBan()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Promotion Modal -->
+<div class="modal-backdrop" id="promoModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="promoModalTitle">Add Promotion</div><button class="modal-close" onclick="closeModal('promoModal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="pmId">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Title *</label><input class="form-control" id="pmTitle" placeholder="500% First Deposit Bonus"></div>
+        <div class="form-group"><label class="form-label">Subtitle</label><input class="form-control" id="pmSubtitle" placeholder="Welcome Offer"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Badge text</label><input class="form-control" id="pmBadge" placeholder="HOT"></div>
+        <div class="form-group"><label class="form-label">Badge colour</label><input class="form-control" id="pmBadgeColor" type="color" value="#E6B325" style="height:40px;padding:4px"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Button text</label><input class="form-control" id="pmCta" placeholder="Claim Bonus"></div>
+        <div class="form-group"><label class="form-label">Button action</label>
+          <select class="form-control" id="pmAction">
+            <option value="deposit">Open Deposit</option>
+            <option value="vip">Open VIP</option>
+            <option value="referral">Open Invite &amp; Earn</option>
+            <option value="link">External link</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Image</label>
+        <input class="form-control" id="pmImage" placeholder="https://…  or click Upload">
+        <div style="display:flex; gap:10px; align-items:center; margin-top:8px;">
+          <button type="button" class="btn btn-ghost btn-sm" id="pmImage_btn">⬆ Upload image</button>
+          <img id="pmImage_prev" style="height:38px; border-radius:6px; display:none; border:1px solid var(--border)">
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Link URL (for "External link" action)</label><input class="form-control" id="pmLink" placeholder="https://…"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="pmStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+        <div class="form-group"><label class="form-label">Sort order</label><input class="form-control" id="pmSort" type="number" value="0"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('promoModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="savePromo()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Announcement Modal -->
+<div class="modal-backdrop" id="annModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="annModalTitle">Add Announcement</div><button class="modal-close" onclick="closeModal('annModal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="anId">
+      <div class="form-group"><label class="form-label">Message *</label><input class="form-control" id="anMsg" placeholder="🎉 Welcome to AVAITOR!"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Type</label><select class="form-control" id="anType"><option value="info">Info</option><option value="promo">Promo</option><option value="winner">Winner</option><option value="alert">Alert</option></select></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="anStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+        <div class="form-group"><label class="form-label">Sort</label><input class="form-control" id="anSort" type="number" value="0"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('annModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveAnn()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/api.js"></script>
+<script>
+guardAuth();
+const esc = s => (s == null ? '' : String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])));
+
+// ---- Promotions ----
+let promos = [];
+async function loadPromos() {
+  try {
+    const { promotions } = await GET('/admin/content/promotions');
+    promos = promotions || [];
+    document.getElementById('promoCount').textContent = promos.length + ' total';
+    document.getElementById('promoTable').innerHTML = promos.length ? promos.map((p, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${esc(p.title)}</strong>${p.subtitle ? `<div class="text-muted" style="font-size:.8rem">${esc(p.subtitle)}</div>` : ''}</td>
+        <td>${p.badge ? `<span class="badge" style="background:${esc(p.badge_color || '#E6B325')};color:#1a1a1a">${esc(p.badge)}</span>` : '—'}</td>
+        <td>${esc(p.cta_text || '')} → ${esc(p.cta_action || '')}</td>
+        <td><span class="status ${p.status === 'active' ? 'status-active' : 'status-inactive'}">${esc(p.status)}</span></td>
+        <td>${p.sort_order}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="editPromo('${p.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="delPromo('${p.id}')">Delete</button></td>
+      </tr>`).join('') : '<tr><td colspan="7" class="table-empty">No promotions yet. Click “+ Add Promotion”.</td></tr>';
+  } catch (e) { showToast(e.message, 'error'); }
+}
+function openPromo() {
+  document.getElementById('promoModalTitle').textContent = 'Add Promotion';
+  ['pmId','pmTitle','pmSubtitle','pmBadge','pmCta','pmImage','pmLink'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pmBadgeColor').value = '#E6B325';
+  document.getElementById('pmAction').value = 'deposit';
+  document.getElementById('pmStatus').value = 'active';
+  document.getElementById('pmSort').value = (promos.length + 1);
+  previewImg('pmImage');
+  openModal('promoModal');
+}
+function editPromo(id) {
+  const p = promos.find(x => x.id === id); if (!p) return;
+  document.getElementById('promoModalTitle').textContent = 'Edit Promotion';
+  document.getElementById('pmId').value = p.id;
+  document.getElementById('pmTitle').value = p.title || '';
+  document.getElementById('pmSubtitle').value = p.subtitle || '';
+  document.getElementById('pmBadge').value = p.badge || '';
+  document.getElementById('pmBadgeColor').value = p.badge_color || '#E6B325';
+  document.getElementById('pmCta').value = p.cta_text || '';
+  document.getElementById('pmAction').value = p.cta_action || 'deposit';
+  document.getElementById('pmImage').value = p.image_url || '';
+  document.getElementById('pmLink').value = p.link_url || '';
+  document.getElementById('pmStatus').value = p.status || 'active';
+  document.getElementById('pmSort').value = p.sort_order || 0;
+  previewImg('pmImage');
+  openModal('promoModal');
+}
+async function savePromo() {
+  const body = {
+    title: document.getElementById('pmTitle').value.trim(),
+    subtitle: document.getElementById('pmSubtitle').value.trim(),
+    badge: document.getElementById('pmBadge').value.trim(),
+    badge_color: document.getElementById('pmBadgeColor').value,
+    cta_text: document.getElementById('pmCta').value.trim(),
+    cta_action: document.getElementById('pmAction').value,
+    image_url: document.getElementById('pmImage').value.trim(),
+    link_url: document.getElementById('pmLink').value.trim(),
+    status: document.getElementById('pmStatus').value,
+    sort_order: parseInt(document.getElementById('pmSort').value) || 0,
+  };
+  if (!body.title) { showToast('Title is required', 'error'); return; }
+  try {
+    const id = document.getElementById('pmId').value;
+    if (id) await PATCH('/admin/content/promotions/' + id, body);
+    else await POST('/admin/content/promotions', body);
+    closeModal('promoModal'); showToast('Saved', 'success'); loadPromos();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+async function delPromo(id) { if (!confirm('Delete this promotion?')) return; try { await DELETE('/admin/content/promotions/' + id); showToast('Deleted', 'success'); loadPromos(); } catch (e) { showToast(e.message, 'error'); } }
+
+// ---- Announcements ----
+let anns = [];
+async function loadAnns() {
+  try {
+    const { announcements } = await GET('/admin/content/announcements');
+    anns = announcements || [];
+    document.getElementById('annCount').textContent = anns.length + ' total';
+    document.getElementById('annTable').innerHTML = anns.length ? anns.map((a, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${esc(a.message)}</td>
+        <td>${esc(a.type)}</td>
+        <td><span class="status ${a.status === 'active' ? 'status-active' : 'status-inactive'}">${esc(a.status)}</span></td>
+        <td>${a.sort_order}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="editAnn('${a.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="delAnn('${a.id}')">Delete</button></td>
+      </tr>`).join('') : '<tr><td colspan="6" class="table-empty">No announcements yet.</td></tr>';
+  } catch (e) { showToast(e.message, 'error'); }
+}
+function openAnn() {
+  document.getElementById('annModalTitle').textContent = 'Add Announcement';
+  document.getElementById('anId').value = ''; document.getElementById('anMsg').value = '';
+  document.getElementById('anType').value = 'info'; document.getElementById('anStatus').value = 'active';
+  document.getElementById('anSort').value = (anns.length + 1);
+  openModal('annModal');
+}
+function editAnn(id) {
+  const a = anns.find(x => x.id === id); if (!a) return;
+  document.getElementById('annModalTitle').textContent = 'Edit Announcement';
+  document.getElementById('anId').value = a.id; document.getElementById('anMsg').value = a.message || '';
+  document.getElementById('anType').value = a.type || 'info'; document.getElementById('anStatus').value = a.status || 'active';
+  document.getElementById('anSort').value = a.sort_order || 0;
+  openModal('annModal');
+}
+async function saveAnn() {
+  const body = { message: document.getElementById('anMsg').value.trim(), type: document.getElementById('anType').value, status: document.getElementById('anStatus').value, sort_order: parseInt(document.getElementById('anSort').value) || 0 };
+  if (!body.message) { showToast('Message is required', 'error'); return; }
+  try {
+    const id = document.getElementById('anId').value;
+    if (id) await PATCH('/admin/content/announcements/' + id, body);
+    else await POST('/admin/content/announcements', body);
+    closeModal('annModal'); showToast('Saved', 'success'); loadAnns();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+async function delAnn(id) { if (!confirm('Delete this announcement?')) return; try { await DELETE('/admin/content/announcements/' + id); showToast('Deleted', 'success'); loadAnns(); } catch (e) { showToast(e.message, 'error'); } }
+
+// ---- Hero Banners ----
+let bans = [];
+async function loadBans() {
+  try {
+    const { banners } = await GET('/admin/content/banners');
+    bans = banners || [];
+    document.getElementById('banCount').textContent = bans.length + ' total';
+    document.getElementById('banTable').innerHTML = bans.length ? bans.map((b, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${b.image_url ? `<img src="/${b.image_url.replace(/^\//,'')}" style="width:64px;height:34px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'">` : '—'}</td>
+        <td><strong>${esc(b.title || '')}</strong></td>
+        <td>${esc(b.tag || '')}</td>
+        <td>${esc(b.cta_text || '')} → ${esc(b.cta_action || '')}</td>
+        <td><span class="status ${b.status === 'active' ? 'status-active' : 'status-inactive'}">${esc(b.status)}</span></td>
+        <td>${b.sort_order}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="editBan('${b.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="delBan('${b.id}')">Delete</button></td>
+      </tr>`).join('') : '<tr><td colspan="8" class="table-empty">No banners yet. Click “+ Add Banner”.</td></tr>';
+  } catch (e) { showToast(e.message, 'error'); }
+}
+function openBan() {
+  document.getElementById('banModalTitle').textContent = 'Add Banner';
+  ['bnId','bnImage','bnTag','bnTitle','bnSubtitle','bnCta','bnLink'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('bnAction').value = 'aviator';
+  document.getElementById('bnStatus').value = 'active';
+  document.getElementById('bnSort').value = (bans.length + 1);
+  previewImg('bnImage');
+  openModal('banModal');
+}
+function editBan(id) {
+  const b = bans.find(x => x.id === id); if (!b) return;
+  document.getElementById('banModalTitle').textContent = 'Edit Banner';
+  document.getElementById('bnId').value = b.id;
+  document.getElementById('bnImage').value = b.image_url || '';
+  document.getElementById('bnTag').value = b.tag || '';
+  document.getElementById('bnTitle').value = b.title || '';
+  document.getElementById('bnSubtitle').value = b.subtitle || '';
+  document.getElementById('bnCta').value = b.cta_text || '';
+  document.getElementById('bnAction').value = b.cta_action || 'aviator';
+  document.getElementById('bnLink').value = b.link_url || '';
+  document.getElementById('bnStatus').value = b.status || 'active';
+  document.getElementById('bnSort').value = b.sort_order || 0;
+  previewImg('bnImage');
+  openModal('banModal');
+}
+async function saveBan() {
+  const body = {
+    image_url: document.getElementById('bnImage').value.trim(),
+    tag: document.getElementById('bnTag').value.trim(),
+    title: document.getElementById('bnTitle').value.trim(),
+    subtitle: document.getElementById('bnSubtitle').value.trim(),
+    cta_text: document.getElementById('bnCta').value.trim(),
+    cta_action: document.getElementById('bnAction').value,
+    link_url: document.getElementById('bnLink').value.trim(),
+    status: document.getElementById('bnStatus').value,
+    sort_order: parseInt(document.getElementById('bnSort').value) || 0,
+  };
+  if (!body.image_url) { showToast('Image URL is required', 'error'); return; }
+  try {
+    const id = document.getElementById('bnId').value;
+    if (id) await PATCH('/admin/content/banners/' + id, body);
+    else await POST('/admin/content/banners', body);
+    closeModal('banModal'); showToast('Saved', 'success'); loadBans();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+async function delBan(id) { if (!confirm('Delete this banner?')) return; try { await DELETE('/admin/content/banners/' + id); showToast('Deleted', 'success'); loadBans(); } catch (e) { showToast(e.message, 'error'); } }
+
+document.getElementById('logoutBtn').onclick = logout;
+const info = getAdminInfo();
+if (info.username) { document.getElementById('sidebarAdminName').textContent = info.username; document.getElementById('sidebarAdminInit').textContent = info.username[0].toUpperCase(); }
+setupUploader('pmImage', 'promotions');
+setupUploader('bnImage', 'banners');
+loadPromos(); loadAnns(); loadBans();
+</script>
+</body></html>

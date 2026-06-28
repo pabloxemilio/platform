@@ -2,6 +2,7 @@ const express   = require('express');
 const router    = express.Router();
 const adminAuth = require('../../middleware/adminAuth');
 const { supabase } = require('../../config/supabase');
+const { refreshGameSettings } = require('../../services/gameSettings');
 
 router.get('/', adminAuth, async (req, res) => {
   try {
@@ -55,6 +56,9 @@ router.patch('/', adminAuth, async (req, res) => {
       ip_address: req.adminIp || null,
     });
     if (logError) console.warn('[settings PATCH] admin_log insert error:', logError.message);
+
+    // Apply the win-ratio change to the live game engines immediately.
+    refreshGameSettings();
 
     res.json({ message: 'Settings updated successfully' });
   } catch (e) {

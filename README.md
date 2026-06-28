@@ -4,6 +4,42 @@ A complete Node.js + Express backend with Supabase database and a premium Admin 
 
 ---
 
+## 🎮 Aviator Game + Multi-Currency (this build)
+
+A fully playable **Aviator** crash game is integrated into the platform and wired to the
+real wallet. Multiple users, real balances, per-user currency.
+
+### What was added
+- **Aviator game** served at `/aviator.html`, launched from the lobby (Aviator tile or hero "Play Now").
+  Real-time WebSocket lives in the **same server** (`/api/game/websocket`) — no second process.
+- **Wallet-wired bets**: placing a bet **debits** the user's wallet; cashing out **credits** it;
+  every round is logged to `transactions` + `game_sessions` (visible in the admin panel).
+  Players only bet their own real balance; the on-screen crowd is cosmetic.
+- **Per-user currency** (`PKR` / `INR` / `USD`) — chosen at registration, shown everywhere
+  (lobby balance + inside the game). Display-only: same number, symbol changes (₨ / ₹ / $).
+
+### Extra setup step (one SQL file)
+After running `sql/01..06`, also run:
+```
+sql/07_currency.sql      ← adds the per-user `currency` column
+```
+
+### How to play
+1. `npm install` then `npm run dev` (or `npm start`).
+2. Open `http://localhost:3000`, **Register** (pick a currency), or log in.
+3. Click the **Aviator** game tile (or hero **Play Now**) → the game opens with your
+   session and **real balance**. Bet during the 5s window, cash out before it flies away.
+4. Manage users + balances in the **Admin Panel** (`/admin`) — top up via Wallets,
+   watch bets land in Audit Logs / dashboard stats.
+
+### Notes
+- The game connects to the **same host/port** that served the page (works on
+  `localhost`, `127.0.0.1`, or a LAN IP). Default port is `3000`.
+- Files added: `public/aviator.html`, `public/bundle.DsCq2_uh.js`, `public/assets/`,
+  `public/coupon/`, `src/game/aviator.js`, `sql/07_currency.sql`. Dependency added: `ws`.
+
+---
+
 ## 🚀 Quick Start (Local)
 
 ### Step 1 — Set up Supabase

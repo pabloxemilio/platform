@@ -5,6 +5,7 @@
 /* ── Game Data ── */
 const GAMES = [
   { id: 1,  name: 'Aviator',        provider: 'Spribe',    thumb: 'images/aviator_game.png',    badge: 'hot',     rtp: '97%',   category: ['crash','hot'] },
+  { id: 13, name: 'Chicken Road',   provider: 'InOut',     thumb: 'images/mines_game.png',      badge: 'hot',     rtp: '95.5%', category: ['crash','hot'] },
   { id: 2,  name: 'Fortune Slots',  provider: 'JILI',      thumb: 'images/slots_game.png',      badge: 'popular', rtp: '96.5%', category: ['slots','popular'] },
   { id: 3,  name: 'Live Roulette',  provider: 'Evolution', thumb: 'images/live_casino_game.png',badge: 'live',    rtp: '97.3%', category: ['live','popular'] },
   { id: 4,  name: 'Mines',          provider: 'Spribe',    thumb: 'images/mines_game.png',      badge: 'hot',     rtp: '97%',   category: ['crash','hot'] },
@@ -29,7 +30,7 @@ const WINNERS = [
   { user: 'Ha***n',  game: 'Aviator',       amount: '₨ 78,500', color: '#FFCA28', letter: 'H' },
 ];
 
-const HERO_SLIDES = [
+let HERO_SLIDES = [
   {
     img: 'images/hero_banner.png',
     tag: '🔥 Most Popular',
@@ -71,7 +72,9 @@ const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 // ── Init ──
 document.addEventListener('DOMContentLoaded', () => {
   renderHeroSlides();
+  loadHeroBanners();
   renderGames('all');
+  loadGameThumbs();
   renderWinnersTicker();
   startHeroAutoplay();
   startJackpotCounter();
@@ -95,7 +98,7 @@ function renderHeroSlides() {
         <div class="hero-tag">${s.tag}</div>
         <h1 class="hero-title">${s.title}</h1>
         <p class="hero-subtitle">${s.subtitle}</p>
-        <button class="btn ${s.btnClass}" onclick="handlePlayBtn('${s.btnText}')">${s.btnText}</button>
+        <button class="btn ${s.btnClass}" onclick="${s.onclick || `handlePlayBtn('${s.btnText}')`}">${s.btnText}</button>
       </div>
     </div>
   `).join('');
@@ -112,6 +115,51 @@ function renderHeroSlides() {
     </div>
     <div class="hero-dots">${dotsHTML}</div>
   `;
+}
+
+// Merge admin-managed game thumbnails (from the DB) onto the lobby tiles by name,
+// so changing a game's image in the admin panel reflects on the lobby end-to-end.
+async function loadGameThumbs() {
+  try {
+    const res = await fetch('/api/games');
+    const data = await res.json();
+    const games = data.games || data;
+    if (!Array.isArray(games)) return;
+    const byName = {};
+    games.forEach(g => { if (g && g.name) byName[g.name.toLowerCase().trim()] = g; });
+    let changed = false;
+    GAMES.forEach(g => {
+      const db = byName[g.name.toLowerCase().trim()];
+      if (db && db.thumbnail_url) {
+        g.thumb = db.thumbnail_url.startsWith('http') ? db.thumbnail_url : '/' + db.thumbnail_url.replace(/^\//, '');
+        changed = true;
+      }
+    });
+    if (changed) renderGames(activeCategory || 'all');
+  } catch (e) { /* keep built-in thumbs */ }
+}
+
+// Load admin-managed hero banners (falls back to the built-in HERO_SLIDES).
+async function loadHeroBanners() {
+  try {
+    const res = await fetch('/api/banners');
+    const { banners } = await res.json();
+    if (!banners || !banners.length) return;
+    const actions = { deposit: 'openDeposit()', vip: 'openVip()', referral: 'openReferral()', aviator: "goAuthed(launchAviator)", chicken: "goAuthed(launchChicken)" };
+    const btnClass = { deposit: 'btn-green', vip: 'btn-gold', referral: 'btn-gold', aviator: 'btn-gold', chicken: 'btn-gold', link: 'btn-gold' };
+    HERO_SLIDES = banners.map(b => ({
+      img: b.image_url,
+      tag: b.tag || '',
+      title: b.title || '',
+      subtitle: b.subtitle || '',
+      btnText: b.cta_text || 'Play Now',
+      btnClass: btnClass[b.cta_action] || 'btn-gold',
+      onclick: b.cta_action === 'link' && b.link_url ? `window.open('${b.link_url}','_blank')` : (actions[b.cta_action] || `handlePlayBtn('${b.cta_text || 'Play'}')`),
+    }));
+    currentSlide = 0;
+    renderHeroSlides();
+    if (typeof bindHeroControls === 'function') bindHeroControls();
+  } catch (e) { /* keep built-in slides */ }
 }
 
 function goToSlide(n) {
@@ -153,13 +201,35 @@ function switchView(viewId) {
   }
 }
 
+// Header profile dropdown
+function toggleUserMenu(e) {
+  if (e) e.stopPropagation();
+  document.getElementById('headerUserChip')?.classList.toggle('open');
+}
+document.addEventListener('click', (e) => {
+  const chip = document.getElementById('headerUserChip');
+  if (chip && chip.classList.contains('open') && !chip.contains(e.target)) chip.classList.remove('open');
+});
+
+// Run an action if logged in, otherwise prompt login. Used by promo cards / CTAs
+// so they don't pop the login modal when the user is already signed in.
+function goAuthed(action) {
+  if (typeof loggedIn === 'function' && !loggedIn()) { openModal('loginModal'); return; }
+  try { action(); } catch (e) {}
+}
+function openReferral() { goAuthed(() => { switchView('referralView'); if (typeof loadReferralView === 'function') loadReferralView(); }); }
+function openVip() { switchView('vipView'); }
+function openDeposit() { goAuthed(() => openModal('depositModal')); }
+function openWithdraw() { goAuthed(() => openModal('withdrawModal')); }
+
 function handlePlayBtn(text) {
   if (typeof loggedIn === 'function' && !loggedIn()) {
     openModal('loginModal');
     showToast('Please log in to play!', 'warning');
-  } else {
-    showToast(`Loading game…`, 'success');
+    return;
   }
+  if (text === 'Play Now') return launchAviator();   // hero CTA -> Aviator
+  showToast('Coming soon!', 'success');
 }
 
 // ══════════════════════════════════════════
@@ -220,6 +290,21 @@ function renderGames(category) {
   });
 }
 
+function currentCurrency() {
+  return (typeof currentUser !== 'undefined' && currentUser && currentUser.currency) ? currentUser.currency : 'PKR';
+}
+function launchAviator() {
+  const token = (typeof getToken === 'function') ? getToken() : null;
+  if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
+  window.location.href = '/aviator/?token=' + encodeURIComponent(token) + '&cur=' + encodeURIComponent(currentCurrency());
+}
+function launchChicken() {
+  const token = (typeof getToken === 'function') ? getToken() : null;
+  if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
+  window.location.href = '/chicken2.html?authToken=' + encodeURIComponent(token) +
+    '&operatorId=platform&currency=' + encodeURIComponent(currentCurrency()) + '&gameMode=chicken-road-two&lang=en';
+}
+
 function openGame(id) {
   if (typeof loggedIn === 'function' && !loggedIn()) {
     openModal('loginModal');
@@ -227,7 +312,9 @@ function openGame(id) {
     return;
   }
   const g = GAMES.find(g => g.id === id);
-  showToast(`🎮 Launching ${g.name}…`, 'success');
+  if (g && g.name === 'Aviator') { showToast('🎮 Launching Aviator…', 'success'); return launchAviator(); }
+  if (g && /chicken/i.test(g.name)) { showToast('🐔 Launching Chicken Road…', 'success'); return launchChicken(); }
+  showToast(`🎮 ${g.name} is coming soon — try Aviator or Chicken Road, live now!`, 'info');
 }
 
 function toggleFav(id) {
@@ -625,29 +712,43 @@ async function saveSettings(e) {
 }
 
 // --- LIVE SUPPORT ---
+function chatPush(text, who) {
+  const chat = document.getElementById('chatMessages');
+  if (!chat) return null;
+  const div = document.createElement('div');
+  div.className = 'chat-bubble ' + who;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+// Smart canned support answers (keyword matched)
+function botReply(msg) {
+  const m = msg.toLowerCase();
+  if (/depos/.test(m))                      return 'To deposit: open the Deposit button, choose a method (EasyPaisa/JazzCash/Bank/USDT), send the amount and paste the reference number. It is credited after admin approval — usually within minutes. 💳';
+  if (/withdraw|payout|cash ?out/.test(m))  return 'Withdrawals are processed within 15–30 minutes after approval. Note: deposits must be wagered (played) at least once before withdrawal. Minimum withdrawal is ₨ 500. 💸';
+  if (/kyc|verif|identity|document/.test(m))return 'To verify (KYC): open the profile menu → “Verify Account”, upload your ID front. KYC is only required for large withdrawals. Approval is usually same-day. 🛡️';
+  if (/bonus|promo|cashback|welcome/.test(m)) return 'We offer a 500% first-deposit welcome bonus plus weekly VIP cashback up to 30%. Bonuses carry a wagering requirement before they can be withdrawn. See Promotions for live offers. 🎁';
+  if (/refer|invite|friend/.test(m))        return 'Invite friends from the “Invite & Earn” page — share your code/link and earn a bonus for each friend who joins and deposits. 🤝';
+  if (/aviator|chicken|game|play/.test(m))  return 'Aviator and Chicken Road are live now! Pick one from the lobby, set your bet in your currency, and cash out before it crashes. 🎮';
+  if (/hello|hi|hey|salam/.test(m))         return 'Hello! 👋 How can I help — deposits, withdrawals, KYC or bonuses?';
+  return 'Thanks for your message! For anything we can’t answer instantly, reach us on WhatsApp/Telegram (right) and a live agent will assist you 24/7.';
+}
+function deliverBotReply(msg) {
+  const typing = chatPush('typing…', 'agent typing');
+  setTimeout(() => { if (typing) typing.remove(); chatPush(botReply(msg), 'agent'); }, 700);
+}
 function sendChatMessage() {
   const input = document.getElementById('chatInput');
-  const msg = input.value.trim();
-  if(!msg) return;
-  
-  const chat = document.getElementById('chatMessages');
-  
-  // User msg
-  const userDiv = document.createElement('div');
-  userDiv.style = 'background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:15px 15px 0 15px; align-self:flex-end; max-width:80%; margin-left:auto; color:var(--text);';
-  userDiv.textContent = msg;
-  chat.appendChild(userDiv);
+  const msg = (input?.value || '').trim();
+  if (!msg) return;
+  chatPush(msg, 'user');
   input.value = '';
-  chat.scrollTop = chat.scrollHeight;
-  
-  // Agent reply
-  setTimeout(() => {
-    const agentDiv = document.createElement('div');
-    agentDiv.style = 'background:var(--primary); padding:10px 15px; border-radius:15px 15px 15px 0; align-self:flex-start; max-width:80%; color:#fff;';
-    agentDiv.textContent = 'Thank you for your message. An agent will be with you shortly.';
-    chat.appendChild(agentDiv);
-    chat.scrollTop = chat.scrollHeight;
-  }, 1000);
+  deliverBotReply(msg);
+}
+function quickChat(msg) {
+  chatPush(msg, 'user');
+  deliverBotReply(msg);
 }
 
 // --- TRANSACTIONS ---
@@ -749,9 +850,10 @@ if (!window._switchViewIntercepted) {
         else if(wager >= 100000) { tier = 'Gold'; nxt = 500000; nxtName = 'Diamond'; pct = (wager/500000)*100; }
         else if(wager >= 10000) { tier = 'Silver'; nxt = 100000; nxtName = 'Gold'; pct = (wager/100000)*100; }
         
+        const sym = (typeof curSym === 'function') ? curSym() : '₨';
         document.getElementById('vipCurrentTier').textContent = tier;
-        document.getElementById('vipCurrentWager').textContent = `₨${wager.toLocaleString()} wagered`;
-        document.getElementById('vipNextTier').textContent = wager >= 500000 ? 'Max Tier Reached' : `Next Tier: ${nxtName} (₨${nxt.toLocaleString()})`;
+        document.getElementById('vipCurrentWager').textContent = `${sym}${wager.toLocaleString()} wagered`;
+        document.getElementById('vipNextTier').textContent = wager >= 500000 ? 'Max Tier Reached' : `Next Tier: ${nxtName} (${sym}${nxt.toLocaleString()})`;
         document.getElementById('vipProgressBar').style.width = Math.min(pct, 100) + '%';
       }
     }
@@ -759,13 +861,15 @@ if (!window._switchViewIntercepted) {
   window._switchViewIntercepted = true;
 }
 
-// Modify loadProfile to store wallet for VIP calculation
-const originalLoadProfile = loadProfile;
-loadProfile = async function() {
-  await originalLoadProfile();
+// Cache the wallet for the VIP tier view. The session loader lives in api.js
+// (initSession/updateWalletUI), which sets window._cachedWallet — so we just
+// make sure it's populated on load without redefining a non-existent function.
+(async function cacheWalletForVip() {
   try {
-    const data = await apiReq('GET', '/wallet');
-    window._cachedWallet = Array.isArray(data.wallet) ? data.wallet[0] : data.wallet;
-  } catch(e) {}
-}
+    if (typeof loggedIn === 'function' && loggedIn()) {
+      const data = await apiReq('GET', '/wallet');
+      window._cachedWallet = Array.isArray(data.wallet) ? data.wallet[0] : data.wallet;
+    }
+  } catch (e) {}
+})();
 

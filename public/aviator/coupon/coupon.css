@@ -1,0 +1,268 @@
+#couponApp {
+	color: #fff;
+	.coupon_content_base_box {
+		position: fixed;
+		z-index: 2;
+		top: 64px;
+		left: 50%;
+		transform: translate(-50%, 0%);
+		max-width: 500px;
+		width: calc(100% - 40px);
+	}
+	.coupon_content_box {
+		position: relative;
+		background-color: #e40637;
+		z-index: 2;
+		box-shadow: 8px 0px 8px #00000080;
+		border-radius: 20px;
+		display: flex;
+		justify-content: space-between;
+		padding: 8px 4px;
+		padding-left: 1rem;
+		align-items: center;
+		.text {
+			font-weight: bold;
+			font-size: 16px;
+			color: #ffffff;
+			line-height: 18px;
+			white-space: nowrap;
+		}
+		.num_box {
+			display: flex;
+			align-items: center;
+			flex-direction: column;
+		}
+
+		.num {
+			font-weight: bold;
+			font-size: 25px;
+			line-height: 25px;
+			white-space: nowrap;
+			color: #ffffff;
+		}
+		.amount {
+			font-weight: bold;
+			font-size: 13px;
+			white-space: nowrap;
+			color: #ffffff;
+		}
+		.winBox {
+			margin-left: 3px;
+			width: 142px;
+			height: 46px;
+			background: #3124a9;
+			border-radius: 16px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			background-image: url(/aviator/coupon/img/btn_win.png);
+			background-size: 100% 100%;
+			.win_text {
+				font-weight: bold;
+				font-size: 16px;
+				line-height: 16px;
+				color: #ffffff;
+			}
+			.win_num {
+				font-family: Roboto;
+				font-weight: bold;
+				line-height: 16px;
+				font-size: 17px;
+				color: #ffffff;
+			}
+		}
+	}
+	.coupon_setting {
+		z-index: 1;
+		position: relative;
+		top: -20px;
+		background-color: #40404c;
+		height: 47px;
+		border-radius: 0 0 12px 12px;
+		display: flex;
+		justify-content: flex-end;
+		align-items: flex-end;
+		padding-bottom: 6px;
+		padding-right: 6px;
+
+		.text {
+			font-weight: 400;
+			font-size: 13px;
+			color: #b8bbc0;
+			margin-right: 6px;
+		}
+		.img {
+			width: 20px;
+			height: 20px;
+			background: #1c1f24;
+			border-radius: 50%;
+		}
+	}
+}
+.coupon_popup_box_bg{
+  position: fixed;
+  z-index: 9999;
+  background-color: #00000080;
+  inset: 0;
+}
+.coupon_popup_box {
+	position: fixed;
+  z-index: 10000;
+	left: 50%;
+	transform: translate(-50%);
+	top: 190px;
+	max-width: 500px;
+	width: calc(100% - 40px);
+
+	.title_box {
+		display: flex;
+		background-color: #2c2d31;
+		height: 33px;
+
+		border-radius: 7px 7px 0px 0px;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 15px;
+		box-sizing: border-box;
+		.title {
+			width: 180px;
+			font-family: Roboto;
+			font-weight: 400;
+			font-size: 15px;
+			color: #ffffff;
+			flex: 1;
+		}
+
+		.close_img {
+			width: 15px;
+			height: 15px;
+		}
+	}
+
+	.content_box {
+		border-radius: 0px 0px 7px 7px ;
+    box-shadow: 5px 5px 10px #000000;
+		background-color: #1b1c1e;
+		padding: 20px 12px;
+		.play_cash {
+			box-sizing: border-box;
+			border: 1px solid #28a90900;
+
+			background-color: #161716;
+			height: 32px;
+			background: #161716;
+			border-radius: 5px;
+			display: flex;
+			align-items: center;
+			padding: 0 12px;
+			margin-bottom: 12px;
+			img {
+				width: 15px;
+				height: 15px;
+				margin-right: 10px;
+				/* border-radius: 50%; */
+			}
+
+			span {
+				font-family: Roboto;
+				font-weight: 400;
+				font-size: 13px;
+				color: #d7dbd9;
+			}
+		}
+
+		.active_text_box {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 6px;
+			span {
+			}
+
+			.img {
+				position: relative;
+				width: 68px;
+				height: 18.5px;
+				background-image: url(/aviator/coupon/img/image_archive.png);
+				background-size: 100% 100%;
+				font-family: Roboto;
+				font-weight: 400;
+				font-size: 11px;
+				color: #a9a9ac;
+				padding-left: 22px;
+				padding-top: 1px;
+				box-sizing: border-box;
+			}
+		}
+
+		.table_text {
+			margin-bottom: 4px;
+
+			display: flex;
+			justify-content: space-around;
+			font-family: Roboto;
+			font-weight: 400;
+			font-size: 11px;
+			color: #83878b;
+			span {
+				width: 120px;
+				text-align: center;
+			}
+		}
+
+		.coupon_box {
+			border: 1px solid #28a90900;
+
+			box-sizing: border-box;
+			position: relative;
+			padding: 4px 1px;
+			.table_num {
+				display: flex;
+				justify-content: space-around;
+
+				span {
+					width: 120px;
+					text-align: center;
+				}
+			}
+			.btn_img {
+				position: absolute;
+				width: 15px;
+				height: 15px;
+				left: 11px;
+				top: 8px;
+			}
+		}
+		.text_box {
+			margin: 10px 20px;
+			height: 69px;
+			background: #2c2d31;
+			border-radius: 5px;
+			padding: 10px;
+			font-family: Roboto;
+			font-weight: 400;
+			font-size: 12px;
+			color: #88888a;
+			div {
+				line-height: 22px;
+				font-family: Roboto;
+				font-weight: 400;
+				font-size: 12px;
+				color: #88888a;
+				span {
+					color: #fff;
+					margin-left: 12px;
+				}
+			}
+		}
+    .dis{
+      
+    }
+	}
+	.active {
+		background: #161716;
+		border-radius: 5px;
+		border: 1px solid #28a909 !important;
+	}
+}
