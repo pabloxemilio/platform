@@ -1,8 +1,27 @@
+# ============================================================
+#  Nixpacks build config — Coolify deployment
+#  ONE service runs the ENTIRE platform in a single process:
+#    • REST API            (Express)
+#    • Admin panel         (/admin, static)
+#    • Player frontend     (/, static)
+#    • Aviator game        (WebSocket  @ /api/game/websocket)  <- src/game/aviator.js
+#    • Chicken Road game   (socket.io  @ /io/)                 <- src/game/chicken.js
+#  Everything is attached to the same HTTP server on ONE port,
+#  so `node server.js` boots all games + API + admin at once.
+# ============================================================
+
+providers = ["node"]
+
 [phases.setup]
 nixPkgs = ["nodejs_20"]
 
 [phases.install]
-cmds = ["npm install --production"]
+# package-lock.json is committed -> reproducible install (prod deps only).
+# Falls back to npm install if the lockfile is ever out of sync.
+cmds = ["npm ci --omit=dev || npm install --omit=dev"]
+
+# No build step: the platform is plain Node and the game clients are pre-built
+# static assets already in public/ (public/aviator, public/chicken2.html, public/static).
 
 [start]
 cmd = "node server.js"

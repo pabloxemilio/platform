@@ -53,7 +53,7 @@
     <div class="nav-item active" data-page="home" onclick="switchView('homeView')">
       <span class="nav-icon">🏠</span> Home
     </div>
-    <div class="nav-item" data-page="promotions" onclick="window.location.href='pages/promotions.html'">
+    <div class="nav-item" data-page="promotions" onclick="switchView('promotionsView'); loadPromotionsPage();">
       <span class="nav-icon">🎁</span> Promotions
       <span class="nav-badge">5</span>
     </div>
@@ -61,30 +61,30 @@
       <div class="nav-icon text-yellow">👑</div>
       VIP Club
     </div>
-    <div class="nav-item" data-page="referral" onclick="openModal('loginModal')">
+    <div class="nav-item" data-page="referral" onclick="if(typeof loggedIn==='function'&&loggedIn()){switchView('referralView');loadReferralView();}else{openModal('loginModal');}">
       <span class="nav-icon">🤝</span> Invite & Earn
     </div>
   </nav>
 
   <span class="sidebar-section-label">Games</span>
   <nav>
-    <div class="nav-item" data-page="crash">
+    <div class="nav-item" data-page="crash" onclick="switchView('homeView'); renderGames('crash');">
       <span class="nav-icon">✈️</span> Crash Games
       <span class="nav-hot">HOT</span>
     </div>
-    <div class="nav-item" data-page="slots">
+    <div class="nav-item" data-page="slots" onclick="switchView('homeView'); renderGames('slots');">
       <span class="nav-icon">🎰</span> Slots
     </div>
-    <div class="nav-item" data-page="live">
+    <div class="nav-item" data-page="live" onclick="switchView('homeView'); renderGames('live');">
       <span class="nav-icon">🎲</span> Live Casino
     </div>
-    <div class="nav-item" data-page="sports">
+    <div class="nav-item" data-page="sports" onclick="switchView('homeView'); renderGames('sports');">
       <span class="nav-icon">⚽</span> Sports
     </div>
-    <div class="nav-item" data-page="fishing">
+    <div class="nav-item" data-page="fishing" onclick="switchView('homeView'); renderGames('fishing');">
       <span class="nav-icon">🎣</span> Fishing
     </div>
-    <div class="nav-item" data-page="lottery">
+    <div class="nav-item" data-page="lottery" onclick="switchView('homeView'); renderGames('lottery');">
       <span class="nav-icon">🎟️</span> Lottery
     </div>
   </nav>
@@ -134,7 +134,7 @@
     <div class="header-marquee">
       <span class="marquee-icon">📢</span>
       <div class="marquee-text-wrap">
-        <span class="marquee-text">
+        <span class="marquee-text" id="marqueeText">
           🏆 Ha***n won ₨ 78,500 on Aviator &nbsp;|&nbsp;
           🎉 New game "Pirate Flip" now live! &nbsp;|&nbsp;
           💥 Ra***i won ₨ 28,000 on Mines &nbsp;|&nbsp;
@@ -159,12 +159,40 @@
         <button class="btn btn-gold btn-sm" data-modal="loginModal">Register</button>
       </div>
 
-      <!-- User chip (shown when logged in) -->
-      <div class="user-chip" id="headerUserChip" style="display:none;" onclick="switchView('profileView')">
+      <!-- User chip + dropdown (shown when logged in) -->
+      <div class="user-chip" id="headerUserChip" style="display:none;" onclick="toggleUserMenu(event)">
         <div class="user-avatar" id="headerUserAvatar">U</div>
         <div class="user-info">
           <span class="user-name" id="headerUserName">User</span>
           <span class="user-level" id="headerUserLevel">VIP Bronze</span>
+        </div>
+        <span class="user-chip-caret">▾</span>
+        <div class="user-menu" id="userMenu">
+          <div class="user-menu-head">
+            <div class="user-menu-bal-label">Total Balance</div>
+            <div class="user-menu-bal" id="menuBalance">₨ 0.00</div>
+            <div class="user-menu-actions">
+              <button class="btn btn-gold btn-sm" onclick="event.stopPropagation();openDeposit()">Deposit</button>
+              <button class="btn btn-outline-gold btn-sm" onclick="event.stopPropagation();openWithdraw()">Withdraw</button>
+            </div>
+          </div>
+          <div class="user-menu-cur">
+            <span class="user-menu-cur-label">Currency</span>
+            <div class="cur-chips">
+              <button class="cur-chip" data-cur="PKR" onclick="event.stopPropagation();changeCurrency('PKR')">₨ PKR</button>
+              <button class="cur-chip" data-cur="INR" onclick="event.stopPropagation();changeCurrency('INR')">₹ INR</button>
+              <button class="cur-chip" data-cur="USD" onclick="event.stopPropagation();changeCurrency('USD')">$ USD</button>
+            </div>
+          </div>
+          <div class="user-menu-sep"></div>
+          <a class="user-menu-item" onclick="switchView('profileView')"><span>👤</span> My Profile</a>
+          <a class="user-menu-item" onclick="switchView('transactionsView'); if(typeof loadTransactions==='function')loadTransactions()"><span>📜</span> Transactions</a>
+          <a class="user-menu-item" onclick="openVip()"><span>👑</span> VIP Club</a>
+          <a class="user-menu-item" onclick="openReferral()"><span>🤝</span> Invite &amp; Earn</a>
+          <a class="user-menu-item" onclick="openKycModal()"><span>🛡️</span> Verify Account <span class="user-menu-kyc" id="menuKyc">Unverified</span></a>
+          <a class="user-menu-item" onclick="switchView('settingsView')"><span>⚙️</span> Settings</a>
+          <div class="user-menu-sep"></div>
+          <a class="user-menu-item user-menu-logout" onclick="handleLogout()"><span>🚪</span> Logout</a>
         </div>
       </div>
     </div>
@@ -267,8 +295,8 @@
       </div>
       <div class="section-see-all">View All →</div>
     </div>
-    <div class="promos-grid mb-24">
-      <div class="promo-card" onclick="openModal('loginModal')">
+    <div class="promos-grid mb-24" id="promosGrid">
+      <div class="promo-card" onclick="openDeposit()">
         <img src="images/promo_banner1.png" alt="Welcome Bonus">
         <div class="promo-card-badge">HOT</div>
         <div class="promo-card-label">
@@ -276,7 +304,7 @@
           500% First Deposit Bonus
         </div>
       </div>
-      <div class="promo-card" onclick="openModal('loginModal')">
+      <div class="promo-card" onclick="openVip()">
         <img src="images/promo_banner2.png" alt="VIP Program">
         <div class="promo-card-badge" style="background:var(--purple);">VIP</div>
         <div class="promo-card-label">
@@ -284,7 +312,7 @@
           VIP Weekly Cashback 30%
         </div>
       </div>
-      <div class="promo-card" onclick="openModal('loginModal')"
+      <div class="promo-card" onclick="openReferral()"
            style="background:linear-gradient(135deg,#0d1a0d,#001a00)">
         <img src="images/hero_banner.png" alt="Invite Friends" style="opacity:0.7">
         <div class="promo-card-label">
@@ -301,8 +329,8 @@
         <div class="vip-title">Unlock <span>Elite Rewards</span><br>& Privileges</div>
         <p class="vip-desc">Climb the VIP ladder to unlock weekly cashback, higher limits, personal account managers, and exclusive bonuses.</p>
         <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="btn btn-gold" onclick="openModal('loginModal')">Join VIP Now</button>
-          <button class="btn btn-ghost btn-sm">Learn More</button>
+          <button class="btn btn-gold" onclick="openVip()">Join VIP Now</button>
+          <button class="btn btn-ghost btn-sm" onclick="openVip()">Learn More</button>
         </div>
       </div>
       <div class="vip-levels">
@@ -449,6 +477,71 @@
       </div>
     </section>
 
+    <!-- ── INVITE & EARN (REFERRAL) ── -->
+    <section id="referralView" class="view-section" style="display: none;">
+      <div class="banner" style="background:linear-gradient(135deg, rgba(230,179,37,0.12), rgba(184,134,11,0.05)); border:1px solid var(--border-gold);">
+        <h1 class="banner-title text-yellow">🤝 Invite &amp; Earn</h1>
+        <p>Share your link — earn a bonus for every friend who joins and plays.</p>
+      </div>
+      <div style="padding:20px; max-width:900px; margin:0 auto;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:20px;">
+          <div class="stat-card" style="flex-direction:column; align-items:flex-start;">
+            <div class="stat-label">Total Invites</div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--gold);" id="refTotal">0</div>
+          </div>
+          <div class="stat-card" style="flex-direction:column; align-items:flex-start;">
+            <div class="stat-label">Total Earned</div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--green);" id="refEarned">₨ 0.00</div>
+          </div>
+          <div class="stat-card" style="flex-direction:column; align-items:flex-start;">
+            <div class="stat-label">Per Friend</div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--text-primary);">₨ 555</div>
+          </div>
+        </div>
+
+        <div class="stat-card" style="flex-direction:column; align-items:stretch; border:1px solid var(--border-gold); background:linear-gradient(135deg, rgba(230,179,37,0.06), rgba(0,0,0,0));">
+          <div class="stat-label" style="margin-bottom:6px;">Your Referral Code</div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:16px;">
+            <div id="refCode" style="font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:800; letter-spacing:3px; color:var(--gold); background:rgba(0,0,0,0.35); border:1px dashed var(--border-gold); border-radius:var(--radius-md); padding:10px 18px; flex:1; text-align:center;">--------</div>
+            <button class="btn btn-outline-gold" onclick="copyRefCode()">Copy</button>
+          </div>
+          <div class="stat-label" style="margin-bottom:6px;">Your Referral Link</div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input id="refLink" class="form-input" readonly value="" style="flex:1;">
+            <button class="btn btn-gold" id="copyReferralBtn">Copy Link</button>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:20px;">
+          <div class="stat-card" style="flex-direction:column; text-align:center;">
+            <div class="stat-icon text-gold">①</div><h3>Share your link</h3>
+            <p class="text-sm text-muted">Send your link to friends via WhatsApp, Telegram, etc.</p>
+          </div>
+          <div class="stat-card" style="flex-direction:column; text-align:center;">
+            <div class="stat-icon text-gold">②</div><h3>They join &amp; deposit</h3>
+            <p class="text-sm text-muted">Your friend signs up with your code and makes a deposit.</p>
+          </div>
+          <div class="stat-card" style="flex-direction:column; text-align:center;">
+            <div class="stat-icon text-gold">③</div><h3>You both earn</h3>
+            <p class="text-sm text-muted">You get a referral bonus credited to your wallet.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PROMOTIONS ── -->
+    <section id="promotionsView" class="view-section" style="display: none;">
+      <div class="banner" style="background:linear-gradient(135deg, rgba(230,179,37,0.12), rgba(184,134,11,0.05)); border:1px solid var(--border-gold);">
+        <h1 class="banner-title text-yellow">🎁 Promotions &amp; Bonuses</h1>
+        <p>Claim welcome bonuses, weekly cashback and more — all live offers in one place.</p>
+      </div>
+      <div style="padding:20px;">
+        <div id="promotionsList" class="promotions-page-grid">
+          <div class="text-muted" style="padding:40px; text-align:center;">Loading offers…</div>
+        </div>
+      </div>
+    </section>
+
     <!-- ── TRANSACTIONS ── -->
     <section id="transactionsView" class="view-section" style="display: none;">
       <div class="banner">
@@ -488,17 +581,26 @@
       </div>
       <div style="padding:20px; max-width:600px; margin:0 auto;">
         <div class="stat-card" style="flex-direction:column; align-items:stretch;">
-          <h3>Profile Information</h3>
-          <form id="settingsForm" style="margin-top:15px; display:flex; flex-direction:column; gap:15px;" onsubmit="saveSettings(event)">
+          <h3 style="margin-top:0;">Profile Information</h3>
+          <form id="settingsForm" style="margin-top:15px;" onsubmit="saveSettings(event)">
             <div class="form-group">
-              <label>Username</label>
-              <input type="text" id="setUname" class="input" placeholder="Your username" required>
+              <label class="form-label">Username</label>
+              <input type="text" id="setUname" class="form-input" placeholder="Your username" required>
             </div>
             <div class="form-group">
-              <label>Full Name</label>
-              <input type="text" id="setFullName" class="input" placeholder="e.g. John Doe">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="setFullName" class="form-input" placeholder="e.g. John Doe">
             </div>
-            <button type="submit" class="btn btn-primary w-full" id="btnSaveSettings">Save Changes</button>
+            <div class="form-group">
+              <label class="form-label">Display Currency</label>
+              <select id="setCurrency" class="form-input" onchange="changeCurrency(this.value)">
+                <option value="PKR">PKR — ₨ Pakistani Rupee</option>
+                <option value="INR">INR — ₹ Indian Rupee</option>
+                <option value="USD">USD — $ US Dollar</option>
+              </select>
+              <div class="text-sm text-muted" style="margin-top:6px;">Changes the symbol shown across the platform and every game. Display-only — your balance amount stays the same.</div>
+            </div>
+            <button type="submit" class="btn btn-gold w-full" id="btnSaveSettings" style="margin-top:8px;">Save Changes</button>
           </form>
         </div>
       </div>
@@ -511,23 +613,39 @@
         <p>We're here to help you 24/7.</p>
       </div>
       <div style="padding:20px; display:flex; flex-wrap:wrap; gap:20px;">
-        <div style="flex:1; min-width:300px;">
-          <div class="stat-card" style="flex-direction:column; align-items:stretch; height:400px; background: rgba(25,25,35,0.7); border: 1px solid rgba(255,255,255,0.1);">
-            <div style="padding-bottom:10px; border-bottom:1px solid var(--border); margin-bottom:10px; font-weight:bold; display: flex; align-items: center; gap: 10px;">
-              <span class="text-green">●</span> Live Chat Agent
-            </div>
-            <div id="chatMessages" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:5px; margin-bottom:10px;">
-              <div style="background:var(--primary); padding:10px 15px; border-radius:15px 15px 15px 0; align-self:flex-start; max-width:80%; color:#fff;">
-                Hello! Welcome to AVAITOR Support. How can we help you today?
+        <div style="flex:1.4; min-width:320px;">
+          <div class="chat-box">
+            <div class="chat-head">
+              <div class="chat-agent-av">🎧</div>
+              <div>
+                <div style="font-weight:700;">AVAITOR Support</div>
+                <div style="font-size:0.75rem;color:var(--green);"><span style="font-size:0.7rem;">●</span> Online · replies in ~1 min</div>
               </div>
             </div>
-            <div style="display:flex; gap:10px;">
-              <input type="text" id="chatInput" class="input" placeholder="Type a message..." style="flex:1;" onkeypress="if(event.key==='Enter') sendChatMessage()">
-              <button class="btn btn-primary" onclick="sendChatMessage()">Send</button>
+            <div id="chatMessages" class="chat-messages">
+              <div class="chat-bubble agent">👋 Hi! Welcome to AVAITOR Support. How can we help — deposits, withdrawals, KYC or bonuses?</div>
+            </div>
+            <div class="chat-quick" id="chatQuick">
+              <button class="chat-chip" onclick="quickChat('How do I deposit?')">💳 Deposit help</button>
+              <button class="chat-chip" onclick="quickChat('How long do withdrawals take?')">💸 Withdrawal</button>
+              <button class="chat-chip" onclick="quickChat('How do I verify KYC?')">🛡️ KYC</button>
+              <button class="chat-chip" onclick="quickChat('Tell me about the bonus')">🎁 Bonus</button>
+            </div>
+            <div class="chat-input-row">
+              <input type="text" id="chatInput" class="input" placeholder="Type a message…" onkeypress="if(event.key==='Enter') sendChatMessage()">
+              <button class="btn btn-gold" onclick="sendChatMessage()">Send</button>
             </div>
           </div>
         </div>
         <div style="flex:1; min-width:300px; display:flex; flex-direction:column; gap:20px;">
+          <div class="stat-card" style="flex-direction:column; align-items:stretch;">
+            <h3 style="margin-top:0;">Reach us directly</h3>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+              <a class="support-contact" href="https://wa.me/0000000000" target="_blank" style="background:rgba(37,211,102,0.12);border-color:rgba(37,211,102,0.3);"><span style="font-size:1.3rem;">🟢</span><div><strong>WhatsApp</strong><div class="text-sm text-muted">Fastest response, 24/7</div></div></a>
+              <a class="support-contact" href="https://t.me/avaitor" target="_blank" style="background:rgba(34,158,217,0.12);border-color:rgba(34,158,217,0.3);"><span style="font-size:1.3rem;">✈️</span><div><strong>Telegram</strong><div class="text-sm text-muted">@avaitor</div></div></a>
+              <a class="support-contact" href="mailto:support@avaitor.com" style="background:rgba(230,179,37,0.1);border-color:var(--border-gold);"><span style="font-size:1.3rem;">✉️</span><div><strong>Email</strong><div class="text-sm text-muted">support@avaitor.com</div></div></a>
+            </div>
+          </div>
           <div class="stat-card" style="flex-direction:column; align-items:flex-start;">
             <h3>Frequently Asked Questions</h3>
             <div style="margin-top:15px; width:100%;">
@@ -636,7 +754,7 @@
       <span class="bnav-icon">🏠</span>
       <span class="bnav-label">Home</span>
     </div>
-    <div class="bnav-item" onclick="openModal('loginModal')">
+    <div class="bnav-item" onclick="switchView('promotionsView'); loadPromotionsPage();">
       <span class="bnav-icon">🎁</span>
       <span class="bnav-label">Promo</span>
     </div>
@@ -677,10 +795,10 @@
         <div id="googleLoginContainer" style="display:flex; justify-content:center; margin-bottom:14px;"></div>
         <div class="form-divider">or continue with email/phone</div>
         <div class="form-group">
-          <label class="form-label">Phone / Username</label>
+          <label class="form-label">Email or Phone</label>
           <div class="form-input-icon">
-            <span class="input-icon">📱</span>
-            <input class="form-input" type="text" id="loginUser" placeholder="+92 300 0000000" autocomplete="tel">
+            <span class="input-icon">👤</span>
+            <input class="form-input" type="text" id="loginUser" placeholder="you@email.com  or  0300 0000000" autocomplete="username">
           </div>
         </div>
         <div class="form-group">
@@ -709,10 +827,10 @@
         <div id="googleRegisterContainer" style="display:flex; justify-content:center; margin-bottom:14px;"></div>
         <div class="form-divider">or continue with email/phone</div>
         <div class="form-group">
-          <label class="form-label">Phone / Email</label>
+          <label class="form-label">Email or Phone</label>
           <div class="form-input-icon">
-            <span class="input-icon">📱</span>
-            <input class="form-input" type="text" id="regLogin" placeholder="Enter Phone or Email" autocomplete="username">
+            <span class="input-icon">👤</span>
+            <input class="form-input" type="text" id="regLogin" placeholder="you@email.com  or  0300 0000000" autocomplete="username">
           </div>
         </div>
         <div class="form-group">
@@ -728,6 +846,17 @@
           <div class="form-input-icon">
             <span class="input-icon">🎟️</span>
             <input class="form-input" type="text" id="regRefCode" placeholder="Enter referral code">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Currency</label>
+          <div class="form-input-icon">
+            <span class="input-icon">💱</span>
+            <select class="form-input" id="regCurrency">
+              <option value="PKR">PKR — ₨ Pakistani Rupee</option>
+              <option value="INR">INR — ₹ Indian Rupee</option>
+              <option value="USD">USD — $ US Dollar</option>
+            </select>
           </div>
         </div>
         <div class="form-check-row">
@@ -868,36 +997,36 @@ window.addEventListener('resize', checkMobile);
 <script src="js/main.js"></script>
 
 <!-- KYC Modal -->
-<div class="modal-overlay" id="kycModal" onclick="if(event.target===this) closeModal('kycModal')">
+<div class="modal-backdrop" id="kycModal">
   <div class="modal">
     <div class="modal-header">
-      <h2>Identity Verification (KYC)</h2>
-      <button class="close-btn" onclick="closeModal('kycModal')">×</button>
+      <div class="modal-title">🛡️ Identity Verification (KYC)</div>
+      <button class="modal-close" onclick="closeModal('kycModal')">✕</button>
     </div>
-    <div style="margin-bottom:15px; color:var(--text-muted); font-size:0.9rem;">
-      Upload a valid government-issued ID to verify your identity. This helps secure your account.
-    </div>
-    <form id="kycForm" onsubmit="submitKyc(event)">
-      <div class="form-group">
-        <label>Document Type</label>
-        <select class="input" id="kycDocType" required>
-          <option value="cnic">CNIC / ID Card</option>
-          <option value="passport">Passport</option>
-          <option value="license">Driver's License</option>
-        </select>
+    <div class="modal-body">
+      <div style="margin-bottom:16px; color:var(--text-muted); font-size:0.9rem;">
+        Upload a valid government-issued ID to verify your identity. This helps secure your account and unlock higher withdrawal limits.
       </div>
-      <div class="form-group">
-        <label>Upload Document Front Image</label>
-        <div style="border: 2px dashed var(--border); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.02);" onclick="document.getElementById('kycFrontFile').click()">
-          <span style="font-size:2rem; opacity:0.5;">📄</span>
-          <p style="margin:10px 0 0 0; color:var(--text-muted); font-size:0.85rem;">Click to browse or drag and drop</p>
+      <form id="kycForm" onsubmit="submitKyc(event)">
+        <div class="form-group">
+          <label class="form-label">Document Type</label>
+          <select class="form-input" id="kycDocType" required>
+            <option value="cnic">CNIC / ID Card</option>
+            <option value="passport">Passport</option>
+            <option value="license">Driver's License</option>
+          </select>
         </div>
-        <input type="file" id="kycFrontFile" style="display:none;" accept="image/*" required>
-      </div>
-      <div class="form-group" style="margin-top:15px;">
-        <button type="submit" class="btn btn-primary w-full" id="kycSubmitBtn">Submit for Verification</button>
-      </div>
-    </form>
+        <div class="form-group">
+          <label class="form-label">Upload Document Front Image</label>
+          <div id="kycDropZone" style="border:2px dashed var(--border-gold); padding:24px; text-align:center; border-radius:var(--radius-md); cursor:pointer; background:rgba(230,179,37,0.04);" onclick="document.getElementById('kycFrontFile').click()">
+            <span style="font-size:2rem; opacity:0.7;">📄</span>
+            <p id="kycFileName" style="margin:10px 0 0 0; color:var(--text-muted); font-size:0.85rem;">Click to browse or drag and drop</p>
+          </div>
+          <input type="file" id="kycFrontFile" style="display:none;" accept="image/*" required onchange="if(this.files[0]){document.getElementById('kycFileName').textContent=this.files[0].name;document.getElementById('kycFileName').style.color='var(--gold)';}">
+        </div>
+        <button type="submit" class="btn btn-gold w-full" id="kycSubmitBtn" style="margin-top:8px;">Submit for Verification</button>
+      </form>
+    </div>
   </div>
 </div>
 

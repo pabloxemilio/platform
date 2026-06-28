@@ -25,27 +25,29 @@ router.get('/', adminAuth, async (req, res) => {
 // POST /api/admin/withdrawals/:id/approve
 router.post('/:id/approve', adminAuth, async (req, res) => {
   try {
-    const { data: wd } = await supabase.from('withdrawals').select('*').eq('id', req.params.id).single();
-    if (!wd) return res.status(404).json({ error: 'Not found' });
-    if (wd.status !== 'pending') return res.status(400).json({ error: 'Already processed' });
-
-    // Debit wallet on approval
-    await debitWallet(wd.user_id, wd.amount, 'withdrawal', `Withdrawal via ${wd.method}`, wd.id);
-
-    const { data, error } = await supabase
+    // Atomically claim: pending -> approved only if still pending (idempotency gate).
+    const { data: wd, error: claimErr } = await supabase
       .from('withdrawals')
       .update({ status: 'approved', processed_by: req.admin.id, processed_at: new Date().toISOString() })
-      .eq('id', req.params.id).select().single();
-    if (error) throw error;
+      .eq('id', req.params.id).eq('status', 'pending')
+      .select('*').single();
+    if (claimErr || !wd) return res.status(400).json({ error: 'Withdrawal not found or already processed' });
 
-    await supabase.from('admin_logs').insert({
-      admin_id: req.admin.id, action: 'withdrawal_approved',
-      target_type: 'withdrawal', target_id: req.params.id,
-      new_value: { amount: wd.amount }, ip_address: req.adminIp,
-    });
-
-    res.json({ message: 'Withdrawal approved and balance deducted', withdrawal: data });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    try {
+      // Debit wallet on approval (runs exactly once)
+      await debitWallet(wd.user_id, wd.amount, 'withdrawal', `Withdrawal via ${wd.method}`, wd.id);
+      await supabase.from('admin_logs').insert({
+        admin_id: req.admin.id, action: 'withdrawal_approved',
+        target_type: 'withdrawal', target_id: req.params.id,
+        new_value: { amount: wd.amount }, ip_address: req.adminIp,
+      });
+      res.json({ message: 'Withdrawal approved and balance deducted', withdrawal: wd });
+    } catch (inner) {
+      // Debit failed (e.g. insufficient balance) — revert the claim so it stays pending.
+      await supabase.from('withdrawals').update({ status: 'pending', processed_by: null, processed_at: null }).eq('id', wd.id);
+      throw inner;
+    }
+  } catch (e) { console.error('Withdrawal approve error:', e.message); res.status(500).json({ error: e.message }); }
 });
 
 // POST /api/admin/withdrawals/:id/reject

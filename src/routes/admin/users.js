@@ -19,7 +19,11 @@ router.get('/', adminAuth, async (req, res) => {
       .range(from, from + limit - 1);
 
     if (status) q = q.eq('status', status);
-    if (search) q = q.or(`username.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`);
+    if (search) {
+      // strip PostgREST filter metacharacters to avoid filter injection
+      const s = String(search).replace(/[,()%*\\]/g, '').slice(0, 80);
+      if (s) q = q.or(`username.ilike.%${s}%,phone.ilike.%${s}%,email.ilike.%${s}%`);
+    }
 
     const { data, count, error } = await q;
     if (error) throw error;
@@ -47,9 +51,14 @@ router.get('/:id', adminAuth, async (req, res) => {
 // PATCH /api/admin/users/:id  — update user (status, block, etc.)
 router.patch('/:id', adminAuth, async (req, res) => {
   try {
-    const allowed = ['status', 'username', 'full_name', 'kyc_status', 'is_admin'];
+    const allowed = ['status', 'username', 'full_name', 'kyc_status', 'is_admin', 'currency'];
     const updates = {};
     allowed.forEach(f => { if (req.body[f] !== undefined) updates[f] = req.body[f]; });
+
+    if (updates.currency && !['PKR', 'INR', 'USD'].includes(String(updates.currency).toUpperCase())) {
+      return res.status(400).json({ error: 'Invalid currency. Allowed: PKR, INR, USD' });
+    }
+    if (updates.currency) updates.currency = String(updates.currency).toUpperCase();
 
     if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields to update' });
 

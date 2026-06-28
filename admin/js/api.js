@@ -45,6 +45,49 @@ const POST   = (path, body)   => api('POST',   path, body);
 const PATCH  = (path, body)   => api('PATCH',  path, body);
 const DELETE = (path)         => api('DELETE', path);
 
+// ── Image upload to Supabase Storage ──
+async function uploadImage(file, folder) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('folder', folder || 'misc');
+  return api('POST', '/admin/upload', fd, true);   // returns { url, path }
+}
+
+// Wire an "Upload" button + hidden file input + preview to a URL text field.
+// Requires elements: #<id> (text input), #<id>_btn (button), optional #<id>_prev (img).
+function setupUploader(urlInputId, folder) {
+  const urlInput = document.getElementById(urlInputId);
+  const btn      = document.getElementById(urlInputId + '_btn');
+  if (!urlInput || !btn) return;
+  let fileInput = document.getElementById(urlInputId + '_file');
+  if (!fileInput) {
+    fileInput = document.createElement('input');
+    fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.id = urlInputId + '_file'; fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+  }
+  btn.onclick = () => fileInput.click();
+  fileInput.onchange = async () => {
+    const f = fileInput.files[0]; if (!f) return;
+    const label = btn.textContent; btn.textContent = 'Uploading…'; btn.disabled = true;
+    try {
+      const { url } = await uploadImage(f, folder);
+      urlInput.value = url;
+      previewImg(urlInputId);
+      showToast('Image uploaded', 'success');
+    } catch (e) { showToast('Upload failed: ' + e.message, 'error'); }
+    finally { btn.textContent = label; btn.disabled = false; fileInput.value = ''; }
+  };
+  urlInput.addEventListener('input', () => previewImg(urlInputId));
+}
+function previewImg(urlInputId) {
+  const urlInput = document.getElementById(urlInputId);
+  const prev = document.getElementById(urlInputId + '_prev');
+  if (!urlInput || !prev) return;
+  const v = urlInput.value.trim();
+  if (v) { prev.src = v.startsWith('http') || v.startsWith('data:') ? v : '/' + v.replace(/^\//, ''); prev.style.display = 'block'; }
+  else { prev.style.display = 'none'; }
+}
+
 // ── Toast ──
 function showToast(message, type = 'success') {
   const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };

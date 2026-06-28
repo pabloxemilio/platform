@@ -1,13 +1,18 @@
 const express  = require('express');
 const jwt      = require('jsonwebtoken');
 const router   = express.Router();
-const { supabase } = require('../config/supabase');
+const { supabase, supabaseAnonClient } = require('../config/supabase');
+// IMPORTANT: user sign-in must NOT run on the service-role `supabase` client —
+// signInWithPassword/IdToken/refreshSession set the client's session, which would
+// downgrade the shared service client to that user (breaking RLS bypass for all
+// later DB writes). Use the anon client for sign-in; keep `supabase` for data + admin.
 const { processReferral } = require('../services/referral');
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { phone, email, password, username, referral_code } = req.body;
+    const { phone, email, password, username, referral_code, currency } = req.body;
+    const cur = ['PKR', 'INR', 'USD'].includes(currency) ? currency : 'PKR';
     if (!password) return res.status(400).json({ error: 'Password required' });
     if (!phone && !email) return res.status(400).json({ error: 'Phone or email required' });
     if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
@@ -24,17 +29,26 @@ router.post('/register', async (req, res) => {
 
     const userId = authData.user.id;
 
-    // Create profile
-    const { error: profileError } = await supabase.from('users').insert({
-      id:       userId,
+    // The on_auth_user_created DB trigger already created the profile row.
+    // Enrich it with the registration fields (best-effort — never fail signup on this).
+    const updateFields = {
       phone:    phone || null,
-      email:    email || null,
       username: username || (phone ? `user_${phone.slice(-4)}` : `user_${Date.now()}`),
-    });
-    if (profileError) {
-      await supabase.auth.admin.deleteUser(userId);
-      return res.status(400).json({ error: profileError.message });
+    };
+    let { error: profileError, data: updated } = await supabase.from('users')
+      .update({ ...updateFields, currency: cur }).eq('id', userId).select('id');
+    // Resilience: if the currency column hasn't been added yet (07_currency.sql), update without it.
+    if (profileError && /currency/i.test(profileError.message || '')) {
+      ({ error: profileError, data: updated } = await supabase.from('users').update(updateFields).eq('id', userId).select('id'));
     }
+    // Fallback: if no profile row existed yet (no trigger), create it.
+    if (!profileError && (!updated || updated.length === 0)) {
+      ({ error: profileError } = await supabase.from('users').insert({ id: userId, email: email || null, ...updateFields, currency: cur }));
+      if (profileError && /currency/i.test(profileError.message || '')) {
+        ({ error: profileError } = await supabase.from('users').insert({ id: userId, email: email || null, ...updateFields }));
+      }
+    }
+    if (profileError) console.warn('Profile enrich (non-fatal):', profileError.message);
 
     // Process referral
     if (referral_code) await processReferral(userId, referral_code);
@@ -42,8 +56,8 @@ router.post('/register', async (req, res) => {
     // Sign in to get token
     const loginId = email || phone;
     const { data: session, error: loginErr } = email
-      ? await supabase.auth.signInWithPassword({ email, password })
-      : await supabase.auth.signInWithPassword({ phone, password });
+      ? await supabaseAnonClient.auth.signInWithPassword({ email, password })
+      : await supabaseAnonClient.auth.signInWithPassword({ phone, password });
 
     if (loginErr) {
       if (loginErr.message.includes('Email not confirmed')) {
@@ -61,11 +75,13 @@ router.post('/register', async (req, res) => {
     return res.status(201).json({
       message: 'Registration successful! Welcome bonus pending.',
       token:   session.session.access_token,
+      refresh_token: session.session.refresh_token,
       user: {
         id:       userId,
         phone,
         email,
         username: username || `user_${Date.now()}`,
+        currency: cur,
       },
     });
   } catch (e) {
@@ -81,8 +97,8 @@ router.post('/login', async (req, res) => {
     if (!password) return res.status(400).json({ error: 'Password required' });
 
     const { data, error } = email
-      ? await supabase.auth.signInWithPassword({ email, password })
-      : await supabase.auth.signInWithPassword({ phone, password });
+      ? await supabaseAnonClient.auth.signInWithPassword({ email, password })
+      : await supabaseAnonClient.auth.signInWithPassword({ phone, password });
 
     if (error) return res.status(401).json({ error: 'Invalid credentials' });
 
@@ -118,6 +134,7 @@ router.post('/login', async (req, res) => {
         status:    profile.status,
         is_admin:  profile.is_admin,
         referral_code: profile.referral_code,
+        currency:  profile.currency || 'PKR',
       },
     });
   } catch (e) {
@@ -133,7 +150,7 @@ router.post('/google', async (req, res) => {
     if (!id_token) return res.status(400).json({ error: 'Google ID token required' });
 
     // Verify token with Supabase
-    const { data, error } = await supabase.auth.signInWithIdToken({
+    const { data, error } = await supabaseAnonClient.auth.signInWithIdToken({
       provider: 'google',
       token: id_token
     });
@@ -190,7 +207,7 @@ router.post('/admin-login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabaseAnonClient.auth.signInWithPassword({ email, password });
     if (error) return res.status(401).json({ error: 'Invalid credentials' });
 
     const { data: profile } = await supabase
@@ -229,12 +246,29 @@ router.get('/me', require('../middleware/auth'), async (req, res) => {
   }
 });
 
+// POST /api/auth/currency — change the logged-in user's display currency
+const ALLOWED_CURRENCIES = ['PKR', 'INR', 'USD'];
+router.post('/currency', require('../middleware/auth'), async (req, res) => {
+  try {
+    const currency = String(req.body.currency || '').toUpperCase();
+    if (!ALLOWED_CURRENCIES.includes(currency)) {
+      return res.status(400).json({ error: 'Invalid currency. Allowed: ' + ALLOWED_CURRENCIES.join(', ') });
+    }
+    const { data, error } = await supabase
+      .from('users').update({ currency }).eq('id', req.user.id).select('id,currency').single();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ currency: data.currency });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to update currency' });
+  }
+});
+
 // POST /api/auth/refresh
 router.post('/refresh', async (req, res) => {
   try {
     const { refresh_token } = req.body;
     if (!refresh_token) return res.status(400).json({ error: 'Refresh token required' });
-    const { data, error } = await supabase.auth.refreshSession({ refresh_token });
+    const { data, error } = await supabaseAnonClient.auth.refreshSession({ refresh_token });
     if (error) return res.status(401).json({ error: 'Token refresh failed' });
     res.json({ token: data.session.access_token, refresh_token: data.session.refresh_token });
   } catch (e) {
