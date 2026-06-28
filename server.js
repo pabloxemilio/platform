@@ -15,8 +15,22 @@ app.use(helmet({
 }));
 app.use(compression());
 app.use(morgan('combined'));
+// ── CORS ──
+// CORS_ORIGIN="*"  -> allow ANY origin (reflected per-request so it stays
+//   compatible with credentials:true; "*" + credentials is illegal in browsers).
+// CORS_ORIGIN="a.com,b.com" -> allow those, matched ignoring http/https and www.
+const corsList = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',').map(s => s.trim()).filter(Boolean);
+const corsAllowAll = corsList.includes('*');
+const stripOrigin = (u) => u.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '').toLowerCase();
+const corsAllowed = new Set(corsList.map(stripOrigin));
 app.use(cors({
-  origin: (process.env.CORS_ORIGIN || 'http://localhost:3000').split(','),
+  origin: corsAllowAll
+    ? true                                   // reflect any origin
+    : (origin, cb) => {
+        if (!origin) return cb(null, true);  // same-origin / curl / mobile apps
+        cb(null, corsAllowed.has(stripOrigin(origin)));
+      },
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
