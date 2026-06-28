@@ -37,10 +37,17 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ── Static Files ──
+// Don't let browsers cache HTML entry points (so game client fixes always take
+// effect on reload); hashed JS/CSS assets can still be cached normally.
+const staticOpts = {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+  },
+};
 // Serve admin panel
-app.use('/admin', express.static(path.join(__dirname, 'admin')));
+app.use('/admin', express.static(path.join(__dirname, 'admin'), staticOpts));
 // Serve frontend (optional - copy AVAITOR folder here)
-app.use('/', express.static(path.join(__dirname, 'public')));
+app.use('/', express.static(path.join(__dirname, 'public'), staticOpts));
 
 // ── API Routes ──
 app.use('/api/auth',        require('./src/routes/auth'));
