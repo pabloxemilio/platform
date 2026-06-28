@@ -129,8 +129,11 @@
 				function Patched(url, protocols) {
 					try {
 						const u = new URL(url, window.location.href)
-						u.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-						u.host = window.location.host
+						const https = window.location.protocol === 'https:'
+						u.protocol = https ? 'wss:' : 'ws:'
+						// On https use the bare hostname (port 443 via the proxy); the game's
+						// default ":3000" is for local dev only. On http keep the dev host:port.
+						u.host = https ? window.location.hostname : window.location.host
 						url = u.toString()
 					} catch (e) {}
 					return new Orig(url, protocols)
