@@ -1,5 +1,12 @@
 const { createClient } = require('@supabase/supabase-js');
 
+// Node < 22 has no global WebSocket. @supabase/supabase-js spins up a Realtime
+// client at construct time which needs one (we don't use Realtime, but the
+// constructor throws without it). Polyfill with the `ws` package on older Node.
+if (typeof globalThis.WebSocket === 'undefined') {
+  try { globalThis.WebSocket = require('ws'); } catch { /* ws always present (dependency) */ }
+}
+
 const supabaseUrl     = process.env.SUPABASE_URL;
 const supabaseAnon    = process.env.SUPABASE_ANON_KEY;
 const supabaseService = process.env.SUPABASE_SERVICE_ROLE_KEY;
