@@ -1,0 +1,69 @@
+
+PT2_shou.png
+size: 168,324
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+jhlo_00
+  rotate: true
+  xy: 113, 231
+  size: 44, 45
+  orig: 60, 60
+  offset: 8, 8
+  index: -1
+jhlo_01
+  rotate: true
+  xy: 113, 277
+  size: 44, 46
+  orig: 60, 60
+  offset: 8, 7
+  index: -1
+lsqe_00
+  rotate: false
+  xy: 87, 109
+  size: 78, 77
+  orig: 90, 90
+  offset: 7, 7
+  index: -1
+lsqe_01
+  rotate: false
+  xy: 2, 129
+  size: 83, 83
+  orig: 90, 90
+  offset: 4, 4
+  index: -1
+lsqe_02
+  rotate: false
+  xy: 87, 30
+  size: 78, 77
+  orig: 90, 90
+  offset: 7, 7
+  index: -1
+lsqe_03
+  rotate: false
+  xy: 2, 44
+  size: 83, 83
+  orig: 90, 90
+  offset: 4, 4
+  index: -1
+shou1
+  rotate: false
+  xy: 2, 214
+  size: 109, 107
+  orig: 111, 116
+  offset: 0, 6
+  index: -1
+zhlz_00
+  rotate: false
+  xy: 113, 188
+  size: 41, 41
+  orig: 45, 45
+  offset: 2, 2
+  index: -1
+zhlz_01
+  rotate: false
+  xy: 2, 2
+  size: 41, 40
+  orig: 45, 45
+  offset: 2, 3
+  index: -1

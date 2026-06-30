@@ -1,0 +1,167 @@
+syntax = "proto3";
+package client_proto;
+
+
+/*
+  登录相关协议 GMMI_LOGIN = 1
+*/
+
+enum LOGIN_SUB_MSG_ID
+{
+    LSMI_LOGIN_NULL = 0;
+    LSMI_LOGIN_ID_MIN = 899;
+    LSMI_LOGIN_REQ = 901;                       // 登录请求
+    LSMI_LOGIN_RESP = 902;                      // 登录返回
+    // PHP交互
+    LSMI_LOGIN_PHP_REQ = 903;                   // 登录请求
+    LSMI_LOGIN_PHP_RESP = 904;                  // 登录返回
+    LSMI_LOGIN_BIND_REQ = 905;                  // 账号绑定请求
+    LSMI_LOGIN_BIND_RESP = 906;                 // 账号绑定返回
+
+    LSMI_REPORT_REG_DATA_REQ = 909;
+    LSMI_REPORT_REG_DATA_RESP = 910;
+    LSMI_REPORT_KOL_DATA_REQ = 911;
+    LSMI_REPORT_KOL_DATA_RESP = 912;
+
+    LSMI_LOGIN_ID_MAX = 950;
+}
+
+message UserBasicInfo
+{
+    uint32 uid = 1;                             // uid
+    string user_name = 2;                       // 昵称
+    string user_mobile = 3;                     // 手机
+    string user_email = 4;                      // 邮箱
+    string user_avatar = 5;                     // 头像
+    int32 user_gender = 6;                      // 性别
+    string package_name = 7;                    // 包名
+    string channel_id = 8;                      // 渠道
+    string cur_cli_ver = 9;                     // 版本
+    string invite_code = 10;                    // 邀请码
+    int64 user_score = 11;                      // 当前经验
+    int64 user_level = 12;                      // 当前等级
+}
+
+// LSMI_LOGIN_REQ 小游戏登录请求
+message LoginReq
+{
+    string login_token = 1;                     // 登录token
+    string login_ip = 2;                       // 登录ip
+    string lang = 3;                           // 语言
+    string client_version = 4;                 // 客户端版本
+    string os_version = 5;                     // 系统版本
+}
+
+// 是否绑定手机
+enum IS_BIND_PHONE_DEF
+{
+    IBPD_NULL = 0;
+    IBPD_YES = 1;                               // 绑定
+    IBPD_NO = 2;                                // 未绑定
+    IBPD_NOT_SUPPORT = 3;                       // 不支持绑定
+}
+
+enum LOGIN_ERR_CODE
+{
+    LOGIN_ERR_NULL = 0;
+    LOGIN_ERR_USER_NOTEXIST = 1;              // 账号不存在
+    LOGIN_ERR_TOKEN_INVALID = 2;              // token无效
+    LOGIN_ERR_FORBIDDEN = 3;                  // 封号
+    LOGIN_ERR_MOBILE_INVALID = 4;             // 手机号不存在
+    LOGIN_ERR_PARAM_INVALID = 5;              // 参数错误
+}
+
+message UserGameInfo
+{
+    int32 game_id = 1;                         // 游戏id
+    int32 game_srvtype = 2;                    // 游戏服务
+    int32 game_svid = 3;                        // 游戏svid
+    int32 game_tid = 4;                         // 游戏tid
+    string game_plat = 5;                       // 游戏平台
+}
+// LSMI_LOGIN_RESP 登录返回
+message LoginResp
+{
+    int32 result = 1;                           // 登录结果 0=成功
+    uint32 user_id = 2;                         // 用户uid
+    uint32 temp_uin = 3;                        // 临时uid
+    UserBasicInfo basic_info = 4;               // 用户基础信息
+    // int32 type = 5;                             // 是否绑定手机（参考定义IS_BIND_PHONE_DEF）
+    int64 timestamp = 5;                        // 当前时间戳
+    UserGameInfo game_info = 6;                 // 游戏信息
+}
+// 登录类型
+enum LOGIN_TYPE_DEF
+{
+    LTD_NULL = 0;
+    LTD_TOKEN = 1;                              // 游客登录
+    LTD_PASSWORD = 2;                           // 手机登录
+}
+// PHP 登录请求 LSMI_LOGIN_PHP_REQ
+message LoginPhpReq
+{
+    string channel = 1;                         // 渠道
+    string device_id = 2;                       // 设备id唯一
+    string login_ip = 3;                            // 登录ip
+    string fbid = 4;                            // PIXELID
+    string pkg = 5;                             // 当前APP所用的包名
+    string version = 6;                         // 客户端系统版本号
+    string telephone = 7;                       // 手机号
+    int32 login_type = 8;                       // 登录方式（LOGIN_TYPE_DEF 1-游客; 2-手机登录）
+    string param = 9;                           // af参数
+    string custom_channel = 10;              // 自定义渠道
+}
+
+// PHP 登录返回 LSMI_LOGIN_PHP_RESP
+message LoginPhpResp
+{
+    int32 result = 1;                           // 登录结果 0=成功
+    string token = 2;                           // 登录token
+    uint32 temp_uin = 3;                        // 临时uid
+}
+
+// PHP 账号绑定 LSMI_LOGIN_BIND_REQ
+message BindTelephoneReq
+{
+    string telephone = 1;                       // 手机
+    string device_id = 2;                       // 设备id
+    string token = 3;                           // token
+    string channel = 4;                         // 渠道
+    string uid = 5;                             // uid
+}
+
+// PHP 账号绑定返回 LSMI_LOGIN_BIND_RESP
+message BindTelephoneResp
+{
+    int32 result = 1;                           // 绑定结果 0=成功
+}
+
+message ReportRegDataReq 
+{
+    string invite_code = 1;                     // 邀请码
+    string af_id = 2;                           // af_id
+    string fb_id = 3;                           // fb_id
+    string channel = 4;                         // 渠道
+    string fbc = 5;                             // fbc
+    string fbp = 6;                             // fbp
+    string ua = 7;                              // ua
+}
+
+message ReportRegDataResp
+{
+    int32 result = 1;                           // 结果
+    string invite_code = 2;                     // 邀请码
+}
+//LSMI_REPORT_KOL_DATA_REQ
+message ReportKolDataReq
+{
+    string channel = 1;                         // 渠道
+    string aid = 2;                             // android id
+    string idfa = 3;                           // ios id
+    string gaid = 4;                            // google ad id
+}
+
+message ReportKolDataResp
+{
+    int32 result = 1;                           // 结果
+}

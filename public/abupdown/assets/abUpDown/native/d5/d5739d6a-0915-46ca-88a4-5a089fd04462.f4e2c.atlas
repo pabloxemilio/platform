@@ -1,0 +1,349 @@
+
+jieduantixing_touxiang_piaozi.png
+size: 363,1032
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+bet/tips_00001
+  rotate: false
+  xy: 308, 45
+  size: 30, 35
+  orig: 358, 48
+  offset: 6, 6
+  index: -1
+bet/tips_00002
+  rotate: true
+  xy: 278, 149
+  size: 87, 37
+  orig: 358, 48
+  offset: 6, 5
+  index: -1
+bet/tips_00003
+  rotate: true
+  xy: 277, 374
+  size: 134, 37
+  orig: 358, 48
+  offset: 6, 5
+  index: -1
+bet/tips_00004
+  rotate: true
+  xy: 315, 515
+  size: 176, 36
+  orig: 358, 48
+  offset: 6, 6
+  index: -1
+bet/tips_00005
+  rotate: true
+  xy: 151, 484
+  size: 211, 36
+  orig: 358, 48
+  offset: 7, 6
+  index: -1
+bet/tips_00006
+  rotate: true
+  xy: 278, 693
+  size: 206, 37
+  orig: 358, 48
+  offset: 53, 5
+  index: -1
+bet/tips_00007
+  rotate: true
+  xy: 112, 472
+  size: 212, 37
+  orig: 358, 48
+  offset: 94, 5
+  index: -1
+bet/tips_00008
+  rotate: true
+  xy: 239, 691
+  size: 208, 37
+  orig: 358, 48
+  offset: 135, 5
+  index: -1
+bet/tips_00009
+  rotate: true
+  xy: 276, 510
+  size: 179, 37
+  orig: 358, 48
+  offset: 172, 5
+  index: -1
+bet/tips_00010
+  rotate: true
+  xy: 316, 385
+  size: 128, 36
+  orig: 358, 48
+  offset: 223, 6
+  index: -1
+bet/tips_00011
+  rotate: true
+  xy: 316, 287
+  size: 96, 36
+  orig: 358, 48
+  offset: 255, 6
+  index: -1
+bet/tips_00012
+  rotate: true
+  xy: 317, 94
+  size: 49, 27
+  orig: 358, 48
+  offset: 302, 6
+  index: -1
+bet/tips_00013
+  rotate: false
+  xy: 189, 690
+  size: 6, 5
+  orig: 358, 48
+  offset: 344, 27
+  index: -1
+extra_pay_saoguang/ExtraPay_00001
+  rotate: true
+  xy: 271, 25
+  size: 55, 35
+  orig: 220, 60
+  offset: 9, 17
+  index: -1
+extra_pay_saoguang/ExtraPay_00002
+  rotate: true
+  xy: 317, 805
+  size: 94, 37
+  orig: 220, 60
+  offset: 9, 16
+  index: -1
+extra_pay_saoguang/ExtraPay_00003
+  rotate: true
+  xy: 112, 365
+  size: 105, 37
+  orig: 220, 60
+  offset: 9, 16
+  index: -1
+extra_pay_saoguang/ExtraPay_00004
+  rotate: true
+  xy: 209, 234
+  size: 137, 37
+  orig: 220, 60
+  offset: 9, 16
+  index: -1
+extra_pay_saoguang/ExtraPay_00005
+  rotate: true
+  xy: 90, 2
+  size: 170, 37
+  orig: 220, 60
+  offset: 9, 16
+  index: -1
+extra_pay_saoguang/ExtraPay_00006
+  rotate: true
+  xy: 189, 497
+  size: 191, 45
+  orig: 220, 60
+  offset: 9, 8
+  index: -1
+extra_pay_saoguang/ExtraPay_00007
+  rotate: true
+  xy: 151, 697
+  size: 202, 46
+  orig: 220, 60
+  offset: 11, 7
+  index: -1
+extra_pay_saoguang/ExtraPay_00008
+  rotate: true
+  xy: 129, 3
+  size: 169, 46
+  orig: 220, 60
+  offset: 45, 7
+  index: -1
+extra_pay_saoguang/ExtraPay_00009
+  rotate: true
+  xy: 42, 2
+  size: 153, 46
+  orig: 220, 60
+  offset: 61, 7
+  index: -1
+extra_pay_saoguang/ExtraPay_00010
+  rotate: true
+  xy: 190, 373
+  size: 122, 46
+  orig: 220, 60
+  offset: 92, 7
+  index: -1
+extra_pay_saoguang/ExtraPay_00011
+  rotate: true
+  xy: 177, 2
+  size: 81, 46
+  orig: 220, 60
+  offset: 133, 7
+  index: -1
+extra_pay_saoguang/ExtraPay_00012
+  rotate: true
+  xy: 225, 3
+  size: 80, 44
+  orig: 220, 60
+  offset: 134, 8
+  index: -1
+extra_pay_saoguang/ExtraPay_00013
+  rotate: true
+  xy: 317, 196
+  size: 49, 36
+  orig: 220, 60
+  offset: 165, 8
+  index: -1
+extra_pay_saoguang/ExtraPay_00014
+  rotate: true
+  xy: 209, 208
+  size: 24, 16
+  orig: 220, 60
+  offset: 190, 27
+  index: -1
+extra_pay_saoguang/ExtraPay_00015
+  rotate: false
+  xy: 151, 365
+  size: 1, 1
+  orig: 1, 1
+  offset: 0, 0
+  index: -1
+gx_00
+  rotate: false
+  xy: 112, 901
+  size: 196, 89
+  orig: 230, 100
+  offset: 21, 10
+  index: -1
+locked/tips_locked_00001
+  rotate: true
+  xy: 317, 145
+  size: 49, 36
+  orig: 261, 50
+  offset: 6, 6
+  index: -1
+locked/tips_locked_00002
+  rotate: true
+  xy: 310, 901
+  size: 89, 37
+  orig: 261, 50
+  offset: 5, 6
+  index: -1
+locked/tips_locked_00003
+  rotate: true
+  xy: 238, 374
+  size: 124, 37
+  orig: 261, 50
+  offset: 5, 6
+  index: -1
+locked/tips_locked_00004
+  rotate: true
+  xy: 169, 208
+  size: 158, 38
+  orig: 261, 50
+  offset: 5, 5
+  index: -1
+locked/tips_locked_00005
+  rotate: true
+  xy: 90, 174
+  size: 188, 38
+  orig: 261, 50
+  offset: 6, 5
+  index: -1
+locked/tips_locked_00006
+  rotate: true
+  xy: 112, 686
+  size: 213, 37
+  orig: 261, 50
+  offset: 6, 6
+  index: -1
+locked/tips_locked_00007
+  rotate: true
+  xy: 199, 690
+  size: 209, 38
+  orig: 261, 50
+  offset: 39, 5
+  index: -1
+locked/tips_locked_00008
+  rotate: true
+  xy: 236, 500
+  size: 188, 38
+  orig: 261, 50
+  offset: 64, 5
+  index: -1
+locked/tips_locked_00009
+  rotate: true
+  xy: 130, 203
+  size: 160, 37
+  orig: 261, 50
+  offset: 93, 6
+  index: -1
+locked/tips_locked_00010
+  rotate: true
+  xy: 151, 368
+  size: 114, 37
+  orig: 261, 50
+  offset: 139, 6
+  index: -1
+locked/tips_locked_00011
+  rotate: true
+  xy: 317, 710
+  size: 93, 37
+  orig: 261, 50
+  offset: 160, 6
+  index: -1
+locked/tips_locked_00012
+  rotate: true
+  xy: 278, 82
+  size: 65, 37
+  orig: 261, 50
+  offset: 188, 6
+  index: -1
+locked/tips_locked_00013
+  rotate: true
+  xy: 130, 175
+  size: 26, 36
+  orig: 261, 50
+  offset: 227, 7
+  index: -1
+rdh_00
+  rotate: false
+  xy: 248, 238
+  size: 66, 134
+  orig: 100, 134
+  offset: 17, 0
+  index: -1
+sucai/dachouma_18X_sheguang_61
+  rotate: false
+  xy: 177, 85
+  size: 99, 121
+  orig: 101, 124
+  offset: 1, 1
+  index: -1
+szxx_00_1
+  rotate: false
+  xy: 316, 247
+  size: 37, 38
+  orig: 45, 45
+  offset: 4, 4
+  index: -1
+tips_Bet Locked
+  rotate: false
+  xy: 112, 992
+  size: 249, 38
+  orig: 249, 38
+  offset: 0, 0
+  index: -1
+tips_Extra Pay
+  rotate: true
+  xy: 42, 157
+  size: 205, 46
+  orig: 206, 46
+  offset: 0, 0
+  index: -1
+tips_Please Bet Now
+  rotate: true
+  xy: 2, 16
+  size: 346, 38
+  orig: 346, 38
+  offset: 0, 0
+  index: -1
+tips_kuang_1
+  rotate: true
+  xy: 2, 364
+  size: 666, 108
+  orig: 702, 108
+  offset: 19, 0
+  index: -1

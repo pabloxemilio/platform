@@ -1,0 +1,44 @@
+ syntax = "proto3";
+package account_proto;
+
+enum LOGIN_SUB_MSG_ID
+{
+	ACCOUNT_CMD_LOGIN_NONE = 0;
+	ACCOUNT_CMD_VERIFY_LOGIN_TOKEN_REQ = 1712;
+	ACCOUNT_CMD_VERIFY_LOGIN_TOKEN_RESP = 1713;
+}
+
+message VerifyLoginTokenReq
+{
+	string token = 1;
+	bytes trans = 2;
+}
+
+message InGameInfo
+{
+    uint32 game_id = 1;                         // ��Ϸid
+    uint32 game_srvtype = 2;                    // ��Ϸ����
+    uint32 game_svid = 3;                        // ��Ϸsvid
+    uint32 game_tid = 4;                         // ��Ϸtid
+}
+
+message VerifyLoginTokenResp
+{
+	int32 result = 1;
+	uint32 uid = 2;
+	string agency = 3;
+	uint32 agency_id = 4;
+	string username = 5;
+	string token = 6;
+	int64 balance = 7;
+	uint32 game = 8;
+	string hall_url = 9;
+	string platform = 10;
+	string gameinfo = 11;
+	string currency = 12;
+	uint32 temp_uin = 13;
+	InGameInfo ingame_info = 14;
+	bytes trans = 15;
+	int64 currency_unit_multi = 16;
+	string currency_label = 17;
+}

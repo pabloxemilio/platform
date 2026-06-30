@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package FRAct;
+
+enum FIRST_RECHARGE_ACT_MSGID
+{
+    MSGID_NONE = 0;
+
+    MSGID_USER_INFO_REQ = 73001;                    //玩家首充活动信息请求
+    MSGID_USER_INFO_RESP = 73002;                   //家首充活动信息请求响应
+    MSGID_USER_FIRST_RECHARGE_NOTIFY = 73003;       //首充消息通知客户端
+    MSGID_USER_FIRST_RECHARGE_NOTIFY_ACK = 73004;   //首充消息确认
+}
+
+//玩家首充活动信息请求
+message UserInfoReq
+{
+    string user_info = 1;
+}
+
+//任务奖励item
+message MRewardItem
+{
+    int64 item_id = 1;   //道具id
+    int64 item_num = 2;  //道具数量
+    int32 type = 3;       //道具类型： 1 金钱，2 门票，3 免费赛次数
+}
+
+message RecharegeRewards
+{
+    int64 amount = 1; 							    //充值金额
+    repeated MRewardItem reward_list = 2;	//赠送道具奖励列表
+}
+
+//玩家首充活动信息请求响应
+message UserInfoResp
+{
+    int32 result = 1;
+    int32 is_force_show = 2;      //是否强弹拍脸图
+    string main_prompt_image = 3;  //拍脸图，一期没有
+    string banner_icon = 4;         //首充icon, 一期没有
+    int32 recharge_count = 5;    //充值次数
+    repeated RecharegeRewards rewards = 6;  //各档充值档位及对应的赠送道具列表
+    repeated UserFirstRechargeNoticeResp last_notice = 7;    //首充未确认的消息，要么为空，要么只有一条消息
+}
+
+//首充消息通知客户端, 收到后要确认
+message UserFirstRechargeNoticeResp
+{
+    int64 amount = 1;       //玩家充值金额
+    int64 bonus = 2;			//平台赠送金额
+    repeated MRewardItem reward_list = 3;	//赠送道具奖励列表
+}
+
+//首充消息确认
+message UserFirstRechargeNoticeAck
+{
+}

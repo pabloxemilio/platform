@@ -1,0 +1,421 @@
+syntax = "proto3";
+package teenpatti;
+
+
+enum MSGID
+{
+    MSG_NULL = 0;
+	GAMEALLOC_CMD_ALLOC_TABLE_REQ = 0x07D4;
+
+	MSG_ERROR_PUSH = 15001;
+
+    MSG_TABLE_INFO_PUSH = 15005;
+    MSG_START_PUSH = 15008;
+
+    MSG_DEAL_CARDS_PUSH = 15010;
+
+    MSG_SEE_REQ = 15013;
+    MSG_SEE_RESP = 15014;
+	MSG_SEE_PUSH = 15015;
+
+	MSG_ACTION_PUSH = 15017;
+	MSG_ACTION_PUT = 15018;
+	MSG_ACTION_RESULT_PUSH = 15019;
+
+	MSG_SIDE_SHOW_PUT = 15023;
+	MSG_SIDE_SHOW_RESULT_PUSH = 15024;
+
+	MSG_SHOW_PUSH = 15028;
+	
+	MSG_SETTLEMENT_RESULT_PUSH = 15030;
+
+	MSG_SEAT_INFO_PUSH = 15032; //用户座位信息
+
+	MSG_LEAVE_TABLE_REQ = 15033;
+    MSG_LEAVE_TABLE_RESP = 15034;
+
+    MSG_KICK_USER_PUSH = 15035;  //踢人push
+	
+	MSG_TABLE_INFO_REQ = 15036;
+    MSG_TABLE_INFO_RESP = 15037;
+	
+    //MSG_OFFLINE_REQ = 15013;  //离线
+    //MSG_OFFLINE_RESP = 15014;
+}
+
+//windows单桌调试时使用,正式环境是配桌模块让一批用户同时进入桌子,桌子立即开始牌局
+message AllocTableReq
+{
+    uint32 uid     = 1;
+    int32 game_id  = 2;//每个游戏不同, teenpatti 是 201
+    int64 alloc_param = 3;
+    string userinfo = 4;//extra
+}
+
+//正式:client(AllocTableReq)---> roomalloc ---> RoomServer(TableInfoPush) --> client
+//windows单桌调试:client(AllocTableReq)---> RoomServer(TableInfoPush) --> client
+
+//牌型
+enum HAND_TYPE
+{
+    HAND_TYPE_UNK = 0;//未知
+    HAND_TYPE_HIGH_CARD = 1;//高牌
+    HAND_TYPE_PAIR = 2;//对子
+    HAND_TYPE_COLOR = 3;//同花
+    HAND_TYPE_SEQ = 4;//顺子
+    HAND_TYPE_PURE_SEQ = 5;//同花顺
+    HAND_TYPE_TRAIL = 6;//豹子
+}
+
+//行动类型
+enum ACTION_TYPE
+{
+    ACTION_TYPE_UNK = 0;//未知
+	ACTION_TYPE_PACK = 1;//弃牌
+	ACTION_TYPE_BLIND = 2;//闷注
+	ACTION_TYPE_BLIND2 = 3;//闷注x2
+	ACTION_TYPE_CHAAL = 4;//看注
+	ACTION_TYPE_CHAAL2 = 5;//看注x2
+	ACTION_TYPE_SIDE_SHOW = 6;//比牌
+	ACTION_TYPE_SHOW = 7;//开牌
+}
+
+//proto 命名规范: 
+//类名用大驼峰,属性名用小写下划线
+//数组用 list 结尾
+//请求和应答 Req/Resp, client 发给 server
+//推送 Push, server 发给所有 client, 分成2种: 通知(无需客户端答复),命令(客户端必须应答)
+//上报 Put, client 发送给 server, 分成2种: 普通的上报; 应答;
+
+//术语:
+//桌子:table
+//一局:game (game start/end)
+//阶段:phase
+//一轮(押注):round
+//发牌: deal cards
+//庄家 dealer
+
+
+//牌定义
+message Card
+{
+	//以下字段为所有扑克牌的固定字段
+	int32 dect = 1;//副:0,1,2
+	int32 suit = 2;//花色,黑红梅方0,1,2,3 或者 -1对应大小王或背面牌
+	int32 value = 3;//牌面值:A,2,3,4,5,6,7,8,9,10,J,Q,K,分别对应1-13,小王和大王都是-1
+	int32 joker = 4;//大小王标志:小王0,大王1,其他-1
+    //背面牌是suit=-1,value-1,joker=-1
+	
+	//以下为不同游戏类型的自定义字段,tp中这个代表每一张牌的大小
+	int32 rank = 5;//2,3,4,5,6,7,8,9,10,J,Q,K,A 分别是0,1,2,...12
+}
+
+//手牌(3张牌)
+message HandCards
+{
+    repeated Card card_list = 1;
+}
+
+//玩家(座位)信息
+message UserInfo
+{
+    uint32 user_id = 1;//0 代表没人
+    string extra = 2;//userinfo:{"userName":"Player58601221","userHead":0},userHead为索引值，取值0~8
+    int32 seat_id = 3;
+    int64 balance = 4;
+	ACTION_TYPE last_op_desc = 5; //最近一次的操作
+}
+
+message TableInfoPush
+{
+    uint64 server_time = 1;//1970以来的秒为单位的时间,考虑所有发给客户端的proto都带上,以后调时间节奏时用
+	int32 table_id = 2;
+
+    int32 reason = 3;//推送原因: 1：自己进入:2：有玩家进入,3：游戏开局更新桌位信息,5:玩家主动请求，6:系统更新用户金币
+    int32 game_id = 4;//先不要用
+    int32 seats_num = 5;//tp是5人,先不要用
+    repeated UserInfo user_list = 6;//按座位 [0,seats_num) 顺序的全部座位信息列表,如果此座位没人,则 UserInfo.user_id 是0
+    //game server端的默认规则: 座位从0开始,行动是顺时针;
+    
+	bool game_start = 7;
+
+	int64 pot_max = 8;//总下注限额 todo 根据php配置来扩充
+	int64 pot_sum = 9;//当前下注总值
+	
+	int64 bet_ante = 10;//底注
+	int64 bet_limit = 11;//Chaal 的限额(每玩家)
+
+    int32 dealer_seat_id = 12;//当前庄家座位,这个座位,可能有玩家在坐着,也可能没玩家; 上一局结束后会轮转,开局前根据座位是否有人来最终决定
+    int32 action_seat_id = 13;//行动座位
+
+	repeated ShortUserInfo short_user_info_list = 14;//按座位 [0,seats_num) 顺序的全部座位信息列表,如果此座位没人,则 UserInfo.user_id 是0,包括下完底注后的 balance
+
+}
+
+
+//请求桌子信息
+message TableInfoReq
+{
+	uint64 seq = 1;
+	int32 table_id = 2; //桌号
+	string userinfo = 3;
+}
+
+//返回桌子信息成功/失败
+message TableInfoResp
+{
+	uint64 seq = 1;
+	uint64 server_time = 2;
+	int32 table_id = 3;
+	int32 result = 4;
+	int32 level_id = 5;
+}
+
+//开局和前注[通知]
+message GameStartPush
+{
+    uint64 server_time = 1;
+	int32 table_id = 2;
+
+	int64 pot_max = 3;//总下注限额
+	int64 pot_sum = 4;//当前下注总值(此处为0)
+	
+	int64 bet_ante = 5;//底注
+	int64 bet_limit = 6;//Chaal 的限额(每玩家)
+
+    int32 dealer_seat_id = 7;//庄家座位
+    int32 action_seat_id = 8;//行动座位
+
+	repeated ShortUserInfo short_user_info_list = 9;//按座位 [0,seats_num) 顺序的全部座位信息列表,如果此座位没人,则 UserInfo.user_id 是0,包括下完底注后的 balance
+
+}
+
+message ShortUserInfo
+{
+    int32 seat_id = 1;
+    uint32 user_id = 2;
+    int64 balance = 3;//玩家当前余额
+	int64 bet = 4;
+	int64 bet_sum = 5;
+	bool join_game_flag = 6;//是否参加了本局游戏
+	bool in_game_flag = 7;//是否还在本局游戏(未弃牌等等)
+	bool see_flag = 8;
+	string status = 9;
+
+}
+
+//用户座位信息（手牌、胜率）
+message UserSeatInfoPush
+{
+	int32 seat_id = 1;
+	int32 table_id = 2;
+
+    uint32 user_id = 3;
+	double win_rate = 4; //玩家胜率 
+	HandCards hand_cards = 5;//手牌信息
+    HAND_TYPE hand_type = 6;
+	int32 reason = 7;//更新玩家座位原因，0：用户看牌后更新胜率，1：用户重连 2：用户资产发生变更（波动反水）
+	int64 balance = 8;//用户资产刷新
+}
+
+//==============================================================================================
+
+//发牌通知
+message DealCardsPush
+{
+    uint64 server_time = 1;
+	int32 table_id = 2;
+    repeated HandCards hand_cards_list = 3;//按座位 [0,seats_num) 顺序的全部座位的手牌数组,没人的座位为空,有人的是3张背面牌
+}
+
+//==============================================================================================
+
+//看牌请求
+message SeeReq
+{
+	uint64 seq = 1;
+	int32 table_id = 2;
+}
+
+//看牌应答(fixme 保留,但server不发)
+message SeeResp
+{
+	uint64 seq = 1;
+    uint64 server_time = 2;
+	int32 table_id = 3;
+    int32 result = 4;//0成功, 其他是失败错误号,比如重复看牌
+}
+
+//退桌请求
+message LeaveReq
+{
+	uint64 seq = 1;
+	int32 table_id = 2;
+	int32 flag = 3;//0 退桌;1换桌
+	string userinfo = 4;
+}
+
+//退桌应答(fixme 保留,但server不发)
+message LeaveResp
+{
+	uint64 seq = 1;
+	int32 table_id = 2;
+    uint64 server_time = 3;
+    int32 result = 4;//0成功, 其他是失败错误号,比如重复看牌
+}
+
+//将用户踢出房间
+message KickUserPush
+{
+	uint64 server_time = 1;
+	int32 table_id = 2;
+	int32 reason = 3;//1：用户超时2次弃牌，踢出房间,2:扣除资产失败，用户弃牌处理，踢出房间
+	int32 seat_id = 4;
+}
+
+
+//看牌结果通知
+message SeePush
+{
+    uint64 server_time = 1;
+	int32 table_id = 2;
+	int32 seat_id = 3;//如果不是自己座位,则下面2给参数为不可用(不能让其他人看到自己的牌)
+    HandCards hand_cards = 4;
+    HAND_TYPE hand_type = 5;
+}
+
+//==============================================================================================
+
+//行动命令
+message ActionPush
+{
+	uint64 seq = 1;
+	int32 table_id = 2;
+	uint64 server_time = 3;
+	uint32 wait_time = 4;
+	int32 seat_id = 5;//行动座位
+	int64 bet = 6;//1倍的金额
+	bool blind_flag = 7;//true:当前为闷注, false:当前为看注
+	bool raise_flag = 8;//true:允许2倍, false:不允许	
+	bool side_show_flag = 9;//是否允许跟上家比牌
+	bool show_flag = 10;//是否允许开牌
+	bool renew_wait_time = 11; //重置倒计时，true：重置用户action的倒计时，fasle：无需重置用户倒计时
+}
+
+//行动应答
+message ActionPut
+{
+	uint64 seq = 1;
+	int32 table_id = 2;
+	ACTION_TYPE action_type = 3;
+}
+
+//行动结果通知
+message ActionResultPush
+{
+	uint64 seq = 1;
+	uint64 server_time = 2;
+	int32 table_id = 3;
+	uint32 wait_time = 4;
+	ACTION_TYPE action_type = 5;
+	int32 seat_id = 6;//行动座位
+	int32 side_seat_id = 7;//玩家如果要比牌,此处是比牌座位,收到的用户要回复 SideShowPut
+	int64 pot_sum = 8;
+    int64 bet = 9;//玩家如果下注,此处是下注值
+	int64 bet_sum = 10;
+
+	repeated ShortUserInfo short_user_info_list = 11;//同前, 如果玩家弃牌,这里的 in_game_flag 为 false
+}
+
+//比牌应答 ( 是否同意 )
+message SideShowPut
+{
+	uint64 seq = 1;
+	int32 table_id = 2;
+	bool agreed = 3;//是否同意
+}
+
+//比牌结果通知
+message SideShowResultPush
+{
+	uint64 server_time = 1;	
+	int32 table_id = 2;
+	int32 seat_id = 3;//行动座位
+	int32 side_seat_id = 4;//被比牌(上一家)座位
+	bool agreed = 5;
+	int32 win_seat_id = 6;//获胜者座位
+	HandInfo hand_info = 7;//手牌
+	HandInfo side_hand_info = 8;//被比牌(上一家)手牌
+
+	repeated ShortUserInfo short_user_info_list = 9;//同前,包括下完底注后的 balance, 如果玩家弃牌,这里的 in_game_flag 为 false
+}
+
+//开牌结果通知
+message ShowResultPush
+{
+	uint64 server_time = 1;
+	int32 table_id = 2;
+	int32 reason = 3;//玩家主动;服务端达到条件后自动;0：主动开牌，1：被动开牌
+	repeated HandInfo hand_info_list = 4;//全部座位
+}
+
+//参与比牌的玩家的手牌等信息
+message HandInfo
+{
+	int32 seat_id = 1;
+    HandCards hand_cards = 2;
+    HAND_TYPE hand_type = 3;
+	int32 hand_rank = 4;//牌型大小(可以理解为:所有参与比牌的玩家,手牌的排行榜, rank=0是最大的)
+}
+
+//结算通知
+message SettlementResultPush
+{
+	uint64 server_time = 1;
+	int32 table_id = 2;
+	repeated SettlementUserInfo user_info_list = 3;//全部座位
+}
+
+message SettlementUserInfo
+{
+    int32 seat_id = 1;
+    uint32 user_id = 2;
+    int64 balance = 3;
+	int64 winnings = 4;//赢取的金额(负值为输)
+}
+
+message ErrorPush
+{
+	int32 table_id = 1;
+    int32 error_code = 2;
+	string error_data = 3;
+}
+
+//=========================================================================================================================
+
+//游戏历史记录
+message TeenpattiBets
+{
+	int32 bet = 1;
+	int32 optime = 2;
+	int32 orderId = 3;
+	int32 winAmount = 4;
+}	
+
+message TeenpattiCards
+{
+	uint32 uid = 1;
+	string winFlag = 2;
+	int32 handType = 3;
+	int32 winAmount = 4;
+	repeated Card cards = 5;
+}			
+
+message TeenpattiData
+{
+	int32 boot = 1;
+	int32 profit = 2;
+	repeated TeenpattiCards cardsInfo = 3;
+	repeated TeenpattiBets betsInfo = 4;
+	repeated uint32 showCardsInfo = 5;
+}

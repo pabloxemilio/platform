@@ -1,0 +1,373 @@
+syntax = "proto3";
+package game_publish;
+
+
+enum GAME_PUBLISH_CMD_SERVER
+{
+    GAME_PUBLISH_NULL = 0;
+
+    //场次列表
+    GAME_PUBLISH_LEVEL_LIST_REQ = 12701;
+    GAME_PUBLISH_LEVEL_LIST_RESP = 12702;
+
+    //配桌
+    GAME_PUBLISH_ALLOC_TABLE_REQ = 12703;
+    GAME_PUBLISH_ALLOC_TABLE_RESP = 12704;
+
+    //玩家离开
+    GAME_PUBLISH_LEAVE_TABLE_REQ = 12705;
+    GAME_PUBLISH_LEAVE_TABLE_RESP = 12706;
+
+    //玩家换桌
+    GAME_PUBLISH_CHANGE_TABLE_REQ = 12707;
+    GAME_PUBLISH_CHANGE_TABLE_RESP = 12708;
+
+    //桌子状态查询
+    GAME_PUBLISH_TABLE_INFO_REQ = 12709;
+    GAME_PUBLISH_TABLE_INFO_RESP = 12710;
+
+    //换场
+    GAME_PUBLISH_CHANGE_LEVEL_REQ = 12711;
+    GAME_PUBLISH_CHANGE_LEVEL_RESP = 12712;
+
+    //获取可玩的gameid列表
+    GAME_PUBLISH_RUNNING_GAME_LIST_REQ = 12713;
+    GAME_PUBLISH_RUNNING_GAME_LIST_RESP = 12714;
+
+    //玩家配桌进度推送
+    GAME_PUBLISH_ALLOC_TABLE_PROGRESS_PUSH = 12715;
+
+     //玩家锁定推送（等待扣费）
+    GAME_PUBLISH_ALLOC_TABLE_LOCKED_PUSH = 12716;
+
+    //获取头像
+    GAME_PUBLISH_GET_USER_HEAD_REQ = 12718;
+    GAME_PUBLISH_GET_USER_HEAD_RESP = 12719;
+    //设置头像
+    GAME_PUBLISH_SET_USER_HEAD_REQ = 12720;
+    GAME_PUBLISH_SET_USER_HEAD_RESP = 12721;
+}
+
+//配桌服的错误码
+enum ERROR_CODE {
+    ECODE_OK = 0;
+    ECODE_INVALID_PARAM = 1001;         //无效或非法参数
+    ECODE_NO_LEVEL_CONFIG = 1002;       //找不到对应场次
+    ECODE_SINGLE_ALLOCING = 1003;       //没开多桌情况下 已经在匹配了
+    ECODE_MULTI_MAX_TABLE = 1004;       //开多桌情况下 到达桌子数上限
+    ECODE_MULTI_SAME_TABLE_SEQ = 1005;  //开多桌情况下 相同的tableseq
+    ECODE_NO_ALLOC_SERVER = 1006;       //找不到配桌服
+    ECODE_OPT_NOT_PERMITTED = 1007;     //当前状态下, 该操作非法/不允许
+    ECODE_ASSET_REQ_ERROR = 1008;       //资产服返回错误(扣费/退费向应错误)
+    ECODE_ASSET_REQ_TIMEOUT = 1009;     //资产服返回超时/或超时未返回(扣费/退费超时)
+    ECODE_USER_NOT_FOUND = 1010;        //玩家不在匹配系统中
+    ECODE_TABLE_NOT_FOUND = 1011;       //桌子不存在匹配系统中
+    ECODE_USER_EXIST_ALREADY = 1012;    //玩家已经在匹配系统中
+    ECODE_RS_LEAVE_FAIL = 1013;         // roomserve返回不能离开
+    ECODE_EXIST_TABLE_SEQ = 1014;       //牌桌序号已存在
+    ECODE_NO_USEFUL_ROOM = 1015;        //无可用房间
+	ECODE_ALLOC_REQ_TIMEOUT = 1016;     //配桌服返回超时
+    ECODE_USER_IN_BLACK_LIST = 1017;    //玩家在黑名单中
+    ECODE_USER_NOT_ENOUGHT_BALANCE = 1018;  //玩家钱不足
+    ECODE_SERVER_RETIRED = 1019;        //服务退休
+    ECODE_ASSET_NOT_ENOUGH_BALANCE = 1020;  //预扣返回余额不足
+}
+
+//桌子状态
+enum TABLE_STATUS {
+    TABLE_STATE_NONE = 0;           //配桌中(还未匹配成功)
+    TABLE_STATE_GAMING = 1;         //桌子游戏中(匹配成功)
+    TABLE_STATE_GAME_END = 2;       //桌子对局（游戏）结束
+    TABLE_STATE_GAME_TIMEOUT = 3;   //桌子对局（游戏）超时
+}
+
+message TableBaseInfo {
+    int32 game_id = 1;      //游戏Id
+    int32 level_id = 2;     //场次Id
+    int32 seat_count = 3;   //座位数
+    int32 table_id = 4;     //桌子Id
+    int32 svid = 5;         //对应的游戏服svid
+    int32 total_table_num = 6;      //当前该玩家正在进行的桌子总数（用于多桌时，前端进行初步数量限制）
+    int32 table_seq = 7;            //桌子时序 透传客户请求中的table_seq
+    TABLE_STATUS status = 8;        //匹配桌子状态 TABLE_STATUS
+    uint32 uid = 9;
+}
+
+//////////////////////////////-场次列表-//////////////////////////////
+message GameLevelConfigReq
+{
+    repeated int32 game_id_list = 1;                 
+	int32 agency_id = 2;
+}
+
+message GameConfig 
+{
+    int32 game_id = 1;
+    int32 show_id = 2;  // 展示ID
+    bool is_hot = 3;    // hot 标签
+    bool is_new = 4;    // new 标签
+    int32 status = 5;   // 是否维护
+}
+
+message LevelExtraConfig
+{
+    int32 online = 1;
+    int32 seat_count = 2;
+    int32 min_online_user = 3;
+    int32 max_online_user = 4;
+    bool show_quick_swtich = 5;
+    bool human_swtich = 6;
+    int32 is_open_anti_conflict = 7;
+    int32 robot_fill_time = 8;
+}
+
+message LevelConfig 
+{
+    int32 level = 1;
+    int64 base_ante = 2;
+    int64 entry_min = 3;
+    int64 entry_max = 4;        //-1表示 无限
+    string title = 5;
+    int64 recommend_min = 6;
+    int64 recommend_max = 7;    //-1表示 无限
+    int64 bet_min = 8;
+    int64 bet_max = 9;          //-1表示 无限
+    int64 pay_max = 10;         //-1表示 无限
+    repeated int64 quick_ante = 11;
+    bool is_open_jackpot = 12;  // 是否开启jackpot
+    int32 room_tab = 13;        // 房间类型 0普通 1单人模式
+	LevelExtraConfig extra = 14;    // 扩展字段
+	repeated int32 svid_list = 15;  //场次对应的roomserver，svid列表
+
+    bool is_human_alloc = 16;       // 是否真人匹配
+    int32 round = 17;               //deal局数
+    bool is_quick_alloc = 18;       // 是否显示速配状态
+    int32 top_open = 19;            //置顶开关
+    bool is_show2to6 = 20;          //2-6展示开关 
+    bool trigger_smart_card_switch = 21;    //触发式智能理牌开关
+}
+
+message GameLevelConfig
+{
+    int32 game_id = 1;
+    int32 auto_alloc = 2;                   // 自动配桌 0 关闭 1 开启
+    repeated LevelConfig level_config = 3;  // 场次配置
+	GameConfig game_config = 4;    // 游戏配置
+}
+
+message GameLevelConfigResp
+{
+    repeated GameLevelConfig game_level_config_list = 1;
+    bool is_open_multi_table = 2;           //是否开启多桌
+}
+
+//代替userinfo json字符串
+message UserBaseInfo {
+    uint32 uid = 1;             //子游戏中的玩家uid => userinfo.uid
+    string platform_uid = 2;    //平台uid, => userinfo.username
+    int32 agency_id = 3;        //代理商id => userinfo.agencyId
+    int64 balance = 4;          //金钱  => userinfo.balance
+    string agency = 5;          // 9100协议需要agency => userinfo.agency
+    string token = 6;           // 9100协议需要token => userinfo.token
+    string ip = 7;              // => userinfo.ip
+    string platform = 8;
+    string user_head = 9;
+    string device_id = 10;
+    int32 app_id = 11;
+}
+
+//【推荐位】关联的归因数据 alloc_type = 3
+message RecommendTypeInfo
+{
+    int32 recommend_page_from = 1;      //推荐位相关归因参数
+    int64 recommend_link_round_id = 2;  //引流关联连续的roundID
+    int64 recommend_algorithm = 3;      //引流关联连续的roundID
+    string key = 4;                     //客户端传给roomsvr用 当key == cash_drainage时, 下面的func才有效
+    int32 func = 5;                     //客户端传给roomsvr用
+}
+
+//【退出挽留】关联的归因数据 alloc_type =7
+message RetainTypeInfo
+{
+    int32 retain_page_from = 1;     //相关归因参数
+    int32 retain_scene = 2;         //相关归因参数
+    int32 retain_link_round_id = 3; //关联连续的roundID
+    int64 total_win = 4;            //退出挽留上报用totalWin
+}
+
+//////////////////////////////-配桌-//////////////////////////////
+message AllocGameTableReq
+{
+    uint32 uid     = 1;
+    int32 game_id  = 2;
+    int32 level_id = 3;         //场次ID
+    int32 seat_count = 4;       //桌子最大座位数
+    UserBaseInfo user_info = 5; //玩家信息
+    int32 alloc_type = 6;       //0:大厅配桌，1：浮窗配桌,【配桌来源归因】
+    RecommendTypeInfo recommend_type_info = 7;  //【推荐位】相关
+    RetainTypeInfo retain_type_info = 8;        //【退出挽留】相关
+    int32 table_seq = 9;                        //桌子时序 透传客户请求中的table_seq
+    bytes trans = 10;
+    int32 agent_id = 12;
+}
+
+//配桌回包
+message AllocGameTableResp
+{
+    int32 result = 1;       //0，表示成功，其他错误码，服务端补齐枚举值 ERROR_CODE
+    string msg = 2;         //错误内容
+    TableBaseInfo data = 3; //配桌详细内容
+    bytes trans = 4;
+    int64 balance = 5;
+}
+
+//////////////////////////////-玩家离开-//////////////////////////////
+message UserLeaveTableReq
+{
+    uint32 uid = 1;
+    int32 game_id = 2; 
+    int32 table_id = 3;     //离开哪个桌子
+    int32 table_seq = 4;
+    bytes trans = 5;
+}
+
+message UserLeaveTableResp
+{
+    int32 result = 1;       //0，表示成功，其他错误码，服务端补齐枚举值 ERROR_CODE
+    string msg = 2;         //错误/成功内容
+    TableBaseInfo data = 3; //离开的桌子具体信息
+    bytes trans = 4;
+}
+
+//////////////////////////////-玩家换桌-//////////////////////////////
+message UserChangeTableReq
+{
+    uint32 uid     = 1;
+    int32 game_id  = 2; 
+    int32 table_id = 3;             //换桌时，玩家当时正处于哪个桌子
+    int32 level_id = 4;             //场次ID -- 当玩家不在游戏中时, 直接配桌时使用
+    int32 seat_count = 5;           //桌子最大座位数 -- 当玩家不在游戏中时, 直接配桌时使用
+    UserBaseInfo user_info = 6;     //玩家信息
+    int32 alloc_type = 7;           //0:大厅配桌，1：浮窗配桌,【配桌来源归因】
+    RecommendTypeInfo recommend_type_info = 8;  //【推荐位】相关
+    RetainTypeInfo retain_type_info = 9;        //【退出挽留】相关
+    int32 table_seq = 10;
+    bytes trans = 11;
+    int32 agent_id = 12;
+}
+
+//换桌回包
+message UserChangeTableResp
+{
+    int32 result = 1;       //0，表示成功，其他错误码，服务端补齐枚举值
+    string msg = 2;         //错误内容
+    TableBaseInfo data = 3; //配桌详细内容
+    bytes trans = 4;
+}
+
+//////////////////////////////-桌子状态查询-//////////////////////////////
+enum USER_TABLE_STATUS {
+    UTS_NONE = 0;
+    UTS_ALLOCING_WAIT_RESP = 1; //请求配桌服加入匹配队列 还在等待配桌服返回结果
+    UTS_ALLOCING = 2;           //匹配中
+    UTS_PLAYING = 3;            //游戏中
+}
+
+//玩家桌子信息
+message UserTableInfo {
+    int32 game_id = 1;
+    int32 level_id = 2;
+    int32 rs_svid = 3;
+    int32 seat_count = 4;
+    int32 table_seq = 5;
+    USER_TABLE_STATUS status = 6;
+    int64 table_id =7;
+    int64 mathch_instance_id = 8;
+    int64 tm = 9;
+    int32 alloc_svid = 10;
+    int32 progress = 11; 
+    int32 max_alloc_time = 12;
+}
+
+message UserTableInfoReq
+{
+    uint32 uid = 1;
+};
+
+message UserTableInfoResp
+{
+    repeated UserTableInfo user_table_info_list = 1;
+}
+
+//////////////////////////////-换场-//////////////////////////////
+message UserChangeLevelReq
+{
+    uint32 uid = 1;
+    int32 game_id = 2; 
+    UserBaseInfo user_info = 3; //玩家信息
+    int32 alloc_type = 4;       //0:大厅配桌，1：浮窗配桌,【配桌来源归因】
+    RecommendTypeInfo recommend_type_info = 5;  //【推荐位】相关
+    RetainTypeInfo retain_type_info = 6;        //【退出挽留】相关
+    int32 table_seq = 7;
+    bytes trans = 8;
+    int32 agent_id = 9;
+}
+
+message UserChangeLevelResp
+{
+    int32 result = 1;       //0，表示成功，其他错误码，服务端补齐枚举值
+    string msg = 2;         //错误内容
+    TableBaseInfo data = 3; //配桌详细内容
+    bytes trans = 4;
+}
+
+//////////////////////////////-获取可玩的gameid列表-//////////////////////////////
+message RunningGameListReq
+{
+    uint32 uid = 1;
+}
+
+message RunningGameListResp
+{
+    repeated int32 game_id_list = 1;
+    bool is_open_multi_table = 2;       //是否开启多桌
+}
+
+
+//玩家配桌进度推送
+message UserAllocProgressPush
+{
+    uint32 uid = 1;
+    int32 table_seq = 2;
+    int32 progress = 3;
+    int32 max_alloc_time = 4;
+    int32 status = 5;           //1:锁定状态
+}
+
+message UserLockedPush
+{
+}
+
+//////////////////////////////-获取头像-//////////////////////////////
+message GetUserHeadReq {
+    uint32 uid = 1;
+}
+
+message GetUserHeadResp {
+    int32 head_photo_id = 1;
+}
+
+//////////////////////////////-设置头像-//////////////////////////////
+message SetUserHeadReq {
+    uint32 uid = 1;
+    uint32 head_photo_id = 2;
+}
+
+message SetUserHeadResp {
+    int32 err_code = 1;
+    int32 head_photo_id = 2;
+}
+
+message UserLeaveTableTrans {
+    bool change_match = 1;
+}

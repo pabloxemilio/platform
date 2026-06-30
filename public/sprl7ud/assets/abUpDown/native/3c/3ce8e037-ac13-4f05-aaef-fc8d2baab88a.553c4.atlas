@@ -1,0 +1,48 @@
+
+chouma_zhankai.png
+size: 757,260
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+bianyuan_01
+  rotate: false
+  xy: 2, 5
+  size: 317, 253
+  orig: 326, 261
+  offset: 5, 6
+  index: -1
+dachouma_guang
+  rotate: true
+  xy: 555, 13
+  size: 115, 110
+  orig: 118, 114
+  offset: 1, 2
+  index: -1
+fankui_029
+  rotate: false
+  xy: 685, 207
+  size: 55, 51
+  orig: 55, 53
+  offset: 0, 1
+  index: -1
+kuosan_001
+  rotate: true
+  xy: 321, 2
+  size: 256, 232
+  orig: 256, 256
+  offset: 0, 24
+  index: -1
+sucai/zhuanpan_tietu
+  rotate: false
+  xy: 555, 130
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+touxiang_di_00000
+  rotate: false
+  xy: 667, 40
+  size: 88, 88
+  orig: 90, 90
+  offset: 1, 1
+  index: -1

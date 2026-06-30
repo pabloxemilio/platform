@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8">
+<title>7 Up 7 Down</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<style>
+  :root{
+    --gold:#f6cf57; --gold2:#b8862a; --down:#ff4d4d; --down2:#7a1414;
+    --up:#27c06a; --up2:#0c5b30; --seven:#ffb627; --seven2:#7a5410;
+    --line:rgba(246,207,87,.35); --panel:rgba(4,18,10,.6);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;font-family:"Segoe UI",Roboto,system-ui,Arial,sans-serif;color:#fff;background:#04130b;user-select:none}
+  #app{position:fixed;inset:0;display:flex;flex-direction:column;
+    background:radial-gradient(120% 85% at 50% 10%,#138a4a 0%,#0a5530 42%,#04200f 100%)}
+  .hidden{display:none!important}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;
+    background:linear-gradient(180deg,rgba(0,0,0,.5),transparent)}
+  .icon-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:rgba(0,0,0,.35);
+    color:var(--gold);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .title{flex:1;text-align:center;font-weight:900;font-size:18px;letter-spacing:1px;text-transform:uppercase;
+    background:linear-gradient(180deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .balance{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}
+  .balance .lbl{font-size:9px;color:var(--gold);opacity:.8;letter-spacing:1px}
+  .balance .val{font-size:16px;font-weight:800}
+  .online{font-size:10px;color:#9fe6c0;margin-right:6px}.online b{color:#fff}
+
+  .road{display:flex;gap:4px;padding:6px 12px;overflow-x:auto;scrollbar-width:none}
+  .road::-webkit-scrollbar{display:none}
+  .bead{flex:0 0 auto;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:800;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+  .bead.down{background:radial-gradient(circle at 30% 30%,#ff8a8a,var(--down2));color:#fff}
+  .bead.up{background:radial-gradient(circle at 30% 30%,#7be6a8,var(--up2));color:#fff}
+  .bead.seven{background:radial-gradient(circle at 30% 30%,#ffd987,var(--seven2));color:#3a2600}
+
+  .table{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:6px 10px;min-height:0}
+  .dice-wrap{display:flex;align-items:center;gap:18px}
+  .die{width:clamp(52px,14vw,84px);aspect-ratio:1;border-radius:16%;background:linear-gradient(150deg,#fff,#dfe4ea);
+    box-shadow:0 6px 14px rgba(0,0,0,.5),inset 0 -5px 10px rgba(0,0,0,.12);
+    display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:13%;gap:6%}
+  .die.rolling{animation:roll .5s linear infinite}
+  @keyframes roll{0%{transform:rotate(0) translateY(0)}25%{transform:rotate(-12deg) translateY(-6px)}
+    50%{transform:rotate(10deg) translateY(0)}75%{transform:rotate(-8deg) translateY(-4px)}100%{transform:rotate(0) translateY(0)}}
+  .pip{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a3f47,#0c0e12);align-self:center;justify-self:center;visibility:hidden}
+  .pip.on{visibility:visible}
+  .die.win{animation:dwin .6s ease}
+  @keyframes dwin{40%{transform:scale(1.12)}}
+
+  .sumchip{font-size:13px;font-weight:800;color:#04130b;background:var(--gold);border-radius:14px;padding:2px 14px;min-width:74px;text-align:center}
+  .sumchip .s{font-size:18px}
+
+  .center2{display:flex;align-items:center;gap:14px}
+  .ring{position:relative;width:72px;height:72px}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .bg{fill:none;stroke:rgba(255,255,255,.14);stroke-width:6}
+  .ring .fg{fill:none;stroke:var(--gold);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .95s linear,stroke .3s}
+  .ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800}
+  .status{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;min-height:16px;text-align:center}
+  .status.open{color:#9fe6c0}.status.closed{color:#ffd06b}
+
+  .zones{display:flex;gap:6px;padding:6px 10px}
+  .zone{flex:1;border-radius:12px;padding:9px 6px 11px;text-align:center;position:relative;cursor:pointer;
+    border:2px solid transparent;background:var(--panel);transition:transform .1s,box-shadow .2s;overflow:hidden}
+  .zone:active{transform:scale(.97)}
+  .zone .zname{font-weight:900;font-size:clamp(13px,3.6vw,19px);letter-spacing:.5px}
+  .zone .zrange{font-size:9px;opacity:.8}
+  .zone .zmult{font-size:11px;font-weight:800;margin-top:1px}
+  .zone .pool{font-size:10px;color:#cfe;opacity:.8;margin-top:2px}
+  .zone .mybet{font-size:13px;font-weight:800;color:var(--gold);min-height:16px;margin-top:3px}
+  .zone.down{border-color:rgba(255,77,77,.5);box-shadow:inset 0 -22px 30px -22px var(--down)}
+  .zone.up{border-color:rgba(39,192,106,.5);box-shadow:inset 0 -22px 30px -22px var(--up)}
+  .zone.seven{border-color:rgba(255,182,39,.55);box-shadow:inset 0 -22px 30px -22px var(--seven)}
+  .zone.down .zname{color:#ff9d9d}.zone.up .zname{color:#7be6a8}.zone.seven .zname{color:#ffd987}
+  .zone.disabled{opacity:.55;pointer-events:none;filter:grayscale(.3)}
+  .zone.won{animation:zonewin 1.2s ease}
+  @keyframes zonewin{0%,100%{box-shadow:inset 0 0 0 1px var(--gold)}50%{box-shadow:0 0 24px var(--gold),inset 0 0 0 2px var(--gold)}}
+  .chiplet{position:absolute;top:4px;right:6px;font-size:9px;background:rgba(0,0,0,.45);border:1px solid var(--gold);
+    color:var(--gold);border-radius:10px;padding:1px 5px}
+
+  .tray{display:flex;align-items:center;gap:6px;padding:6px 10px 10px;overflow-x:auto;scrollbar-width:none}
+  .tray::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;width:46px;height:46px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:12px;color:#16110b;background:radial-gradient(circle at 50% 35%,#ffe39a,var(--gold) 55%,var(--gold2));
+    border:3px dashed rgba(255,255,255,.7);box-shadow:0 3px 8px rgba(0,0,0,.5);transition:transform .12s}
+  .chip.sel{transform:translateY(-7px) scale(1.06);box-shadow:0 0 0 2px var(--gold),0 6px 14px rgba(0,0,0,.6)}
+  .act{flex:0 0 auto;margin-left:auto;display:flex;gap:6px}
+  .btn{border:1px solid var(--line);background:rgba(0,0,0,.4);color:var(--gold);border-radius:10px;padding:0 14px;height:40px;
+    font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:5px}
+  .btn:active{transform:scale(.96)}
+  .btn.primary{background:linear-gradient(180deg,var(--gold),var(--gold2));color:#1a1206;border:none}
+
+  .banner{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%) scale(.6);opacity:0;
+    font-weight:900;font-size:clamp(26px,8vw,58px);letter-spacing:2px;pointer-events:none;text-align:center;text-shadow:0 4px 22px #000;z-index:30}
+  .banner.show{animation:bn 2.6s ease forwards}
+  @keyframes bn{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.05)}}
+  .float{position:fixed;left:50%;top:50%;transform:translateX(-50%);color:var(--gold);font-weight:900;font-size:26px;text-shadow:0 2px 8px #000;pointer-events:none;z-index:31}
+  .float.go{animation:fl 1.6s ease forwards}
+  @keyframes fl{0%{opacity:0;top:55%}20%{opacity:1}100%{opacity:0;top:30%}}
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.8);border:1px solid var(--line);
+    color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;z-index:40;opacity:0;transition:opacity .25s}
+  .toast.show{opacity:1}
+  .overlay{position:fixed;inset:0;background:rgba(3,18,10,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:50;text-align:center;padding:20px}
+  .spin{width:42px;height:42px;border:4px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:sp 1s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .big7{font-size:46px;font-weight:900;color:var(--gold);text-shadow:0 2px 10px #000}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="icon-btn" id="backBtn" title="Lobby">‹</div>
+    <div class="title">7 Up &nbsp;7 Down</div>
+    <div style="display:flex;align-items:center">
+      <span class="online">👥 <b id="online">—</b></span>
+      <div class="balance"><span class="lbl">BALANCE</span><span class="val" id="bal">—</span></div>
+      <div class="icon-btn" id="soundBtn" title="Sound" style="margin-left:8px">🔊</div>
+    </div>
+  </div>
+
+  <div class="road" id="road"></div>
+
+  <div class="table">
+    <div class="dice-wrap">
+      <div class="die" id="die1"></div>
+      <div class="die" id="die2"></div>
+    </div>
+    <div class="sumchip">SUM <span class="s" id="sum">—</span></div>
+    <div class="center2">
+      <div class="ring">
+        <svg width="72" height="72" viewBox="0 0 72 72">
+          <circle class="bg" cx="36" cy="36" r="31"/>
+          <circle class="fg" id="ringFg" cx="36" cy="36" r="31" stroke-dasharray="194.8" stroke-dashoffset="0"/>
+        </svg>
+        <div class="num" id="timer">—</div>
+      </div>
+      <div class="status" id="status">CONNECTING…</div>
+    </div>
+  </div>
+
+  <div class="zones" id="zones">
+    <div class="zone down" data-zone="down">
+      <div class="zname">7 DOWN</div><div class="zrange">SUM 2 – 6</div><div class="zmult" id="multDown">2.3x</div>
+      <div class="pool" id="poolDown">—</div><div class="mybet" id="myDown"></div>
+      <span class="chiplet hidden" id="chipDown"></span>
+    </div>
+    <div class="zone seven" data-zone="seven">
+      <div class="zname">LUCKY 7</div><div class="zrange">SUM = 7</div><div class="zmult" id="multSeven">5.7x</div>
+      <div class="pool" id="poolSeven">—</div><div class="mybet" id="mySeven"></div>
+      <span class="chiplet hidden" id="chipSeven"></span>
+    </div>
+    <div class="zone up" data-zone="up">
+      <div class="zname">7 UP</div><div class="zrange">SUM 8 – 12</div><div class="zmult" id="multUp">2.3x</div>
+      <div class="pool" id="poolUp">—</div><div class="mybet" id="myUp"></div>
+      <span class="chiplet hidden" id="chipUp"></span>
+    </div>
+  </div>
+
+  <div class="tray">
+    <div class="chips" id="chips" style="display:flex;gap:6px"></div>
+    <div class="act">
+      <button class="btn" id="undoBtn">↶ Undo</button>
+      <button class="btn primary" id="repeatBtn">↻ Rebet</button>
+    </div>
+  </div>
+</div>
+
+<div class="banner" id="banner"></div>
+<div class="toast" id="toast"></div>
+<div class="overlay" id="overlay">
+  <div class="big7">7⬆ 7⬇</div>
+  <div class="spin"></div>
+  <div id="ovText" style="color:#cfe;font-size:14px">Loading table…</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id);};
+  var qs=new URLSearchParams(location.search);
+  var token=qs.get('token')||qs.get('authToken')||localStorage.getItem('av_token')||localStorage.getItem('token');
+  var BET_MAX=15, RING_LEN=194.8;
+  var CUR={PKR:'₨',INR:'₹',USD:'$'};
+  // pip layouts per die value (3x3 grid indices 0..8)
+  var PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+
+  var st={cur:'PKR',sym:'₨',balance:0,phase:'',bets:{down:0,up:0,seven:0},pools:{down:0,up:0,seven:0},
+    mult:{down:2.3,up:2.3,seven:5.7},chips:[10,50,100,500,1000],chip:50,lastBets:null,sound:true,connected:false};
+
+  // audio
+  var AC=null;
+  function beep(f,d,t,v){if(!st.sound)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain();o.type=t||'sine';o.frequency.value=f;g.gain.value=v||0.05;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+(d||0.12));o.stop(AC.currentTime+(d||0.12));}catch(e){}}
+  var sfx={click:function(){beep(520,0.07,'square',0.04);},
+    win:function(){beep(660,0.12);setTimeout(function(){beep(880,0.16);},110);setTimeout(function(){beep(1175,0.22);},240);},
+    lose:function(){beep(200,0.25,'sawtooth',0.05);},
+    roll:function(){beep(300,0.05,'square',0.03);},
+    tick:function(){beep(700,0.03,'square',0.025);}};
+
+  function money(n){return st.sym+' '+Number(n||0).toLocaleString(undefined,{maximumFractionDigits:2});}
+  function shortK(n){n=Number(n||0);return n>=1000?(n/1000).toFixed(n>=10000?0:1)+'K':String(Math.round(n));}
+  function toast(msg){var t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},1800);}
+
+  function renderDie(el,val){
+    el.innerHTML=''; var on=PIPS[val]||[];
+    for(var i=0;i<9;i++){var p=document.createElement('div');p.className='pip'+(on.indexOf(i)>=0?' on':'');el.appendChild(p);}
+  }
+  function renderChips(){var box=$('chips');box.innerHTML='';st.chips.forEach(function(v){var d=document.createElement('div');d.className='chip'+(v===st.chip?' sel':'');d.textContent=shortK(v);d.onclick=function(){st.chip=v;sfx.click();renderChips();};box.appendChild(d);});}
+  function renderBalance(){$('bal').textContent=money(st.balance);}
+  function renderMult(){$('multDown').textContent=st.mult.down+'x';$('multUp').textContent=st.mult.up+'x';$('multSeven').textContent=st.mult.seven+'x';}
+  function renderBets(){
+    var map={down:['myDown','chipDown'],up:['myUp','chipUp'],seven:['mySeven','chipSeven']};
+    Object.keys(map).forEach(function(z){var amt=st.bets[z]||0;$(map[z][0]).textContent=amt>0?money(amt):'';var cl=$(map[z][1]);if(amt>0){cl.textContent='▣';cl.classList.remove('hidden');}else cl.classList.add('hidden');});
+  }
+  function renderPools(){$('poolDown').textContent='🪙 '+shortK(st.pools.down);$('poolUp').textContent='🪙 '+shortK(st.pools.up);$('poolSeven').textContent='🪙 '+shortK(st.pools.seven);}
+  function renderRoad(hist){var r=$('road');r.innerHTML='';(hist||[]).forEach(function(o){var b=document.createElement('div');b.className='bead '+o;b.textContent=o==='down'?'D':o==='up'?'U':'7';r.appendChild(b);});r.scrollLeft=r.scrollWidth;}
+  function setRing(t){var f=Math.max(0,Math.min(1,t/BET_MAX));$('ringFg').style.strokeDashoffset=(RING_LEN*(1-f)).toFixed(1);$('ringFg').style.stroke=t<=3?'#ff4d4d':t<=6?'#ffd06b':'var(--gold)';$('timer').textContent=t>0?t:'';}
+
+  function setPhase(p){st.phase=p;var s=$('status');
+    if(p==='betting'){s.textContent='PLACE YOUR BETS';s.className='status open';zonesDisabled(false);}
+    else if(p==='locked'){s.textContent='BETS CLOSED';s.className='status closed';zonesDisabled(true);}
+    else if(p==='reveal'){zonesDisabled(true);}}
+  function zonesDisabled(v){document.querySelectorAll('.zone').forEach(function(el){el.classList.toggle('disabled',v);});}
+
+  function resetTable(){
+    $('die1').classList.remove('win');$('die2').classList.remove('win');
+    document.querySelectorAll('.zone').forEach(function(e){e.classList.remove('won');});
+    $('sum').textContent='—';
+  }
+  function showBanner(outcome,sum){
+    var b=$('banner');
+    var txt=outcome==='seven'?'LUCKY 7!':outcome==='up'?'7 UP':'7 DOWN';
+    var col=outcome==='seven'?'#ffd987':outcome==='up'?'#7be6a8':'#ff9d9d';
+    b.innerHTML=txt+' <span style="font-size:.6em;opacity:.85">('+sum+')</span>';b.style.color=col;
+    b.classList.remove('show');void b.offsetWidth;b.classList.add('show');
+  }
+  function floatWin(a){var f=document.createElement('div');f.className='float go';f.textContent='+ '+money(a);document.body.appendChild(f);setTimeout(function(){f.remove();},1600);}
+
+  var ws=null,pingT=null;
+  function wsUrl(){var pr=location.protocol==='https:'?'wss:':'ws:';return pr+'//'+location.host+'/api/game/sevenupdown?token='+encodeURIComponent(token||'');}
+  function connect(){
+    if(!token){overlay('Please log in from the lobby to play.',true);return;}
+    try{ws=new WebSocket(wsUrl());}catch(e){overlay('Connection failed.',true);return;}
+    ws.onopen=function(){st.connected=true;pingT=setInterval(function(){send('ping');},20000);};
+    ws.onmessage=function(ev){var m;try{m=JSON.parse(ev.data);}catch(e){return;}handle(m.act,m.data||{});};
+    ws.onclose=function(ev){clearInterval(pingT);st.connected=false;
+      if(ev.code===4001){overlay('Session expired — open the game again from the lobby.',true);return;}
+      $('status').textContent='RECONNECTING…';setTimeout(connect,1500);};
+    ws.onerror=function(){try{ws.close();}catch(e){}};
+  }
+  function send(act,data){if(ws&&ws.readyState===1){try{ws.send(JSON.stringify({act:act,data:data||{}}));}catch(e){}}}
+  function overlay(text,keep){var ov=$('overlay');if(text){ov.classList.remove('hidden');$('ovText').textContent=text;ov.querySelector('.spin').style.display=keep?'none':'';}else ov.classList.add('hidden');}
+
+  var rollAnim=null;
+  function startRolling(){
+    $('die1').classList.add('rolling');$('die2').classList.add('rolling');
+    var t=0;clearInterval(rollAnim);
+    rollAnim=setInterval(function(){renderDie($('die1'),1+(Math.random()*6|0));renderDie($('die2'),1+(Math.random()*6|0));$('sum').textContent='?';if(t++%3===0)sfx.roll();},110);
+  }
+  function stopRolling(a,b,sum,outcome){
+    clearInterval(rollAnim);
+    $('die1').classList.remove('rolling');$('die2').classList.remove('rolling');
+    renderDie($('die1'),a);renderDie($('die2'),b);$('sum').textContent=sum;
+    $('die1').classList.add('win');$('die2').classList.add('win');
+    showBanner(outcome,sum);
+  }
+
+  function handle(act,d){
+    switch(act){
+      case 'init':
+        st.cur=d.currency||'PKR';st.sym=CUR[st.cur]||st.cur+' ';
+        st.balance=d.balance;st.bets=d.bets||{down:0,up:0,seven:0};st.pools=d.pools||st.pools;
+        if(d.mult)st.mult=d.mult;
+        if(d.limits&&d.limits.chips){st.chips=d.limits.chips;if(st.chips.indexOf(st.chip)<0)st.chip=st.chips[Math.min(2,st.chips.length-1)];}
+        renderChips();renderBalance();renderMult();renderBets();renderPools();renderRoad(d.history);
+        $('online').textContent=d.online||'—';overlay('');
+        if(d.phase==='betting'){BET_MAX=Math.max(BET_MAX,d.timeLeft||BET_MAX);resetTable();renderDie($('die1'),1);renderDie($('die2'),6);setPhase('betting');setRing(d.timeLeft||0);}
+        else{setPhase(d.phase||'locked');if(d.dice){stopRolling(d.dice.a,d.dice.b,d.dice.sum,d.dice.outcome);}setRing(0);}
+        break;
+      case 'round':
+        resetTable();renderDie($('die1'),1);renderDie($('die2'),6);
+        st.bets={down:0,up:0,seven:0};st.pools=d.pools||{down:0,up:0,seven:0};BET_MAX=d.timeLeft||BET_MAX;
+        $('online').textContent=d.online||'—';renderBets();renderPools();renderRoad(d.history);setPhase('betting');setRing(d.timeLeft);
+        break;
+      case 'tick':
+        if(d.pools)st.pools=d.pools;if(d.online!=null)$('online').textContent=d.online;setRing(d.timeLeft);renderPools();
+        if(d.timeLeft<=5&&d.timeLeft>0)sfx.tick();
+        break;
+      case 'lock':
+        if((st.bets.down+st.bets.up+st.bets.seven)>0)st.lastBets={down:st.bets.down,up:st.bets.up,seven:st.bets.seven};
+        setPhase('locked');setRing(0);startRolling();
+        break;
+      case 'roll':
+        stopRolling(d.a,d.b,d.sum,d.outcome);
+        break;
+      case 'settle':
+        st.balance=d.balance;renderBalance();
+        var mine=(d.bets&&((d.bets.down||0)+(d.bets.up||0)+(d.bets.seven||0)))||0;
+        if(mine>0){if(d.win>0){sfx.win();floatWin(d.win);toast('You won '+money(d.win)+'!');}else sfx.lose();}
+        var wz=d.outcome==='down'?'.zone.down':d.outcome==='up'?'.zone.up':'.zone.seven';
+        var ze=document.querySelector(wz);if(ze)ze.classList.add('won');
+        st.bets={down:0,up:0,seven:0};renderBets();
+        break;
+      case 'road':renderRoad(d.history);break;
+      case 'bet_ok':
+        st.balance=d.balance;st.bets=d.bets||st.bets;if(d.pools)st.pools=d.pools;
+        renderBalance();renderBets();renderPools();if(!d.undo)sfx.click();
+        break;
+      case 'bet_err':
+        toast(d.reason==='insufficient'?'Not enough balance':d.reason==='closed'?'Betting is closed':d.reason==='limit'?'Table limit reached':d.reason==='nothing'?'Nothing to undo':'Bet not allowed');
+        break;
+      case 'pong':break;
+    }
+  }
+
+  document.querySelectorAll('.zone').forEach(function(el){el.addEventListener('click',function(){if(st.phase!=='betting'){toast('Betting is closed');return;}send('bet',{zone:el.dataset.zone,amount:st.chip});});});
+  $('undoBtn').onclick=function(){if(st.phase==='betting')send('undo',{});else toast('Betting is closed');};
+  $('repeatBtn').onclick=function(){if(st.phase!=='betting'){toast('Wait for next round');return;}if(!st.lastBets){toast('No previous bet');return;}['down','seven','up'].forEach(function(z){var a=st.lastBets[z]||0;if(a>0)send('bet',{zone:z,amount:a});});};
+  $('soundBtn').onclick=function(){st.sound=!st.sound;$('soundBtn').textContent=st.sound?'🔊':'🔇';};
+  $('backBtn').onclick=function(){location.href='/';};
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&st.connected)send('sync');});
+
+  renderDie($('die1'),1);renderDie($('die2'),6);renderChips();connect();
+})();
+</script>
+</body>
+</html>

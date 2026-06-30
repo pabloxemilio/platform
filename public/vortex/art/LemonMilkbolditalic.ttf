@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html last_update="1781004523539" lang="en" translate="no">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>Game</title>
+    <style>
+      body {
+        background: #000000;
+      }
+
+      .no-js-message {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        max-width: 600px;
+        width: 90%;
+      }
+
+      .no-js-message ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        line-height: 1.6;
+      }
+
+      .no-js-message li {
+        margin-bottom: 1rem;
+      }
+
+      noscript .no-js-message {
+        display: block;
+      }
+    </style>
+    <!-- {{OG_TAGS}} -->
+  </head>
+  <body translate="no">
+    <noscript>
+      <div class="no-js-message">
+        <ul>
+          <li>Your browser does not support JavaScript or it is disabled. Please enable JavaScript in your browser settings for the website to function properly.</li>
+          <li>Seu navegador não suporta JavaScript ou ele está desativado. Ative o JavaScript nas configurações do seu navegador para que o site funcione corretamente.</li>
+          <li>متصفحك لا يدعم JavaScript أو أنه معطل. يرجى تمكين JavaScript في إعدادات المتصفح لضمان عمل الموقع بشكل صحيح.</li>
+          <li>Ваш браузер не поддерживает JavaScript или он отключен. Для корректной работы сайта включите JavaScript в настройках браузера.</li>
+          <li>Votre navigateur ne prend pas en charge JavaScript ou il est désactivé. Veuillez activer JavaScript dans les paramètres de votre navigateur pour que le site fonctionne correctement.</li>
+          <li>Tarayıcınız JavaScript'i desteklemiyor veya devre dışı bırakılmış. Web sitesinin düzgün çalışması için tarayıcınızın ayarlarından JavaScript'i etkinleştirin.</li>
+          <li>Sizin brauzeriniz JavaScript-i dəstəkləmir və ya o, söndürülüb. Saytın düzgün işləməsi üçün brauzerinizin ayarlarında JavaScript-i aktiv edin.</li>
+          <li>Su navegador no admite JavaScript o está desactivado. Habilite JavaScript en la configuración de su navegador para que el sitio funcione correctamente.</li>
+        </ul>
+      </div>
+    </noscript>
+    <div id="app"></div>
+    <div id="modal"></div>
+  <script defer="defer" src="/index.e743a7c22ceaab3cd5eb.js"></script></body>
+</html>

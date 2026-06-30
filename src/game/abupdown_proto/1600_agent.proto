@@ -1,0 +1,23 @@
+syntax = "proto3";
+package agent;
+
+enum AGENT_CMD
+{
+    AGENT_CMD_NONE = 0x0;
+	AGENT_CMD_HEART_BEAT = 0x0640;
+	AGENT_CMD_KICK = 0x0641;
+}
+
+message KickPush
+{
+    uint32 uid = 1;
+	int32 result = 2;
+}
+
+message HeartBeat
+{
+    uint64 trans = 1;//透传时间戳
+	uint64 srvt = 2; //server时间戳，预留，暂未使用
+}
+
+

@@ -1,0 +1,258 @@
+
+dengdaiye.png
+size: 1612,528
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+1000X
+  rotate: true
+  xy: 468, 223
+  size: 300, 287
+  orig: 302, 289
+  offset: 1, 1
+  index: -1
+1000X_touying
+  rotate: true
+  xy: 757, 236
+  size: 287, 181
+  orig: 289, 182
+  offset: 0, 1
+  index: -1
+bg light  point
+  rotate: false
+  xy: 468, 11
+  size: 256, 210
+  orig: 256, 210
+  offset: 0, 0
+  index: -1
+bg light  point_01
+  rotate: false
+  xy: 726, 11
+  size: 256, 210
+  orig: 256, 210
+  offset: 0, 0
+  index: -1
+chip_1
+  rotate: true
+  xy: 1065, 99
+  size: 139, 83
+  orig: 139, 83
+  offset: 0, 0
+  index: -1
+chip_1_00000
+  rotate: false
+  xy: 1266, 20
+  size: 137, 81
+  orig: 139, 83
+  offset: 2, 1
+  index: -1
+chip_2
+  rotate: true
+  xy: 984, 98
+  size: 140, 79
+  orig: 140, 79
+  offset: 0, 0
+  index: -1
+chip_2_00000
+  rotate: true
+  xy: 1478, 266
+  size: 121, 78
+  orig: 139, 83
+  offset: 18, 3
+  index: -1
+chip_3
+  rotate: true
+  xy: 1373, 112
+  size: 134, 81
+  orig: 134, 81
+  offset: 0, 0
+  index: -1
+chip_3_00000
+  rotate: true
+  xy: 1399, 251
+  size: 134, 77
+  orig: 139, 83
+  offset: 3, 2
+  index: -1
+chip_4
+  rotate: true
+  xy: 1150, 100
+  size: 138, 74
+  orig: 139, 74
+  offset: 0, 0
+  index: -1
+chip_4_00000
+  rotate: true
+  xy: 1465, 389
+  size: 134, 73
+  orig: 139, 83
+  offset: 4, 5
+  index: -1
+chip_4_touying
+  rotate: false
+  xy: 1405, 29
+  size: 127, 81
+  orig: 128, 83
+  offset: 1, 1
+  index: -1
+chip_5
+  rotate: true
+  xy: 1226, 103
+  size: 138, 74
+  orig: 140, 74
+  offset: 1, 0
+  index: -1
+chip_5_00000
+  rotate: true
+  xy: 1324, 248
+  size: 136, 73
+  orig: 139, 83
+  offset: 3, 5
+  index: -1
+chip_5_touying
+  rotate: true
+  xy: 1456, 116
+  size: 133, 73
+  orig: 135, 74
+  offset: 1, 1
+  index: -1
+chip_6
+  rotate: true
+  xy: 1302, 107
+  size: 137, 69
+  orig: 138, 69
+  offset: 1, 0
+  index: -1
+chip_6_00000
+  rotate: true
+  xy: 1394, 387
+  size: 136, 69
+  orig: 139, 83
+  offset: 3, 7
+  index: -1
+chip_6_touying
+  rotate: true
+  xy: 1324, 386
+  size: 137, 68
+  orig: 137, 68
+  offset: 0, 0
+  index: -1
+coins_1
+  rotate: false
+  xy: 1531, 189
+  size: 69, 75
+  orig: 69, 76
+  offset: 0, 0
+  index: -1
+coins_2
+  rotate: false
+  xy: 984, 2
+  size: 76, 94
+  orig: 76, 95
+  offset: 0, 1
+  index: -1
+coins_3
+  rotate: true
+  xy: 1540, 447
+  size: 76, 68
+  orig: 76, 68
+  offset: 0, 0
+  index: -1
+coins_3_touying
+  rotate: true
+  xy: 1062, 7
+  size: 89, 39
+  orig: 89, 39
+  offset: 0, 0
+  index: -1
+def
+  rotate: false
+  xy: 1534, 54
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+light
+  rotate: true
+  xy: 1221, 267
+  size: 256, 101
+  orig: 256, 101
+  offset: 0, 0
+  index: -1
+saizi_1
+  rotate: false
+  xy: 1190, 15
+  size: 74, 83
+  orig: 74, 83
+  offset: 0, 0
+  index: -1
+saizi_1_touying
+  rotate: false
+  xy: 1540, 403
+  size: 67, 42
+  orig: 68, 42
+  offset: 0, 0
+  index: -1
+saizi_2
+  rotate: false
+  xy: 1103, 10
+  size: 85, 87
+  orig: 85, 87
+  offset: 0, 0
+  index: -1
+saizi_2_touying
+  rotate: true
+  xy: 1531, 120
+  size: 67, 42
+  orig: 68, 42
+  offset: 0, 0
+  index: -1
+sheguang_dimian
+  rotate: false
+  xy: 2, 11
+  size: 464, 512
+  orig: 464, 512
+  offset: 0, 0
+  index: -1
+table_f
+  rotate: true
+  xy: 1299, 246
+  size: 19, 18
+  orig: 19, 18
+  offset: 0, 0
+  index: -1
+table_h
+  rotate: true
+  xy: 1261, 244
+  size: 21, 17
+  orig: 21, 17
+  offset: 0, 0
+  index: -1
+table_hong
+  rotate: true
+  xy: 1241, 244
+  size: 21, 18
+  orig: 21, 18
+  offset: 0, 0
+  index: -1
+table_logo
+  rotate: true
+  xy: 1221, 243
+  size: 22, 18
+  orig: 22, 18
+  offset: 0, 0
+  index: -1
+table_mei
+  rotate: true
+  xy: 1280, 245
+  size: 20, 17
+  orig: 20, 17
+  offset: 0, 0
+  index: -1
+zhuanpan_tietu
+  rotate: false
+  xy: 940, 240
+  size: 279, 283
+  orig: 559, 567
+  offset: 140, 142
+  index: -1

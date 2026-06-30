@@ -1,0 +1,784 @@
+syntax = "proto3";
+package matchpublish;
+
+enum MATCH_PUBLISH_MSG_ID
+{
+    MATCH_PUBLISH_NULL = 0;
+
+    //获取赛事列表
+    MATCH_PUBLISH_MATCH_LIST_REQ = 7501;
+    MATCH_PUBLISH_MATCH_LIST_RESP = 7502;
+    //报名
+    MATCH_PUBLISH_REGIST_REQ = 7503;
+    MATCH_PUBLISH_REGIST_RESP = 7504;
+    //退赛
+    MATCH_PUBLISH_DELETE_REGIST_REQ = 7505;
+    MATCH_PUBLISH_DELETE_REGIST_RESP = 7506;
+    //获取玩家历史比赛列表
+    MATCH_PUBLISH_USER_HISTORY_LIST_REQ = 7507;
+    MATCH_PUBLISH_USER_HISTORY_LIST_RESP = 7508;
+    //获取某场历史赛事详情
+    MATCH_PUBLISH_MATCH_HISTORY_REQ = 7509;
+    MATCH_PUBLISH_MATCH_HISTORY_RESP = 7510;
+    //赛事详情界面-Details
+    MATCH_PUBLISH_MATCH_DETAIL_REQ = 7511;
+    MATCH_PUBLISH_MATCH_DETAIL_RESP = 7512;
+    //赛事详情界面-Leaderboard
+    MATCH_PUBLISH_MATCH_LEADERBOARD_REQ = 7513;
+    MATCH_PUBLISH_MATCH_LEADERBOARD_RESP = 7514;
+    //人满赛进入等待界面
+    MATCH_PUBLISH_PLAYER_FULL_WAIT_REQ = 7515;
+    MATCH_PUBLISH_PLAYER_FULL_WAIT_RESP = 7516;
+    //新手爽局
+    MATCH_PUBLISH_NEW_PLAYER_REQ = 7517;
+    MATCH_PUBLISH_NEW_PLAYER_RESP = 7518;
+    //广告位
+    MATCH_PUBLISH_AD_REQ = 7519;
+    MATCH_PUBLISH_AD_RESP = 7520;
+    //续局任务校验
+    MATCH_PUBLISH_NEXT_ROUND_TASK_REQ = 7521;
+    MATCH_PUBLISH_NEXT_ROUND_TASK_RESP = 7522;
+    //新手爽局-人满通知开赛
+    MATCH_PUBLISH_NEW_PLAYER_FULL_START_REQ = 7523;
+    MATCH_PUBLISH_NEW_PLAYER_FULL_START_RESP = 7524;
+    //玩家历史记录分享
+    MATCH_PUBLISH_USER_HISTORY_SHARE_REQ = 7525;
+    MATCH_PUBLISH_USER_HISTORY_SHARE_RESP = 7526;
+
+    //玩家续局判断信息
+    MATCH_PUBLISH_USER_JOIN_MATCH_INFO_REQ = 7531;
+    MATCH_PUBLISH_USER_JOIN_MATCH_INFO_RESP = 7532;
+
+      //单机爽局结束上报
+    MATCH_PUBLISH_NEW_PLAYER_REPORT_REQ = 7539;
+    MATCH_PUBLISH_NEW_PLAYER_REPORT_RESP = 7540;
+    //联赛
+    MATCH_PUBLISH_JOINT_MATCH_INFO_REQ = 7533;
+    MATCH_PUBLISH_JOINT_MATCH_INFO_RESP = 7534;
+    //联赛通知
+    MATCH_PUBLISH_JOINT_MATCH_NOTIFY_REQ = 7535;
+    MATCH_PUBLISH_JOINT_MATCH_NOTIFY_RESP = 7536;
+    //请求决赛席位列表
+    MATCH_PUBLISH_JOINT_FINNAL_LIST_REQ = 7537;
+    MATCH_PUBLISH_JOINT_FINNAL_LIST_RESP = 7538;
+    //请求rummy推荐
+    MATCH_PUBLISH_RUMMY_TRAFFIC_REQ = 7541;
+    MATCH_PUBLISH_RUMMY_TRAFFIC_RESP = 7542;
+    //游戏分享
+    MATCH_CMD_GAME_SHARE_REQ = 7543; 
+    MATCH_CMD_GAME_SHARE_RESP = 7544;
+}
+
+//获取赛事列表
+message MatchListReq {
+    int32 game_id = 1;      //游戏id
+    uint32 uid = 2;         //玩家id
+    TagType tag_type = 3;   //ALL Cash Free Registered
+    int32 push_num = 4;     //推送次数
+    int32 agency_id = 5;    //分盘 id
+}
+
+enum TagType
+{
+    TAG_ALL = 0;
+    TAG_CASH = 1;
+    TAG_FREE = 2;
+    TAG_REGIST = 3;
+}
+
+enum UserStatus
+{
+    NO_REGIST = 0;  //未报名
+    REGIST = 1;     //已报名
+    ELIMINATED = 2; //已淘汰
+}
+
+enum MatchStatus
+{
+    DEFORE = 0; //没开赛  
+    BEGIN = 1;  //开赛
+    END = 2;    //已结束   
+}
+
+enum MatchType
+{
+    NONE = 0;
+    TIMIGN = 1;         //定时赛
+    PLAYER_FULL = 2;    //人满赛
+}
+
+enum MatchTag
+{
+    MT_NONE = 0;
+    MT_GENERAL = 1;     //通用赛
+    MT_DAY = 2;         //日赛
+    MT_WEEK = 3;        //周赛
+    MT_MONTH = 4;       //月赛
+}
+
+enum MatchForm
+{
+    MF_NONE = 0;
+    MF_FREE = 1;        //免费赛
+    MF_CHAM= 2;         //锦标赛
+    MF_CASH = 3;        //收费赛
+}
+
+message Prop
+{
+    int64 id = 1;       //道具id
+    int64 num = 2;      //道具数量
+    int32 type = 3;     //道具类型
+}
+
+message FastMatchInfo
+{
+    bool fast = 1;                          //是否快速赛
+    int32 operate_time = 2;                 //玩家在其回合结束前有 {xx} 秒的时间行动
+    int32 first_player_operate_time = 3;    //先手玩家有 {xx} 秒的时间行动
+    int32 combine_card_time = 4;            //所有玩家有 {xx} 秒的时间组合自己的牌
+}
+
+message MatchInfo {
+    int64 match_config_id = 1;      //赛事配置id
+    string match_instance_id = 2;   //赛事实例id
+    string match_name = 3;          //赛事名称
+    string match_pic = 4;           //图片链接
+    int64 winnings = 5;             //总奖金
+    int32 seats_cur = 6;            //当前报名数
+    int32 seats_max = 7;            //最大报名数
+    int32 winners = 8;              //有奖励的人数
+    UserStatus user_status = 9;    //报名状态
+    MatchStatus match_status = 10;  //比赛状态
+    int64 entry_fee = 11;           //报名费
+    int64 begin_time = 12;          //开赛时间
+    int32 svid = 13;                //赛事svid
+    int32 del_reg_end = 14;         //距离开赛x秒就不能取消报名退赛了
+    MatchType match_type = 15;      //赛事类型
+    int64 instance_id = 16;         //整数的赛事实例id
+    bool sticky = 17;               //是否置顶
+    uint32 chips =18;               //初始筹码
+    int32 match_seq = 19;           //赛事顺序
+    int64 regist_time = 20;         //开始报名时间
+    bool new_player = 21;           //是否新手爽局
+    repeated MatchTag match_tag = 22;   //赛事标签
+    MatchForm match_form = 23;      //赛事形式
+    repeated Prop entry_prop = 24;  //报名需要道具
+    int64 regist_end_time = 25;     //结束报名时间
+    int32 game_id = 26;             //新手爽局前端处理
+    FastMatchInfo fast = 27;        //快速赛
+    repeated JointMath joint_match = 28;     //联赛标识
+}
+
+message JointMath
+{
+    uint32 jointmatch_id = 1;
+    JointMatchPhase sub_match_phase = 2;             // 联赛阶段:海选赛/初赛/半决赛/决赛/总决赛，取值JointMatchPhase
+}
+
+message MatchListResp {
+    repeated MatchInfo match_list = 1;
+    TagType tag_type = 2;
+    int32 push_num = 3;             //剩余推送次数
+    int32 game_id = 4;              //游戏id
+    int64 srv_tm = 5;               //服务器时间
+}
+
+enum RegErrCode {
+    SUCCESS = 0;                    //成功
+    NOT_IN_REG_TIME = 1;            //不在报名时段内
+    ALREADY_REG = 2;                //已经报名了
+    ASSET_FAIL = 3;                 //资产不足
+    MAX_REG_NUM_OUT = 4;            //超过最大报名人数
+    SERVER_ERROR = 5;               //服务器错误
+    NOT_IN_DELREG_TIME = 6;         //不在退赛时段内
+    NOT_REG = 7;                    //没有报名
+    TO_TASK = 8;                    //异常惩罚或者免费次数用完,需要做任务
+    FREE_NUM_OUT = 9;               //免费次数用完
+    SAME_IP_DEVICE = 10;            //防刷, 相同ip超过5个或者相同设备号超过1个          
+    ABNORMAL_ACTION = 11;           //异常行为等级2
+    REG_OTHER_PLAYERFULL = 12;      //已经报名了其他人满赛
+    REQ_FAST = 13;                  //请求太频繁
+    MATCH_CONFIG_CLOSE = 14;        //配置下架
+}
+
+//报名
+message MatchRegReq {
+    int32 game_id = 1;              //游戏id
+    int64 match_config_id = 2;      //赛事配置id
+    string match_instance_id = 3;   //赛事实例id
+    string user_info = 4;           //登录获取的用户信息
+    int64 instance_id = 5;          //整数的赛事实例id
+    bool new_player = 6;           //是否新手爽局
+    int64 act_instance_id = 7;      //活动实例id
+}
+
+message MatchRegResp {
+    RegErrCode err_code = 1;
+    string err_message = 2;
+    string match_instance_id = 3;   //赛事实例id
+    uint32 task_id = 4;             //任务id
+    Prop cost = 5;                  //报名实际花费
+    int32 free_num = 6;             //配置的免费赛次数
+}
+
+
+
+//退赛
+message MatchDelRegReq {
+    int32 game_id = 1;              //游戏id
+    int64 match_config_id = 2;      //赛事id
+    string match_instance_id = 3;   //赛事实例id
+    string user_info = 4;           //登录获取的用户信息
+    bool new_player = 5;           //是否新手爽局
+}
+
+message MatchDelRegResp {
+    RegErrCode err_code = 1;
+    string err_message = 2;
+    string match_instance_id = 3;   //赛事实例id
+    Prop cost = 4;                  //报名实际花费
+}
+
+//分页
+message PageInfo
+{
+    int32 index = 1;                //第几页 从0开始
+    int32 size = 2;                 //每页条数
+}
+
+//获取玩家历史比赛列表
+message MatchUserHistoryListReq {
+    int32 game_id = 1;  //游戏id 
+    uint32 uid = 2;     //玩家id
+    PageInfo page = 3;  //分页
+}
+
+message MatchUserHistoryInfo {
+    enum MatchEndFlag
+    {
+        MATCH_END_CANCELLED = 0;    //取消
+        MATCH_END_COMPLETED = 1;    //完成
+        MATCH_RUNNING = 2;          //比赛中
+    }
+
+    int32 game_id = 1;              //游戏id 
+    int64 match_config_id = 2;      //赛事id
+    string match_instance_id = 3;   //赛事实例id
+    int64 entry_fee = 4;            //报名费
+    int64 begin_time = 5;           //开赛时间
+    MatchEndFlag end_flag = 6;      //取消/完成
+    string match_name = 7;          //赛事名称
+    repeated Prop entry_prop = 8;   //报名门票
+    bool share = 9;                 //是否有分享
+    bool fast = 10;                 //是否快速赛
+    int64 total_reward = 11;        //整个赛事的奖励
+    int64 match_end_time = 12;      //赛事结束时间
+    int32 your_rank = 13;           //自己的赛事排名
+    int64 your_winnings = 14;       //自己比赛所获得的奖金
+    repeated Prop your_winning_prop = 15;   //自己奖励门票
+}
+
+message MatchUserHistoryListResp {
+    repeated MatchUserHistoryInfo match_user_history_list = 1;
+    PageInfo page = 2;              //排行榜分页
+    string share_instance_id = 3;   //需要分享的实例id
+}
+
+
+//获取某场历史赛事详情
+message MatchHistoryDetailReq {
+    int32 game_id = 1;              //游戏id 
+    int64 match_config_id = 2;      //赛事id
+    string match_instance_id = 3;   //赛事实例id
+    uint32 uid = 4;                 //玩家id
+    PageInfo page = 5;              //排行榜分页
+}
+
+message MatchRankInfo {
+    uint32 uid = 1;         //玩家id
+    string user_name = 2;   //玩家昵称
+    string user_head = 3;   //玩家头像
+    int32 rank = 4;         //排名
+    int64 winnings = 5;     //奖金
+    int32 winnings_flag = 6;//奖金是否到账
+    int32 score = 7;        //分数
+    int32 lv = 8;           //阶段数
+    repeated Prop winning_prop = 9;//奖励门票
+}
+
+message MatchHistoryDetailResp {
+    int64 match_config_id = 1;      //赛事id
+    string match_instance_id = 2;   //赛事实例id
+    string match_name = 3;          //赛事名称
+    int64 entry_fee = 4;            //报名费
+    int64 begin_time = 5;           //开赛时间
+    int32 your_rank = 6;            //自己的赛事排名
+    int64 total_winnings = 7;       //自己比赛所获得的奖金
+    repeated MatchRankInfo rank_list = 8;//排行榜
+    repeated Prop entry_prop = 9;   //报名门票
+    repeated Prop winning_prop = 10;//奖励门票
+    MatchRankInfo your_rank_info = 12;  //自己的赛事排名信息
+    int32 page_index = 13;
+    int32 game_id = 14;
+    PageInfo page = 15;              //排行榜分页
+    int32 joint_match = 16; //是否联赛 1、0
+}
+
+
+//赛事详情界面-Details
+//基本需要展示所有php配置的数据
+message MatchDetailsReq {
+    int32 game_id = 1;              //游戏id 
+    int64 match_config_id = 2;      //赛事id
+    string match_instance_id = 3;   //赛事实例id
+    bool new_player = 4;           //是否新手爽局
+}
+
+
+message MatchDetailsResp {
+    message LevelInfo { //阶段配置
+        //deal
+        int32 level = 1;
+        int32 tables = 2;
+        int32 players = 3;
+        int32 promoted = 4;
+        //point
+        int32 level_time = 5;   //显示对应轮次的有效持续时间分钟
+        int64 pt_value = 6;     //显示对应轮次的底分
+        int64 qualify = 7;      //显示对应轮次最低筹码要求
+        bool rebuy = 8;         //是否能重复买入
+        int64 rebuy_price = 9;  //显示对应轮次重复买入的价格, 若对应轮次不能重复买入, 则显示为-
+        int64 reload = 10;      //显示对应轮次重复买入后可获得的筹码, 若对应轮次不能重复买入, 则显示为-
+
+        int32 phase_num = 11;   //阶段局数
+    }
+
+    message RankInfo { //奖励配置
+        string ranks = 1;
+        int64 prizes = 2;
+        repeated Prop prop = 3;    //奖励的道具
+    }
+
+    MatchInfo match_info = 1;
+    repeated LevelInfo level_list = 2;
+    repeated RankInfo rank_list = 3;
+    string rules = 4;           //规则说明
+    bool new_player = 5;        //是否新手爽局, 详情界面请求报名使用
+    int64 srv_tm = 6;           //服务器时间
+    bool rebuy = 7;             // 是否可以重复买入
+}
+
+
+//赛事详情界面-Leaderboard
+//比赛结束前的排名是报名先后的排名, 所以报名也需要记录时间/昵称/头像
+//比赛结束后的排名是比赛的排名
+message MatchLeaderboardReq {
+    int32 game_id = 1;              //游戏id 
+    int64 match_config_id = 2;      //赛事id
+    string match_instance_id = 3;   //赛事实例id
+    bool new_player = 4;            //是否新手爽局
+    PageInfo page = 5;              //分页
+}
+
+message MatchLeaderboardResp {
+    repeated MatchRankInfo rank_list = 1;   //排行榜
+    MatchRankInfo your_rank_info = 2;       //自己的赛事排名信息
+    PageInfo page = 3;              //分页
+}
+
+//人满赛进入等待界面
+message MatchPlayerFullWaitReq {
+    int32 game_id = 1;              //游戏id 
+    int64 match_config_id = 2;      //赛事id
+    string match_instance_id = 3;   //赛事实例id 
+    int32 push_num = 4;             //推送次数
+}
+
+message MatchPlayerFullWaitResp {
+    int32 push_num = 1;             //剩余推送次数
+    int32 seats_cur = 2;            //当前报名数
+    int32 seats_max = 3;            //最大报名数
+    int64 match_config_id = 4;      //赛事id
+    string match_instance_id = 5;   //赛事实例id 
+}
+
+//新手爽局
+message MatchNewPlayerReq {
+    int32 game_id = 1;              //游戏id 
+    string user_info = 2;           //登录获取的用户信息
+}
+
+message MatchNewPlayerConf {
+    string match_name = 1;                           //赛事名字
+    string match_pic = 2;                            //图片链接
+    int32 seats_max = 3;                             //最大报名数
+    uint32 share = 4;                                //分享
+    repeated uint32 white_list = 5;                  //白名单
+    repeated MatchDetailsResp.LevelInfo phase_list = 6;   //阶段
+    repeated MatchDetailsResp.RankInfo reward_list = 7;   //奖励
+}
+
+
+message MatchNewPlayerResp {
+    string ip = 1;                  //uid关联的ip
+    string device_id = 2;           //uid关联的设备号
+    bool new_player = 3;
+    bool first_guide = 4;			//首局引导
+    int32 match_config_id = 5;      //赛事配置id
+    MatchNewPlayerConf config = 6;  //爽局配置
+}
+
+
+//广告位
+message MatchAdReq {
+}
+
+message MatchAdInfo {
+    string img_link = 1;            //图片链接
+    bool is_jump = 2;               //是否跳转
+    uint32 jump_type = 3;           //跳转类型 1-跳转子游戏 2-打开大图
+    string jump_data = 4;           //跳转信息
+    uint32 priority = 5;            //展示优先级
+    uint32 display_position = 6;    //显示位置
+    uint32 user_type = 7;           //用户类型
+}
+
+message MatchAdResp {
+    repeated MatchAdInfo ad_list = 1;
+    string client_config = 2;
+    string client_common_config = 3;
+    string client_beginner_guide_config = 4;
+}
+
+message MatchNextRoundTaskReq
+{
+    int32 game_id = 1;      //游戏id
+    uint32 uid = 2;         //玩家id
+    string user_info = 3;   //登录获取的用户信息
+}
+
+message MatchNextRoundTaskResp
+{
+    uint32 task_id = 1;     //任务id, 0是校验不通过
+}
+
+//新手爽局人满开赛通知
+message MatchNewPlayerFullStartReq
+{
+    string match_instance_id = 1;   //赛事实例id 
+}
+
+message MatchNewPlayerFullStartResp
+{
+    string match_instance_id = 1;
+}
+
+///////////////////SharePoster结构与 agency_event_api::SharePoster保持一致//////////////////////
+message Poster
+{
+    int32 id = 1;
+    string url = 2;
+}
+
+message SharePoster
+{
+    string title = 1;
+    string share_url = 2;
+    string telegram = 3;
+    string whatsapp = 4;
+    repeated Poster poster = 5;
+}
+
+//在SharePosterResp的基础上,合入了对应分享配置的内容
+message SharePosterMixed
+{
+    uint32 game = 1;
+    uint32 share_type = 2;
+    string invite_code = 3;
+    SharePoster data = 4;
+    int32 reward_cond = 5;  //派奖条件: 1 分享即派奖 2 注册即派奖  3 有效裂变派奖
+    int32 show_flags = 6;	//第0bit位表示是否显示下载图片, 
+                            //第1bit位表示是否显示复制链接, 
+                            //第2bit位表示是否显示二维码
+    repeated string download_pics = 7;   //分享的背景图  第一张是竖版  第二张是横板
+    uint32 sub_type = 8; //子類型
+}
+
+//玩家历史记录分享
+message UserHistoryShareReq
+{
+    uint32 uid = 1;
+    string match_instance_id = 2;
+    string user_info = 3;
+    int32 game_id = 4;
+    int64 total_reward = 5;
+    string match_name = 6;
+    int64 match_end_time = 7;
+    int32 is_league = 8; //是否是联赛 1.是  0.否
+}
+
+//玩家历史记录分享
+message UserHistoryShareResp
+{
+    int32 result = 1;
+    string match_instance_id = 2;
+    SharePoster data = 3;
+    int32 rank = 4;     //排名
+    int64 reward = 5;   //奖励
+    int64 total_reward = 6;
+    string match_name = 7;
+    int64 match_end_time = 8;
+    SharePosterMixed mix_data = 9; //新分享接口;
+}
+
+message UserJoinMatchInfoReq
+{  
+    uint32 uid = 1;
+    string device_id = 2;
+    string user_info = 3;           //登录获取的用户信息
+}
+
+message UserJoinMatchInfoResp
+{  
+    uint32 uid = 1;
+    int32 guide_flag = 2;
+    int32 free_num_flag = 3;
+    int32 recharge_num = 4;
+    int32 history_join_num = 5;
+    int32 cash_rummy_round_num = 6; //cash rummy对局数
+}
+
+//单机爽局结束上报
+message MatchNewPlayerRankInfo {
+    uint32 uid = 1;
+    string name = 2;
+    string head = 3;
+    int64 score = 4;
+    int32 lv = 5;
+    int32 rank = 6;
+    int64 winnings = 7;
+    int32 winnings_flag = 8;
+    int32 robot = 9;
+}
+
+message MatchNewPlayerReportReq {
+    int32 game_id = 1;              //游戏id 
+    string user_info = 2;           //登录获取的用户信息
+    uint32 match_time = 3;          //开赛时间
+    repeated MatchNewPlayerRankInfo rank_list = 4; //排名信息
+    bool is_in_hall = 5; //是否在大厅
+}
+
+message MatchNewPlayerReportResp {
+    int32 err_code = 1;
+}
+//===========================================league赛事========================================================
+// 动画播放参数
+message AnimationParameters
+{
+    uint32 id = 1;                          // id
+    string name = 2;                        // 动画名
+}
+
+// 联赛阶段定义
+enum JointMatchPhase
+{
+    ERROR = 0;                  // 错误
+    AUDITION = 1;               // 海选赛
+    PRELIMINARY_ROUND = 2;      // 初赛
+    SEMIFINAL = 3;              // 半决赛
+    FINALS = 4;                 // 决赛
+    TATOL_FINALS = 5;           // 总决赛
+    BREAK_THROUGH = 100;        // 突围赛
+}
+
+// 联赛门票信息
+message JointMatchProp
+{
+    int64 id = 1;       //道具id
+    int64 num = 2;      //道具数量
+    int32 type = 3;     //道具类型
+    int64 active_times = 4;
+}
+
+// 联赛阶段
+message SubMatch
+{
+    JointMatchPhase phase = 1;             // 联赛阶段:海选赛/初赛/半决赛/决赛/总决赛，取值JointMatchPhase
+    string name = 2;              // 赛事名称
+    repeated int64 match_config_id = 3;     //  关联的赛事配置ID
+    int64 begin_time = 4;        // 阶段开始时间
+    int64 end_time = 5;          // 阶段结束时间
+    JointMatchProp ticket = 6;           // 奖励门票
+    string icon = 7;          // 联赛背景图
+    bool notify = 8; //true 为需要通知/false 为不需要通知
+}
+
+//icon动画类型
+enum IconPlayType
+{
+    IMAGE = 0;              // 图片
+    ANIM = 1;               // 动画
+}
+
+//席位来源
+enum SlotsSource
+{
+    NORMAL = 0;              // 普通
+    BONUS = 1;               // 活动
+}
+
+message FaqQuestion
+{
+    string faq_title = 1;            // 标题
+    string faq_answer = 2;       // 答案
+}
+
+//决赛门票
+message FinalsSlots
+{
+    SlotsSource source = 1;        // 来源
+    uint32 total = 2;            // 总席位
+    uint32 obtained = 3;       // 获得的席位
+}
+
+//决赛记录
+message JointMatchFinals
+{ 
+    int32 game_id = 1;              //游戏id 
+    int64 match_config_id = 2;      //赛事id
+    string match_instance_id = 3;   //赛事实例id
+    MatchStatus match_status = 4;  //比赛状态
+    string match_name = 5;          //赛事名
+    int32 match_end_time = 6;       //总决赛结束时间
+    uint32 match_begin_time = 7;    //总决赛开始时间
+}
+
+ 
+//联赛请求
+message JointMatchInfoReq
+{  
+    uint32 uid = 1;
+} 
+
+//决赛门票
+message FinalTicket
+{ 
+    uint32 uid = 1;         //玩家id
+    string user_name = 2;   //玩家昵称
+    uint32 user_head = 3;   //玩家头像数
+    JointMatchProp prop = 4;//奖励门票 
+}
+
+//联赛回复
+message JointMatchInfoResp
+{
+    string name = 1;                     // 联赛名称
+    IconPlayType icon = 2;               // 联赛图标 1:静态图 2:spine动画
+    string png = 3;                      // png
+    string atlas = 4;                    // atlas文件
+    string skel = 5;                     // skel文件
+    repeated AnimationParameters parameters = 6;    // 动画播放参数
+    string picture = 7;                  // 联赛宣传图
+    int64  begin_time = 8;               // 联赛开赛时间
+    int64  end_time = 9;               // 联赛结束时间
+    int64 show_begin_time = 10;         // 联赛展示时间
+    int64 reward_end_time = 11;         // 联赛奖励结束时间，2025-01-06 10:00:00
+    int64 secondary_tab_begin_time = 12;// 联赛二级页签开始时间，2025-01-06 10:00:00
+    int64 secondary_tab_end_time = 13;  // 联赛二级页签结束时间，2025-01-06 10:00:00
+    uint64 total_prize_pool = 14;        // 联赛总奖金池
+    repeated SubMatch sub_match = 15;               // 联赛子赛事
+    uint32 break_through_match_open = 16;           // 突围赛开关
+    SubMatch break_through = 17;  // 突围赛配置
+    repeated FaqQuestion faq = 18;      // FAQ
+    JointMatchFinals jointMatchFinals = 19; //决赛数据
+    uint32 jointmatch_id = 20; // 联赛id
+    string label = 21; // 标签
+    uint32 result = 22; // 1成功 0失败
+    int64 server_time = 23;                         // 服务器当前时间
+}
+
+//
+message JointMatchNotifyReq { 
+    uint32 jointmatch_id = 1;
+    JointMatchPhase phase = 2;  
+    uint32 op_type = 3; //0 开启，1 关闭
+    string user_info = 4;           //登录获取的用户信息
+}
+
+message JointMatchNotifyResp { 
+    uint32 result = 1;
+}
+
+message JointMatchFinalListReq { 
+    PageInfo page = 1;              //排行榜分页
+}
+
+message JointMatchFinalListResp { 
+    uint32 total_size = 1;
+    repeated FinalTicket final_ticket = 2; 
+    PageInfo page = 3;              //排行榜分页
+    repeated FinalsSlots slots = 4; // 席位
+    JointMatchProp self_final_ticket = 5;     // 我的决赛门票
+}
+
+message RummyTrafficReq 
+{ 
+    uint32 uid = 1;
+    int64 balance = 2;
+    int32 agency_id = 3;
+}
+
+message TrafficLevelConfig 
+{
+    int32 game_id = 1;          // 游戏ID
+    int32 seat_count = 2;       // 人数
+    int32 level = 3;            // 房间等级
+    int64 base_ante = 4;        // 基础底注
+    int64 entry_min = 5;        // 入场最小门槛
+    int64 entry_max = 6;        // 入场最大门槛 -1表示无限
+    string title = 7;           // 房间名称/标题
+    int64 recommend_min = 8;    // 推荐最小值
+    int64 recommend_max = 9;    // 推荐最大值 -1表示无限
+    int64 bet_min = 10;         // 下注最小值
+    int64 bet_max = 11;         // 下注最大值 -1表示无限
+    int64 pay_max = 12;         // 支付上限 -1表示无限
+    repeated int64 quick_ante = 13;  // 快速下注选项
+    bool is_open_jackpot = 14;       // 是否开启 jackpot
+    int32 room_tab = 15;             // 房间类型 0普通 1单人模式
+    int32 round = 16;          // 扩展字段
+}
+
+message TabConfig 
+{
+    int32 tab = 1; // 页签  1->cash-rummy  2->Torunament  3->event  4->MAX_REG_NUM_OUT
+    int32 recommend_type = 2; // 1 cash-rummy  2 Torunament rummy(复用请求续局接口)
+    TrafficLevelConfig level_cfg = 3; 
+    int32 strategy = 4; // 1-最近一场 2-最近10场
+}
+
+message RummyTrafficResp
+{ 
+    repeated TabConfig tab_cfg_list = 1; 
+    TrafficLevelConfig settle_cfg = 2; // 结算推荐配置
+    string client_common_config = 3;
+    int32 status = 4;  // 状态
+    int32 count = 5;   // 弹出次数
+    int32 show_time = 6;    // 展示时间
+}
+
+message UserShareReq
+{
+    uint32 uid = 1;
+    uint32 share_type = 2; // 分享请求类型  
+    uint32 sub_type = 3; // 分享请求子类 
+    string user_info = 4; 
+}
+
+message UserShareResp
+{
+    uint32 uid = 1;
+    SharePosterMixed mix_data = 2;
+}
+//===================================================================================================

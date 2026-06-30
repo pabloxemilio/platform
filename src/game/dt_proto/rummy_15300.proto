@@ -1,0 +1,840 @@
+syntax = "proto3";
+package rummy100;
+
+/*
+    MSGID定义说明,rummy和赛事rummy在PB上保持同步,
+    客户端请求协议point、deal、match point、match deal都是15300-15399
+    服务端区分返回协议：
+        point           15300-15399
+        deal            15500-15599
+        match point     15600-15699
+        match deal      15700-15799  
+    服务端通过CheckPointToDealMsgID来区分返回协议
+*/
+
+enum MSGID
+{
+//===============公共协议   
+    MSG_NULL = 0;
+	GAMEALLOC_CMD_ALLOC_TABLE_REQ = 0x07D4;
+	MSG_ERROR_PUSH = 15300;
+    MSG_TABLE_INFO_PUSH = 15301;                    //进房请求桌子信息、断线重连请求桌子信息
+    MSG_TABLE_NOTICE_OTHER_ENTER_TABLE_PUSH = 15302;//通知其他人进桌
+    MSG_LEAVE_TABLE_RESP = 15303;                   //离开桌子回复
+    MSG_CHANGE_TABLE_REQ = 15304;                   //请求换桌请求
+    MSG_CHANGE_TABLE_RESP = 15305;                  //请求换桌回复
+    MSG_TABLE_DISCARD_STATISTICS_REQ = 15306;       //玩家查看出牌统计请求
+    MSG_TABLE_USER_ACTION_DISCARD_STATISTICS_RESP = 15307;//玩家查看出牌统计返回
+    MSG_TABLE_USER_ACTION_UPDATECARD_REQ = 15308;   //更新牌组请求
+    MSG_TABLE_USER_ACTION_UPDATECARD_RESP = 15309;  //更新牌组返回
+
+    MSG_CREATE_ROBOT_REQ = 15310;                   //生成机器人请求
+	MSG_DELETE_ROBOT_REQ = 15311;                   //销毁机器人请求
+
+    MSG_TABLE_HISTORY_REQ = 15312;                  //牌局历史记录
+    MSG_TABLE_HISTORY_RESP = 15313;                 //牌局历史记录
+
+    MSG_TABLE_INFO_REQ = 15314;                     //牌局历史记录
+    MSG_TABLE_INFO_RESP = 15315;                    //牌局历史记录
+    MSG_TABLE_TEST_RESP = 15316;                    //配牌器,测试阶段用  已经弃用
+    MSG_TABLE_WAIT_START_PUSH = 15317;              //游戏倒计时,结束后满足人数后开始游戏
+
+    MSG_TABLE_NOTICE_SEND_CARD_PUSH = 15318;        //游戏开始，发牌
+    MSG_TABLE_NOTICE_USER_ACTION_PUSH = 15319;      //通知玩家操作
+    MSG_TABLE_USER_ACTION_GET_CARD_REQ = 15320;     //玩家抓牌请求
+    MSG_TABLE_USER_ACTION_GET_CARD_RESP = 15321;    //玩家抓牌返回
+    MSG_TABLE_USER_ACTION_DISCARD_REQ = 15322;      //玩家出牌请求
+    MSG_TABLE_USER_ACTION_DISCARD_RESP = 15323;     //玩家出牌返回
+    MSG_TABLE_USER_ACTION_DROP_REQ = 15324;         //玩家弃牌请求
+    MSG_TABLE_USER_ACTION_DROP_RESP = 15325;        //玩家弃牌返回
+    MSG_TABLE_USER_ACTION_SHOW_REQ = 15326;         //玩家show请求
+    MSG_TABLE_USER_ACTION_SHOW_RESP = 15327;        //玩家show返回
+
+    MSG_TABLE_USER_DECLARE_LOSER_REQ = 15328;       //输家declare请求
+    MSG_TABLE_USER_DECLARE_LOSER_RESP = 15329;      //输家declare返回
+    MSG_TABLE_USER_DECLARE_WIN_REQ = 15330;         //赢家declare请求
+    MSG_TABLE_USER_DECLARE_WIN_RESP = 15331;        //赢家declare返回
+
+    MSG_SETTLEMENT_RESULT_PUSH = 15332;             //结算
+    MSG_SETTLEMENT_AUTO_HU_REQ = 15333;             //自动胡牌牌型
+    MSG_TABLE_NOTICE_FINISH_COUNTDOWN_PUSH = 15334; //通知客户端开始进入结束倒计时
+    MSG_TABLE_GET_CARD_AUTO_HUPAI = 15335;          //超时抓牌自动胡牌
+    MSG_TABLE_TEST_FORCE_END_REQ = 15336;           //测试强制结束指定的桌子游戏
+    MSG_TABLE_LISTEN_CARD_REQ = 15337;              //听牌通知
+
+    MSG_TABLE_NOTICE_COMFIRM_BANKER_PUSH = 15338;   //通知client定庄
+    MSG_TABLE_CARD_RECORDER_REQ = 15339;            //记牌器请求
+    MSG_TABLE_CARD_RECORDER_RESP = 15340;           //记牌器返回
+    MSG_TABLE_AUTO_DROP_REQ = 15341;                //自动弃牌请求
+    MSG_TABLE_AUTO_DROP_RESP = 15342;               //自动弃牌返回
+
+    MSG_TABLE_USER_TIMEOUT_PUSH = 15343;            // 超时推送
+    MSG_TABLE_USER_ONLINE_STATE_PUSH = 15344;       // 超时推送
+    MSG_TABLE_USER_COMEBACK_REQ = 15345;            // 点击I'm back
+    MSG_TABLE_USER_CONFIG_SETTLE_REQ = 15346;       // 设置
+    MSG_TABLE_USER_CONFIG_GET_REQ = 15347;          // 获取
+    MSG_TABLE_USER_CONFIG_GET_RESP = 15348;         // 配置回包
+
+    MSG_TABLE_USER_GAME_END_PUSH = 15349;           //玩家请求TableInfo但已经结束用这个通知game_publish
+    MSG_TABLE_USER_SETTLED_PUSH = 15350;            //玩家结算后通知game_publish
+    MSG_TABLE_USER_COMEBACK_RESP = 15351;           //COME BACK 回包
+
+    MSG_TABLE_USER_ROUND_INFO_REQ = 15352;          //局内信息 
+    MSG_TABLE_USER_ROUND_INFO_RESP = 15353;         //局内信息
+
+    MSG_TABLE_USER_SET_PROPERTY_REQ = 15354;        //设置用户属性
+    MSG_TABLE_USER_SET_PROPERTY_RESP = 15355;       //设置用户属性
+    MSG_TABLE_USER_SETTLED_PREVIEW_REQ = 15356;     //结算弹窗提前弹出请求
+    MSG_TABLE_USER_SETTLED_PREVIEW_PUSH = 15357;    //结算弹窗提前弹出推送
+}
+
+enum USER_INFO_MSG_ID
+{	
+    USER_INFO_CMD_NONE = 0;
+    USER_INFO_CHANGE_PUSH = 70326;                 //推送玩家余额变更
+}
+
+//桌子状态
+enum TABLE_STATE
+{
+    TABLE_STATE_ERROR = 0;
+	TABLE_STATE_READY = 1;
+    TABLE_STATE_WAIT_START = 2;   //这个状态弃用,没删掉的原因是前端改动较大
+	TABLE_STATE_IN_GAME = 3;
+    TABLE_STATE_WIN_DECLARE = 4;
+    TABLE_STATE_LOSER_DECLARE = 5;
+	TABLE_STATE_ENDING = 6;
+    TABLE_STATE_COMFIRM_BANKER = 7;     //新增定庄
+}
+
+//玩家状态
+enum USER_STATE
+{
+    USER_STATE_READY = 0;   //准备
+    USER_STATE_GAMEING = 1; //游戏中
+    USER_STATE_FOLD = 2;    //弃牌
+    USER_STATE_FRIED_HU = 3;//炸胡
+    USER_STATE_SHOW_CONFIRM = 4;//show confirm
+    USER_STATE_LOSE = 5;    //输
+    USER_STATE_WIN = 6;     //赢
+}
+
+enum ROUND_STATE
+{
+    ROUND_STATE_NONE = 0;
+    ROUND_STATE_TIE_BREAKER = 1;     //加赛
+}
+
+//牌定义
+message Card
+{
+	//以下字段为所有扑克牌的固定字段
+	int32 dect = 1;//副:0,1,2
+	int32 suit = 2;//花色,黑红梅方0,1,2,3 或者 -1对应大小王或背面牌
+	int32 value = 3;//牌面值:A,2,3,4,5,6,7,8,9,10,J,Q,K,分别对应1-13,小王和大王都是-1
+	int32 joker = 4;//大小王标志:小王0,大王1,其他-1
+    //背面牌是suit=-1,value-1,joker=-1
+	
+	//以下为不同游戏类型的自定义字段,tp中这个代表每一张牌的大小
+	int32 rank = 5;//2,3,4,5,6,7,8,9,10,J,Q,K,A 分别是0,1,2,...12
+    int32 point = 6;//分数
+}
+
+//手牌
+message HandCards
+{
+    repeated Card card_list = 1;
+}
+
+//初期调试时使用
+message AllocTableReq
+{
+    uint32 uid     = 1;
+    int32 game_id  = 2;//每个游戏不同, teenpatti 是 150?
+    int64 alloc_param = 3;
+    string userinfo = 4;//extra
+}
+
+//创建机器人
+message CreateRobotReq
+{
+    uint32 robot_uid = 1;
+}
+
+//销毁机器人
+message DeleteRobotReq
+{
+    uint32 table_id = 1;
+}
+
+message RecommedLevelConfig 
+{
+    int32 game_id = 1;          // 游戏ID
+    int32 seat_count = 2;       // 人数
+    int32 level = 3;            // 房间等级
+    int64 base_ante = 4;        // 基础底注
+    int64 entry_min = 5;        // 入场最小门槛
+    int64 entry_max = 6;        // 入场最大门槛 -1表示无限
+    string title = 7;           // 房间名称/标题
+    int64 recommend_min = 8;    // 推荐最小值
+    int64 recommend_max = 9;    // 推荐最大值 -1表示无限
+    int64 bet_min = 10;         // 下注最小值
+    int64 bet_max = 11;         // 下注最大值 -1表示无限
+    int64 pay_max = 12;         // 支付上限 -1表示无限
+    repeated int64 quick_ante = 13;  // 快速下注选项
+    bool is_open_jackpot = 14;       // 是否开启 jackpot
+    int32 room_tab = 15;             // 房间类型 0普通 1单人模式
+    int32 round = 16;          // 局数
+    string extra_json = 17; // 扩展字段
+}
+
+//玩家信息
+message UserInfo
+{
+    uint32 uid = 1;
+    string name = 2;
+    string avatar = 3;
+    uint32 seatid = 4;
+    int64 money = 5;
+    uint32 status = 6;
+    repeated HandCards hand_cards_list = 7;
+    int32 win_score = 8;
+    int64 win_money = 9;
+    int32 total_score = 10;
+    int32 round_status = 11;
+    int32 backup_time = 12;
+    repeated int32 round_scores = 13;
+    repeated USER_STATE round_user_status = 14;
+    int32 retention_staus = 15; // 1-破产  2-赢  3-输
+    int64 total_win = 16; // 累计赢钱
+    RecommedLevelConfig recommend_config = 17;
+    uint32 timeout_count = 18; // 超时次数
+    uint32 timeout_total_count = 19; // 超时设定次数 
+    bool away = 20;
+    bool is_advance = 21; // deal是否晋级 
+    int32 recommend_level = 22; // 推荐level
+}
+
+//通知其他人有玩家进桌
+message NoticeEnterTablePush
+{
+    UserInfo user_info = 1;
+}
+
+//进桌请求桌子信息、断线重连
+message TableInfoPush
+{
+    uint64 server_time = 1;//1970以来的秒为单位的时间,考虑所有发给客户端的proto都带上,以后调时间节奏时用
+    TABLE_STATE state = 2;
+    int32 game_id = 3;
+    int32 table_id = 4;
+    UserInfo myself_info = 5;
+    repeated UserInfo other_info_list = 6;
+    int32 dealer = 7;//庄家位置
+    Card joker_card = 8;
+    repeated Card outcards_list = 9; //出牌堆的牌
+    int32 cur_operating_seatid = 10;
+    int32 quick_compose_cards = 11; //快捷组牌开关
+    int32 hupai_tips = 12; //自动胡牌提示开关
+    int32 listen_card_tips = 13; //听牌提示功能开关
+    int32 ante = 14; //底注
+    int32 game_time_count_down = 15;//比赛剩余时间
+    int32 drop_lose_score = 16; //弃牌扣分 
+    int32 game_count = 17; //游戏总局数
+    int32 reday_time = 18;
+    int32 operation_card_time = 19;
+    int32 confirm_time = 20;
+    int32 end_time = 21;
+	int32 count_down = 22;//剩余时间
+    int32 cur_round = 23; // 第几轮
+    int32 play_round = 24; // 总轮数
+    int32 deals_jackpot_money = 25; // 奖池
+    int32 total_backup_time = 26; // 缓存时间
+    int32 pos_two_get = 27; // 位置2是否能抓 1.能  0.不能
+    int32 operation_time = 28; // 操作时间
+    int32 backup_time = 29; // 备用时间
+    Card finish_card = 30; // 重连时当前有人胡牌的牌数据
+    int32 is_real_end = 31; // 是否结束
+    int32 round_id = 32; // 牌局ID
+    int32 game_level = 33; // 牌局ID
+    int64 total_jackpot = 34; //point玩法用,界面总奖池分数
+    int32 svid = 35;
+    int32 cur_phase = 36; //赛事当前阶段
+    int32 total_phase = 37; //赛事总阶段
+    int32 end_remainder = 38; // 游戏结束倒计时剩余时间 游戏结束前5分钟才发给前端
+    int32 card_remainder = 39; // 剩余牌张数 第5轮洗牌才发给前端
+    int32 seat_count = 40;      //坐位数量
+    int32 ordering_card = 41;  //首牌组牌开关
+    int32 quick_match_operation_time = 42; // 快速赛首位玩家操作时间
+    int32 is_frist_operation = 43; // 快速赛是否是第一个操作玩家  1.是  0.否
+    int32 is_auto_declare = 44; //自动Declare开关 0关1开
+    int32 auto_next_round_sec = 45; //自动开启下一局秒数
+    int64 report_round_id = 46;    //上报用
+    int64 recommend_link_round_id = 47;  //引流持续局关联的对局号
+    int64 retain_link_round_id = 48;  //退出挽留持续局关联的对局号
+    repeated ComfirmBankerUserInfo user_list = 49; //定庄信息(断线重连用)
+    SwitchInfo switch_info = 50;    //rummy2.0新增
+    int32 client_settle_page_countdown = 51;   //结算自动续局加的两种倒计时: 不可见倒计时
+    int32 err_code = 52;    //找不到桌子 返回ERROR_TABLE_STATUS
+    int64 single_round_id = 53;    //小局roundID
+}
+
+message SwitchInfo
+{
+    bool become_card_switch = 1;            //成牌提示开关
+    bool joker_describe_switch = 2;         //癞子说明开关
+    bool fried_hu_tutorial_switch = 3;      //诈胡教程开关
+    bool settlement_statement_switch = 4;   //结算页最佳声明开关
+    bool timeout_discard_switch = 5;        //超时弃牌设置开关
+    bool card_counter_switch = 6;           //记牌器开关
+    bool trigger_smart_card_switch = 7;     //触发式智能理牌开关
+    uint32 declare_time = 8;                //声明时间
+    bool auto_drop = 9;                    //自动弃牌
+    bool show_card_switch = 10;             //亮牌开关
+};
+
+//客户端重连用的,不能删
+message TableInfoReq
+{
+	string userinfo = 1;//玩家登录信息
+    int32 table_id = 2;
+}
+
+//等待游戏开始，游戏倒计时准备
+message WaitStartPush
+{
+    TABLE_STATE state = 1;
+    repeated int32 seatids_list = 2;
+    int32 table_id = 3;
+    repeated int32 seatids_score = 4;
+    int32 cur_round = 5;
+}
+
+//定庄用户个人信息
+message ComfirmBankerUserInfo
+{
+    uint32 uid = 1;
+    uint32 seatid = 2;
+    Card card = 3;
+    bool win = 4;
+    bool banker = 5;
+}
+
+//游戏定庄
+message ComfirmBankerPush
+{
+    int32 table_id = 1;
+    repeated ComfirmBankerUserInfo user_list = 2;
+}
+
+//洗牌
+message ShufflePush
+{
+    int32 table_id = 1;
+}
+
+//游戏开始-发牌
+message SendCardPush
+{
+    TABLE_STATE state = 1;
+    int32 dealer = 2;//庄家位置
+    Card joker_card = 3;
+    Card first_discard = 4;
+    repeated Card hand_card_list = 5;
+    int32 game_time = 6; //比赛时间
+    int32 table_id = 7;
+}
+
+//通知玩家操作
+message NoticeUserOperationPush
+{
+    TABLE_STATE state = 1;
+    int32 drop_lose_score = 2; //弃牌扣分
+    int32 again_shuffle = 3;
+    Card first_discard = 4;
+    UserInfo operation_info = 5; //操作玩家信息
+    int32 table_id = 6;
+    int32 is_get = 7; //判断pos 2位置是否能抓 1.能 0.不能
+    int32 operation_time = 8; // 操作时间（包含快速赛和其他赛事）
+}
+
+//==============================================================================================
+
+//抓牌请求
+message GetCardReq
+{
+    uint32 uid = 1;
+	int32 get_card_pos = 2; //抓牌位置 1.摸牌堆  2.出牌堆
+	int32 needless_card_num = 3; //杂牌张数
+}
+
+//抓牌回复
+message GetCardResp
+{
+    uint32 uid = 1;
+    int32 seatid = 2;
+    int32 get_card_pos = 3; //抓牌位置 1.摸牌堆  2.出牌堆
+    Card get_card_value = 4; //抓的牌值
+    int32 table_id = 5;
+    repeated HandCards hand_cards_list = 6;
+    int32 card_remainder = 7; // 剩余牌张数 第5轮洗牌才发给前端
+    SingleCardInfo card_info = 8; // 记牌器用
+}
+
+//==============================================================================================
+
+//出牌请求
+message DisCardReq
+{
+    uint32 uid = 1;
+	Card discard = 2; //出的牌值
+    repeated HandCards hand_cards_list = 3; //出牌后的牌组
+    bool listen_card = 4; // 是否听牌
+}
+
+//出牌回复
+message DisCardResp
+{
+    uint32 uid = 1;
+    int32 seatid = 2;
+    Card discard = 3; //出的牌值
+    int32 table_id = 4;
+    int32 backup_time = 5; // 备用操作时间
+    SingleCardInfo card_info = 6; // 记牌器用
+}
+
+//==============================================================================================
+
+//查看出牌统计
+message LookDiscardStatisticsReq
+{
+    uint32 uid = 1;
+}
+
+//查看出牌统计回复
+message LookDiscardStatisticsResp
+{
+    uint32 uid = 1;
+    repeated Card discard_statistics_list = 2;
+    int32 table_id = 3;
+}
+
+//==============================================================================================
+
+//玩家弃牌请求
+message DropReq
+{
+    uint32 uid = 1;
+}
+
+//玩家弃牌回复
+message DropResp
+{
+    uint32 uid = 1;
+    int32 seatid = 2;
+    int64 total_jackpot = 3;
+    int64 lose_money = 4;
+    int32 result = 5; //成功1 失败0
+    int32 table_id = 6;
+    bool stop_server = 7; // 停止服务
+}
+
+//==============================================================================================
+
+//玩家show finish请求
+message ShowFinishReq
+{
+    uint32 uid = 1;
+    Card show_card = 2;
+    repeated HandCards hand_cards_list = 3; //牌组
+    int32 auto_hupai = 4; //自动胡牌 1.true  0.false 2.预操作牌数据
+}
+
+//玩家show finish回复
+message ShowFinishResp
+{
+    uint32 uid = 1;
+    int32 seatid = 2;
+    Card show_card = 3;
+    int32 result = 4; //成功1 失败0
+    string error_data = 5;
+    int32 table_id = 6;
+    int32 auto_hupai = 7; //自动胡牌 1.true  0.false
+    repeated HandCards hand_cards_list = 8; //牌组
+}
+
+//==============================================================================================
+
+//赢家declare confirm请求
+message WinDeclareReq
+{
+    uint32 uid = 1;
+    repeated HandCards hand_cards_list = 3; //牌组
+    bool test = 4; // 测试用
+}
+
+//赢家declare confirm回复
+message WinDeclareResp
+{
+    uint32 uid = 1;
+    int32 seatid = 2;
+    Card show_card = 3;
+    int32 result = 4; //成功1 失败0
+    string error_data = 5;
+    int32 table_id = 6;
+    bool stop_server = 7; // 停止服务
+    int64 total_jackpot = 8;
+}
+
+//==============================================================================================
+
+//失败玩家declare请求
+message LoserDeclareReq
+{
+    uint32 uid = 1;
+    repeated HandCards hand_cards_list = 2; //更新后的牌组
+}
+
+//失败玩家declare回复
+message LoserDeclareResp
+{
+    uint32 uid = 1;
+    int32 seatid = 2;
+    int32 lose_score = 3;
+    int32 result = 4; //成功1 失败0
+    int32 table_id = 5;
+}
+
+//==============================================================================================
+
+//玩家更新牌组请求
+message UpdateCardsReq
+{
+    uint32 uid = 1;
+    repeated HandCards hand_cards_list = 2; //更新后的牌组
+    bool auto_combination = 3;  //是否点击自动组牌按钮
+}
+
+//玩家更新牌组返回
+message UpdateCardsResp
+{
+    uint32 uid = 1;
+    int32 table_id = 2;
+    int32 result = 3;  // 1.succ   0.fail
+    string error_data = 4;
+    repeated HandCards hand_cards_list = 5; //服务器记录的牌组
+}
+
+//==============================================================================================
+
+//结算
+message SettlementPush
+{
+    uint64 server_time = 1;
+    TABLE_STATE state = 2;
+    repeated UserInfo user_info_list = 3;
+    int32 table_id = 4;
+    bool is_end = 5;
+    bool stop_server = 6; // 停止服务
+    bool force_end = 7; // 强制结束,这条消息是收到match_control的消息后触发
+    uint64 next_round_time = 8;  // deal下一局时间戳
+    Card joker_card = 9;
+    uint64 next_round_time2 = 10;  
+}
+
+//==============================================================================================
+
+//退桌回复
+message LeaveResp
+{
+	int32 table_id = 1;
+    uint32 uid = 2;
+}
+
+//==============================================================================================
+
+enum ERROR_CODE
+{
+    ERROR = 0;                      
+    ERROR_PARSE_PROTO = 1;          //解析pb错误
+    ERROR_USER_STATUS = 2;          //用户状态错误
+    ERROR_TABLE_STATUS = 3;         //桌子状态错误
+    ERROR_NOT_ACTION = 4;           //未轮到该玩家操作
+    ERROR_GETCARD_INDEX = 5;        //抓牌索引错误 正确索引是1、2
+    ERROR_GETCARD_INDEX_2 = 6;      //不能抓出牌堆的牌
+    ERROR_ALREADY_GETCARD = 7;      //已经抓过牌--需要刷新牌组
+    ERROR_ALREADY_DISCARD = 8;      //已经出过牌--需要刷新牌组
+    ERROR_CARDS_DIFFERENT = 9;      //客户端和服务端的牌对不上--需要刷新牌组
+    ERROR_CARD_NOT_EXIST = 10;      //牌不存在--需要刷新牌组
+    ERROR_ALREADY_DECLARE = 11;     //重复declare
+}
+
+message ErrorPush
+{
+    int32 error_code = 1;
+	string error_data = 2;
+    repeated rummy100.HandCards hand_cards_list = 3;
+    int32 table_id = 4;
+}
+
+message PHistoryInfo
+{
+	repeated UserInfo user_info_list = 1;
+    Card joker_card = 2;
+}
+
+//deals历史记录
+message PGameHistoryResp
+{
+    repeated PHistoryInfo history_Info = 1;
+}
+
+message PGameHistoryReq
+{
+    uint32 uid = 1;
+    int32 round_id = 2;
+}
+
+//推送用户返利
+message UserRebateResp
+{
+    uint32 uid = 1;
+    int64 money = 2;
+    int32 table_id = 3;
+}
+
+message NoticeFinishCountdownPush
+{
+    int32 table_id = 1;
+    int32 countdown_time = 2; // 倒计时的时间
+}
+
+//超时抓牌自动胡牌
+message GetCardAutoHupaiReq
+{
+    Card show_card = 1;
+    repeated HandCards hand_cards_list = 2;
+}
+
+message ListenCardReq
+{
+    uint32 uid = 1;
+    bool listen_card = 2; // 是否听牌
+}
+
+//分页
+message PageInfo
+{
+    int32 index = 1;                //第几页 从0开始
+    int32 size = 2;                 //每页条数
+}
+
+//记牌器请求
+message CardRecorderReq
+{
+    uint32 uid = 1;         
+    uint32 mode = 2;        // 1.出牌顺序模式  2.花色统计模式
+    PageInfo page = 3;      //分页
+}
+
+message SingleCardInfo
+{
+    uint32 uid = 1;
+    uint32 card = 2;
+    bool capture = 3;         //是否被其他玩家抓走
+}
+
+//记牌器回复
+message CardRecorderResp
+{
+    uint32 uid = 1;
+    uint32 tota_size = 2;
+    uint32 mode = 3; // 1.出牌顺序模式  2.花色统计模式
+    repeated SingleCardInfo card_recorder_list = 4;
+    PageInfo page = 5;      //分页
+    int32 table_id = 6;
+}
+
+//自动弃牌请求
+message AutoDropReq
+{
+    uint32 uid = 1;
+    bool open = 2; // true开、false关
+}
+
+//自动弃牌回复
+message AutoDropResp
+{
+    uint32 uid = 1;
+    int32 result = 2; // 1.成功  0.失败
+    bool open = 3;
+    int32 table_id = 4;
+}
+
+//=============================================================
+//游戏历史记录
+
+message RummyDealPlayerDes
+{
+	uint32 uid = 1;
+	int32 deal1 = 2;
+	int32 deal2 = 3;
+	int32 deal3 = 4;
+	int32 tieBreaker = 5;
+	int32 total = 6;
+    int32 winAmount = 7;
+}	
+
+message playerDes
+{
+	uint32 uid = 1;
+	int32 scoreMoney = 2;
+	int32 roundId = 3;
+	int32 winScore = 4;
+	Card clientJokerCard = 5;
+	repeated HandCards handCards = 6;
+    int32 status = 7;
+    bool show_card_switch = 8;
+}			
+
+message RummyData
+{
+	int32 boot = 1;
+	int32 profit = 2;
+	int32 entryFee = 3;
+	repeated playerDes playersInfo = 4;
+	repeated RummyDealPlayerDes playersDetails = 5;
+}
+
+//测试任意状态下强制结束指定桌子游戏, MSG_TABLE_TEST_FORCE_END_REQ
+message ForceGameEndReq
+{
+    int32 table_id = 1;
+}
+
+message UserInfoChangePush
+{
+    int32 game_id = 1;			//通过什么游戏
+    int64 balance = 2;          //玩家最新余额
+}
+
+message UserTimeoutPush
+{
+    uint32 uid = 1;
+    int32 table_id = 2;
+    uint32 count = 3;
+    uint32 total_count = 4;
+}
+
+message UserComeBackReq
+{
+    uint32 uid = 1;
+    int32 table_id = 2;
+}
+
+message UserOnlineStatePush
+{
+    uint32 uid = 1;
+    int32 table_id = 2;
+    bool away = 3;
+}
+
+message UserConfigSettleReq
+{
+    uint32 uid = 1;
+    int32 game_id = 2;
+    string option = 3;  // 超时次数: "config_timeout_count"
+    uint32 value = 4;
+}
+
+message UserConfigGetReq
+{
+    uint32 uid = 1;
+    int32 game_id = 2;
+    string option = 3;  // 超时次数: "config_timeout_count"
+}
+
+message UserConfigGetResp
+{
+    uint32 uid = 1;
+    int32 game_id = 2;
+    uint32 config_timeout_count = 3;  // 超时次数: "config_timeout_count"
+
+    bool rematch_switch = 4;  // 续局开关
+    bool become_card_switch = 5;         //成牌提示开关
+    bool fried_hu_tutorial_switch = 6;   //诈胡教程开关
+    bool timeout_discard_switch = 7;     //超时弃牌设置开关
+    bool settlement_statement_switch = 8;//结算页最佳声明开关
+}
+
+//玩家结算后通知game_publish
+message UserComeBackResp
+{
+    uint32 uid = 1;
+    uint32 result = 2; // 0-成功 1-失败
+}
+//个人信息
+message UserRoundInfoReq
+{
+    uint32 uid = 1;
+    int32 game_id = 2;
+    int32 level_id = 3;
+}
+
+message UserLast10RoundInfo
+{
+    int64 loss_points = 1;  // 该局的输分的点数，若对应局为胜利方，则显示输分为0
+    int64 min_entry = 2;    // 根据玩法来显示对应的房间底分值
+    int32 table_id = 3;     // 桌子id
+}
+
+message UserStatsInfo
+{
+    int64 total_count = 1;// 游戏总局数
+    int32 win_rate = 2;// 胜率
+    int32 drop_rate = 3;// 弃牌率
+    int64 avg_loss = 4;// 平均输分点数
+    repeated UserLast10RoundInfo round_infos = 5; // 最近10局详情数据
+}
+
+message UserRoundInfoResp
+{
+    uint32 uid = 1;// 被查询玩家uid                   
+    int32 head_photo_id = 2;// 头像id
+    int32 theme_id = 3;// 主题id
+    bool enable_level_basic = 4; // 当前场次统计数据是否可见
+    bool enable_level_detail = 5;// 当前场次最近10局详情数据是否可见
+    bool enable_basic = 6; // 所有场次统计数据是否可见
+    bool enable_detail = 7;// 所有场次最近10局详情数据是否可见
+    int64 join_time = 8;// 加入时间
+    repeated UserStatsInfo stats_infos = 9; // index 0表示当前房间统计数据 1表示所有房间统计数据
+    int32 game_id = 10;// 游戏id
+}
+
+message UserPropertyReq
+{
+    int32 head_photo_id = 1;// 头像id
+    int32 theme_id = 2;// 主题id
+    bool enable_level_basic = 3; // 当前场次统计数据是否可见
+    bool enable_level_detail = 4;// 当前场次最近10局详情数据是否可见
+    bool enable_basic = 5; // 所有场次统计数据是否可见
+    bool enable_detail = 6;// 所有场次最近10局详情数据是否可见
+}
+
+message UserPropertyResp
+{
+    int32 err_code = 1;
+}
+message SettlementPreviewReq
+{
+    uint32 uid = 1;
+    int32 table_id = 2;
+}
+
+//结算弹窗提前弹出
+message SettlementPreviewPush
+{
+    int32 table_id = 1;
+    repeated UserInfo user_info_list = 2;
+    bool stop_server = 3; // 停止服务
+}

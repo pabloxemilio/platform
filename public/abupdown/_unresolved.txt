@@ -1,0 +1,2 @@
+resources: native 20 
+abUpDown: native 8 cc.Asset, native 6 cc.Asset, native 20 cc.Asset, native 7 cc.Asset, native 9 cc.Asset, native 29 cc.Asset, native 53 cc.Asset, native 70 cc.Asset, native 23 cc.Asset, native 36 cc.Asset, native 76 cc.Asset, native 49 cc.Asset, native 79 cc.Asset, native 86 cc.Asset, native 55 cc.Asset, native 51 cc.Asset, native 304 , native 68 cc.Asset, native 88 cc.Asset

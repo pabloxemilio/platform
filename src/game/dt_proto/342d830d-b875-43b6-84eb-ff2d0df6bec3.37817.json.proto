@@ -1,0 +1,83 @@
+
+syntax = "proto3";
+
+package match_user;
+
+enum MATCH_USER_MSGID
+{
+    MATCH_USER_MSGID_MSGID_NULL = 0;
+
+    //裂变通知 -- 裂变用户不需要满足其他条件
+    MATCH_USER_MSGID_INVITEE_NOTIFY = 70020;
+
+    //有效的裂变通知 -- 裂变用户需要达成一条的充值及流水条件
+    MATCH_USER_MSGID_INVITEE_VALID_NOTIFY = 70021;
+
+    //充值通知
+    MATCH_USER_MSGID_USER_RECHARGE_NOTIFY = 70022;
+
+    //分享完成通知
+    MATCH_USER_MSGID_SHARE_COMPLETED_NOTIFY = 70023;
+
+    //分享派奖条件达成通知
+    MATCH_USER_MSGID_SHARE_REWARD_NOTIFY = 70024;
+}
+
+//裂变玩家通知  -- 平台 -> 外放api -> match_user
+message UserInviteeNotice
+{
+    uint32 uid = 1;             //裂变玩家
+    uint32 parent_uid = 2;      //uid是通过parent_uid分享的链接注册的
+    int32 share_type = 3;       //创建分享链接时设置/选择的分享类型 -- 用于区分不同的任务触发的裂变
+    string share_code = 4;      //分享链接中的分享码
+    int32 agency_id = 5;
+    string user_name = 6;
+	string parent_user_name = 7;
+}
+
+//有效的裂变玩家(裂变玩家满足配置的充值和流水条件后)才通知   -- 平台 -> 外放api -> match_user
+message UserInviteeValidNotice
+{
+    uint32 uid = 1;             //裂变玩家
+    uint32 parent_uid = 2;      //uid是通过parent_uid分享的链接注册的
+    int32 share_type = 3;       //创建分享链接时设置/选择的分享类型 -- 用于区分不同的任务触发的裂变
+    string share_code = 4;      //分享链接中的分享码
+    int32 agency_id = 5;
+    string user_name = 6;
+	string parent_user_name = 7;
+}
+
+//大厅充值界面(右上角进入及从赛事中的任务界面跳转的大厅充值)充值成功, 会给赛事(206/207)发送该通知消息
+message UserRechargeNotice
+{
+    uint32 uid = 1;
+    int64 amount = 2;       //玩家充值金额
+    bytes trans = 3;        //玩家通过子流戏跳转充值时的url中协带的透传数据--用于区分子游戏不同任务触发的跳转的充值
+    int64 extra = 4;        //充值的赠送金额(bonus)
+    int64 balance = 5;      //当前最新的balance
+    int32 agency_id = 6;
+    string user_name = 7; //平台账号唯一标识
+	bool is_first_recharge = 8; //是否首次充值
+}
+
+//分享完成通知      -- 前端 -> match_user
+message UserShareCompletedNotice
+{
+    uint32 inviter_uid = 1;   	//分享玩家
+    int32 share_type = 2;       //创建分享链接时设置/选择的分享类型
+    string user_info = 3;
+    int32 svr_type = 4;             //要通知的服务类型, 不指定（值为0）则根据share_type判断发给哪个服
+    int32 svr_id = 5;               //要通知的服务id, 不指定则根据uid取模
+    bytes context = 6;			//分享时的上下文数据
+    int32 sub_type = 7;         //分享子类型
+}
+
+//分享派奖条件达成通知 -- match_user -> 其它服
+message UserShareRewardNotice
+{
+    uint32 inviter_uid = 1;   	//分享玩家
+    uint32 invitee_uid = 2;   	//被邀请的玩家, 如果是分享即派奖则该值为0
+    int32 share_type = 3;       //创建分享链接时设置/选择的分享类型
+    string user_info = 4;
+    bytes context = 5;			//分享时的上下文数据
+}

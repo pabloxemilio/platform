@@ -1,0 +1,605 @@
+syntax = "proto3";
+package match_activity;
+
+
+//0元购活动
+
+enum MSGID
+{
+    MSG_API_MSGID_NONE = 0;
+
+    MSG_GET_ACT_LIST_REQ = 11501;           //请求活动列表
+    MSG_GET_ACT_LIST_RESP = 11502;          //返回活动列表
+	
+	MSG_GET_ACT_DETAIL_REQ = 11503;         //请求活动详情
+    MSG_GET_ACT_DETAIL_RESP = 11504;        //返回活动详情
+	
+	MSG_GET_LOTTERY_DETAIL_REQ = 11505;     //请求抽奖详情
+    MSG_GET_LOTTERY_DETAIL_RESP = 11506;    //返回抽奖详情
+
+    MSG_GET_RECORD_LIST_REQ = 11507;        //请求参与记录
+    MSG_GET_RECORD_LIST_RESP = 11508;       //返回参与记录
+	
+    MSG_USER_SHARE_REQ = 11509;             //请求玩家邀请分享
+    MSG_USER_SHARE_RESP = 11510;            //返回玩家邀请分享
+
+    MSG_CLAIM_LOTTERY_REWARD_REQ = 11511;   //请求领取中奖奖励
+    MSG_CLAIM_LOTTERY_REWARD_RESP = 11512;  //
+
+    MSG_CLAIM_TASK_REWARD_REQ = 11513;      //请求任务奖励
+    MSG_CLAIM_TASK_REWARD_RESP = 11514;     //
+
+    MSG_BUY_CODE_REQ = 11515;               //购买中奖码
+    MSG_BUY_CODE_RESP = 11516;              //
+
+    MSG_MATCH_TASK_NOTICE = 11517;          //完成比赛通知
+
+    MSG_NEW_USER_JOIN_PUSH = 11519;         //有新用户加入推送
+    MSG_INVITER_SUCCESS_PUSH = 11520;       //邀请者有效裂变达成推送
+    MSG_LOTTERY_DRAW_PUSH = 11521;          //开奖推送
+
+    MSG_INVITEE_REGIST_PUSH = 11522;        //被邀请者注册账号时通知邀请者
+
+    MSG_GET_CODE_LIST_MY_REQ = 11523;       //赛事详情下My页签
+    MSG_GET_CODE_LIST_MY_RESP = 11524;
+    MSG_GET_CODE_LIST_ALL_REQ = 11525;      //赛事详情下ALL页签
+    MSG_GET_CODE_LIST_ALL_RESP = 11526;
+
+    MSG_GET_ACT_RED_POINT_REQ = 11527;      //请求活动红点相关数据
+    MSG_GET_ACT_RED_POINT_RESP = 11528;
+
+    MSG_TEST = 11598;
+
+    MSG_API_MSGID_MAX = 11599;
+}
+
+//活动状态
+enum ACT_STATUS
+{
+    ACT_STATUS_WAIT_BEGIN = 0;      //未开始
+    ACT_STATUS_RUNNING = 1;         //进行中
+    ACT_STATUS_END = 2;             //已结束
+}
+
+//0元购单个奖品状态
+enum LOTTERY_STATUS
+{
+    LOTTERY_STATUS_WAIT_BEGIN = 0;      //未开始
+    LOTTERY_STATUS_RUNNING = 1;         //进行中
+    LOTTERY_STATUS_REWARD = 2;          //已结束&开奖
+    LOTTERY_STATUS_END = 3;             //已结束&未能正常开奖
+}
+
+//任务状态
+enum TASK_STATUS
+{
+    TASK_STATUS_WAIT_BEGIN = 0;     //未开始
+    TASK_STATUS_RUNNING = 1;        //进行中
+    TASK_STATUS_UNREWARD = 2;       //已完成&未领奖
+    TASK_STATUS_END = 3;            //已完成&已领奖
+}
+
+//开奖类型
+enum DRAW_TYPE
+{
+    DRAW_TYPE_NONE = 0;
+    DRAW_TYPE_PLAYER_FULL = 1;  //人满
+    DRAW_TYPE_TIMIGN = 2;       //定时
+};
+
+//参与类型
+enum JOIN_TYPE
+{
+    JOIN_TYPE_NONE = 0;
+    JOIN_TYPE_SHARE = 1;        //裂变
+    JOIN_TYPE_BUY = 2;          //购买
+};
+
+//抽奖码来源
+enum CODE_TYPE
+{
+    CODE_TYPE_NONE = 0;
+    CODE_TYPE_INVITE = 1;           //邀请者
+    CODE_TYPE_BE_INVITED = 2;       //被邀请者
+	CODE_TYPE_BUY = 3;              //购买
+}
+
+//领取状态
+enum CLAIM_STATUS
+{
+    CLAIM_STATUS_WAIT_CLAIM = 0;    //没领取
+    CLAIM_STATUS_CLAIM = 1;         //已经领取 - 发起了请求外接的接口
+    CLAIM_STATUS_CLAIM_FAIL = 2;    //已经领取 - 外接的接口返回失败
+    CLAIM_STATUS_CLAIM_SUCCESS = 3; //已经领取 - 外接的接口返回成功 统一做法:1,2,3都是已经领取 不会重复发起请求
+    CLAIM_STATUS_EXPIRE = 4;        //过期
+}
+
+//红点分类
+enum RED_POINT
+{
+    RED_POINT_NONE = 0;
+    RED_POINT_DRAW = 1;     //开奖结果 活动详情就消失 不推送
+    RED_POINT_CODE = 2;     //新码 活动详情就消失 推送
+    RED_POINT_REWARD = 3;   //未领取的奖励 推送 优先级最高
+}
+
+//活动列表-请求
+message GetActListReq
+{
+    uint32 uid = 1;
+}
+
+message BaseInfoItem
+{
+    uint32 act_id = 1;               //活动id
+    string act_name = 2;             //活动名
+    ACT_STATUS status = 3;           //状态
+    int64 act_starttime = 4;         //活动开始时间（时间戳）
+    int64 act_endtime = 5;           //活动结束时间（时间戳）
+    int64 act_show_starttime = 6;    //活动展示开始时间（时间戳）
+    int64 act_show_endtime = 7;      //活动展示结束时间（时间戳）
+    string banner_img = 8;           //活动中心banner图片地址
+    string top_icon_img = 9;         //赛事顶栏icon图片地址
+    string rule_text = 10;           //规则说明
+    RED_POINT red_point = 11;        //是否有红点
+    int32 act_type = 12;             //活动类型 2001:0元购
+    bool force_pop = 13;             //强制弹窗
+    int64 next_draw_tm = 14;         //最近一个要开奖的时间戳
+}
+
+//活动列表-响应
+message GetActListResp
+{
+    repeated BaseInfoItem act_list = 1;
+}
+
+
+//活动列表-请求
+message GetActDetailReq
+{
+    uint32 uid = 1;
+    uint32 act_id = 2;               //活动id
+    string userinfo = 3;
+}
+
+//活动列表-响应
+message GetActDetailResp
+{
+	uint32 act_id = 1;               //活动id
+	repeated LotteryItem lottery_list = 2;
+    string be_inviter_code = 3;     //被邀请者赠送的抽奖码 不为空就弹出提示
+    int64 be_inviter_instance_id = 4;   //被邀请者加入的活动实例id
+    bool has_reward = 5;                //有奖励没领
+    string rule_text = 6;               //规则说明
+    int32 be_inviter_instance_end = 7;   //1:被邀请者本应获得码,但活动实例已经满票,而且当前没有相同价值的可以加入 2:被邀请者本应获得码,但活动实例已经结束
+}
+
+//当个奖品抽奖详情
+message LotteryItem
+{
+    uint32 act_id = 1;              //活动id
+	uint32 lottery_id = 2;          //配置id
+    int64 instance_id = 3;          //实例id, 唯一标识当前奖品的抽奖
+    LOTTERY_STATUS status = 4;      //抽奖状态
+	JOIN_TYPE join_type = 5;		//1:裂变抽奖, 2:付费抽奖
+    DRAW_TYPE draw_type = 6;        //开奖类型 1:满人开奖, 2:定时开奖
+    int64 draw_by_tm = 7;           //开奖时间戳-定时有用
+    uint32 draw_by_num = 8;         //开奖需要人数-人满有用
+    string name = 9;                //奖品名称
+    string img = 10;                //奖品图片
+    uint32 cur_num = 11;            //当前参与人数
+    uint32 seq = 12;                //客户端排序
+	string lucky_code = 13;         //获奖码(仅在正常开奖后有值)
+    string lucky_username = 14;     //获奖人昵称(仅在正常开奖后有值)
+    uint32 lucky_uid = 15;          //获奖人uid(仅在正常开奖后有值)
+    CLAIM_STATUS claim_status = 16; //奖励领取状态
+    int64 price = 17;               //奖品价值
+    int64 buy_price = 18;           //购买价格
+    uint64 lucky_order = 19;
+    bool is_join = 20;              //是否加入了
+    uint32 max_user_limit = 21;     //最大参与人数
+    int64 lucky_expire_tm = 22;     //奖励过期的时间戳
+    int64 start_tm = 23;            //开始时间戳
+    int64 join_tm = 24;             //加入时间。加个字段
+    uint32 user_num = 25;           //参与人数
+    uint32 max_code_limut = 26;     //最大抽奖码数量
+    int32 lucky_code_all_pos = 27;  //中奖码在All里的位置 -1表示没有 从0开始
+    int32 lucky_code_my_pos = 28;   //中奖码在my里的位置 -1表示没有 从0开始
+}
+
+//抽奖码详情
+message CodeItem
+{
+    string code = 1;                //抽奖码
+    CODE_TYPE code_type = 2;        //抽奖来源
+}
+
+//跑马灯详情
+message MarqueenItem
+{
+    uint32 uid = 1;
+	string nickname = 2;          //用户名
+    CODE_TYPE code_type = 3;      //抽奖码来源
+}
+
+//任务详情
+message TaskItem
+{
+    uint32 task_type = 1;           //1:参与比赛, 2:其他枚举类型后续完善
+	int64 match_fee_min = 2;        //参赛费下限
+    int64 match_fee_max = 3;        //参赛费上限
+	uint32 match_count = 4;         //目标参与次数
+	uint32 join_times_add = 5;      //能够增加的票位
+	//用户相关
+	uint32 user_match_count = 6;    //玩家已参与的符合条件的赛事局数
+	TASK_STATUS task_status = 7;    //任务状态
+}
+
+//奖品详情-请求
+message GetLotteryDetailReq
+{
+    uint32 uid = 1;
+    uint32 act_id = 2;              //活动id
+    uint32 lottery_id = 3;          //配置id
+    int64 instance_id = 4;          //实例id
+    bool is_record = 5;             //从历史记录页面请求进来
+}
+
+//奖品详情-响应
+message GetLotteryDetailResp
+{
+    LotteryItem info = 1;
+    int32 max_code_pos = 2;                     //标准票位上限
+    int32 extra_code_pos = 3;                   //额外获得的票位
+    repeated CodeItem code_list = 4;            //玩家抽奖码列表
+    repeated MarqueenItem marqueen_list = 5;    //跑马灯信息（仅开启展示跑马灯时，返回值）
+    TaskItem task_info = 6;                     //已达到上限, 触发任务后, 有值
+    bool is_record = 7;             //从历史记录页面请求进来
+    uint32 max_extra_code_pos = 8;              //最大额外票位数
+}
+
+
+//分页
+message PageInfo
+{
+    int32 index = 1;                //第几页 从0开始
+    int32 size = 2;                 //每页条数
+}
+
+//参与记录-请求
+message GetRecordListReq
+{
+    uint32 uid = 1;
+    PageInfo page = 2;
+    int32 type = 3;     //1:all 2:jackpot 3:my
+}
+
+//参与记录-响应
+message GetRecordListResp
+{
+    repeated LotteryItem record_list = 1;
+    int32 cur_page_index = 2;               //当前页数
+    int32 total_page_size = 3;              //最大页数
+    int32 type = 4;                         //1:all 2:jackpot 3:my
+    int64 jackpot_value = 5;
+}
+
+//分享类型
+enum CC_SHARE_TYPE {
+    CC_SHARE_TYPE_NONE = 0;
+    CC_SHARE_TYPE_JACKPOT  = 1;   //jackpot分享
+    CC_SHARE_TYPE_RACE1     = 2;   //赛事分享1  -- 零元购活动分享占用   邀请码Rxxx
+    CC_SHARE_TYPE_RACE2     = 3;   //赛事分享2  -- 免费赛限制/爽局任务分享占用  邀请码Txxx
+    CC_SHARE_TYPE_RACE3     = 4;   //赛事分享3  -- 集灯/全民活动分享占用   邀请码Uxxx
+    CC_SHARE_TYPE_RACE4     = 5;   //赛事分享4  -- 赛事结算/历史记录分享占用          邀请码Wxxx
+    CC_SHARE_TYPE_RACE5     = 6;   //赛事分享5  -- 赛事rebuy分享占用          邀请码Yxxx
+}
+
+//玩家邀请分享-请求
+message UserShareReq
+{
+    uint32 uid = 1;             
+    uint32 act_id = 2;              //活动id
+	uint32 lottery_id = 3;          //配置id
+    int64 instance_id = 4;          //实例id, 唯一标识当前奖品的抽奖
+    string user_info = 5;           //客户端传入的userinfo
+    int32 share_type = 6;           //分享类型
+    int32 sub_type = 7;             //分享子类型
+}
+
+///////////////////SharePoster结构与 agency_event_api::SharePoster保持一致//////////////////////
+message Poster
+{
+    int32 id = 1;
+    string url = 2;
+}
+
+message SharePoster
+{
+    string title = 1;
+    string share_url = 2;
+    string telegram = 3;
+    string whatsapp = 4;
+    repeated Poster poster = 5;
+}
+
+//在SharePosterResp的基础上,合入了对应分享配置的内容
+message SharePosterMixed
+{
+    uint32 game = 1;
+    uint32 share_type = 2;
+    string invite_code = 3;
+    SharePoster data = 4;
+    int32 reward_cond = 5;  //派奖条件: 1 分享即派奖 2 注册即派奖  3 有效裂变派奖
+    int32 show_flags = 6;	//第0bit位表示是否显示下载图片, 
+                            //第1bit位表示是否显示复制链接, 
+                            //第2bit位表示是否显示二维码
+    repeated string download_pics = 7;   //分享的背景图  第一张是竖版  第二张是横板
+    uint32 sub_type = 8; //子類型
+}
+
+//玩家邀请分享-响应
+message UserShareResp
+{
+    int32 result = 1;
+    uint32 act_id = 2;              //活动id
+	uint32 lottery_id = 3;          //配置id
+    int64 instance_id = 4;          //实例id, 唯一标识当前奖品的抽奖
+    SharePoster data = 5;           //为是兼容旧的客户端版本，保留此内容与UserTaskShareResp一致
+    SharePosterMixed mix_data = 6;  //新的客户端使用这里面的数据
+}
+
+//领取奖励
+message ClaimLotteryRewardReq
+{
+    uint32 uid = 1;             
+    uint32 act_id = 2;              //活动id
+	uint32 lottery_id = 3;          //配置id
+    int64 instance_id = 4;          //实例id, 唯一标识当前奖品的抽奖
+    string userinfo = 5;
+}
+
+message ClaimLotteryRewardResp
+{
+    ErrCode result = 1;
+    Item reward = 2;
+    string reward_img = 3;
+    int64 instance_id = 4;
+}
+
+//领取任务奖励
+message ClaimTaskRewardReq
+{
+    uint32 uid = 1;             
+    uint32 act_id = 2;              //活动id
+	uint32 lottery_id = 3;          //配置id
+    int64 instance_id = 4;          //实例id, 唯一标识当前奖品的抽奖
+}
+
+message Item
+{
+    int64 id = 1;       //道具id
+    int64 num = 2;      //道具数量
+    int32 type = 3;     //道具类型
+}
+
+message ClaimTaskRewardResp
+{
+    ErrCode result = 1;
+    int32 add_num = 2;      //增加了多少个位置
+}
+
+enum ErrCode
+{
+    SUCCESS = 0;                    //成功
+    ASSET_FAIL = 1;                 //请求外接返回失败
+    NOT_IN_ACT_TIME = 2;            //不在活动时段内
+    NOT_ENOUGH_POS = 3;             //没有空位置
+    NOT_FIND_INSTANCE = 4;          //找不到活动实例
+    SERVER_ERROR = 5;               //服务器错误
+    NOT_FIND_CONFIG = 6;            //找不到配置
+    END_ACT = 7;                    //已经结束
+    OUT_OF_MAX_USER = 8;            //超过最大人数
+    REQ_TOO_FAST = 9;               //请求太快 比如购买抽奖码。
+    OUT_OF_MAX_CODE = 10;           //超过最大抽奖码数量
+
+    NOT_FIND_TASK = 100;            //找不到任务
+    NOT_FINISH_TASK = 101;          //任务没完成
+
+    NO_REWARD = 200;                //没有中奖
+    CLAIM_REWARD_AGAIN = 201;       //已经领取过奖励
+    EXPIRE_REWARD = 202;            //奖励过期
+    VERIFY_REWARD_OUT = 203;        //领取奖励触发兜底 引导玩家找客服
+    CHEAT = 300;                    //防刷
+}
+
+//购买中奖码
+message BuyCodeReq
+{
+    uint32 uid = 1;
+    string userinfo = 2;
+    int64 instance_id = 3;
+}
+
+message BuyCodeResp
+{
+    ErrCode result = 1;
+    repeated string code = 2;
+    int32 code_all_pos = 3;         //购买的码在All里的位置 -1表示没有 从0开始
+}
+
+//比赛完成通知
+message MatchTaskNotice
+{
+    uint32 uid = 1;
+    int64 instance_id = 2;      //实例id
+}
+
+//有新用户加入推送
+message NewUserJoinPush
+{
+    int64 instance_id = 1;      //实例id
+    string username = 2;        //用户名称
+    int32 cur_join_num = 3;     //当前实例人数
+}
+
+//邀请者有效裂变达成推送
+message InviterSuccessPush
+{
+    int64 instance_id = 1;      //实例id
+    string code = 2;            //抽奖码
+    int32 err_code = 3;        
+    int32 code_all_pos = 4;     //码在All里的位置 -1表示没有 从0开始
+    int32 act_id = 5;
+    int32 get_type = 6;         //通过什么途径获得抽奖码  1:裂变 2:没玩rummy 3:玩了rummy
+    string invitee_nickname = 7;//被邀请人昵称
+}
+
+//开奖推送
+message LotteryDrawPush
+{
+    int64 instance_id = 1;      //实例id
+    string code = 2;            //抽奖码
+    string username = 3;        //中奖username
+    int32 lucky_code_all_pos = 4;  //中奖码在All里的位置 -1表示没有 从0开始
+    int32 lucky_code_my_pos = 5;   //中奖码在my里的位置 -1表示没有 从0开始
+}
+
+message TestReq
+{
+    int32 action = 1;           //1.开奖
+    int64 instance_id = 2;      //实例id
+    string userinfo = 3;
+}
+
+//被邀请者注册账号时通知邀请者
+message InviteeRegistPush
+{
+    int64 instance_id = 1;                  //实例id
+    repeated int32 trigger_scen_list = 2;   //触发场景 3 赛事列表 4 赛事中
+    string invitee_nickname = 3;            //被邀请人昵称
+    int32 act_id = 4;
+    int32 get_type = 5;         //通过什么途径获得抽奖码  1:裂变 2:没玩rummy 3:玩了rummy
+}
+
+//赛事详情下My页签
+message GetCodeListMyReq
+{
+    uint32 uid = 1;
+    int64 instance_id = 2;      //实例id
+    PageInfo page = 3;
+}
+
+message GetCodeListMyResp
+{
+    repeated string code_list = 1;
+    int32 cur_page_index = 2;               //当前页数
+    int32 total_page_size = 3;              //最大页数
+    int32 cur_count = 4;                    //获得的抽奖码个数
+    int32 total_count = 5;                  //总抽奖码个数
+    int64 instance_id = 6;      //实例id
+}
+
+//赛事详情下All页签
+message GetCodeListAllReq
+{
+    uint32 uid = 1;
+    int64 instance_id = 2;      //实例id
+    PageInfo page = 3;
+}
+
+message CodeToUser
+{
+    string code = 1;
+    uint32 uid= 2;              //0表示没有玩家获得
+}
+
+message GetCodeListAllResp
+{
+    repeated CodeToUser code_list = 1;
+    int32 cur_page_index = 2;               //当前页数
+    int32 total_page_size = 3;              //最大页数
+    int32 cur_count = 4;                    //获得的抽奖码个数
+    int32 total_count = 5;                  //总抽奖码个数
+    int64 instance_id = 6;      //实例id
+}
+
+//请求活动红点相关数据
+enum ACT_TYPE
+{
+    ACT_TYPE_NONE  = 0;
+    ACT_TYPE_BBZ = 2001;
+}
+
+message ActInfo
+{
+    uint32 act_id = 1;
+    ACT_TYPE act_type = 2;
+}
+
+message GetActRedPointReq
+{
+    uint32 uid = 1;
+    repeated ActInfo act_list = 2;  //活动列表
+}
+
+message RedPointInfo
+{
+    ActInfo act_info = 1;
+    uint32 red_point_count = 2;    //红点数量
+    int64 next_draw_tm = 3;    //最近一个要开奖的时间戳
+}
+
+message GetActRedPointResp
+{
+    repeated RedPointInfo act_list = 1;
+}
+
+
+message GetActList2Req
+{
+    uint32 uid = 1;
+    repeated uint32 act_id_list = 2;   //活动id列表
+}
+
+message BaseInfoItem2
+{
+    uint32 act_id = 1;              //活动id
+    RED_POINT red_point = 2;        //是否有红点
+    int64 next_draw_tm = 3;         //最近一个要开奖的时间戳
+}
+
+message GetActList2Resp
+{
+    repeated BaseInfoItem2 act_list = 1;
+}
+
+
+///////////////////////////////////////
+
+message LotteryRealtimeInfo
+{
+    uint32 act_id = 1;
+    uint32 lottery_id = 2;
+    int64 instance_id = 3;
+    uint32 time_id = 4;
+    int32 status = 5;
+    int64 start_time = 6;
+    int64 end_time = 7;
+    int32 join_type = 8;
+    int32 lottery_type = 9;
+    int32 result_type = 10;
+
+    string lucky_code = 11;
+    string lucky_username = 12;
+    uint32 lucky_uid = 13;
+    uint64 lucky_order = 14;
+    bool lucky_is_ai = 15;
+    int32 claim_status = 16;
+
+    int64 act_show_end_time = 17;
+    uint32 ai_num = 18;
+
+    int32 y_init = 19;
+    int32 y_add = 20;
+}

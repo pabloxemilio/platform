@@ -1,0 +1,573 @@
+syntax = "proto3";
+package teenpatti100;
+
+
+enum MSGID
+{
+    MSG_NULL = 0;
+	GAMEALLOC_CMD_ALLOC_TABLE_REQ = 0x07D4;
+
+	MSG_ERROR_PUSH = 15201;
+
+    MSG_TABLE_INFO_PUSH = 15205;//进房请求桌子信息、断线重连请求桌子信息
+
+    MSG_TABLE_NOTICE_REDAY_PUSH = 15206;//通知准备游戏
+    MSG_TABLE_NOTICE_BET_PUSH = 15207;//通知下注
+    MSG_TABLE_NOTICE_STOP_BET_PUSH = 15208;//通知停止下注
+
+    MSG_BET_REQ = 15213;//押注请求
+    MSG_BET_RESP = 15214;//押注结果
+
+    MSG_BET_ACTUAL_TIME_PUSH = 15215;//实时推送下注信息
+
+    MSG_HISTORY_RESULT_REQ = 15216;//历史记录请求
+    MSG_HISTORY_RESULT_RESP = 15217;//历史记录回应
+
+    MSG_SETTLEMENT_RESULT_PUSH = 15218;//结算
+
+    MSG_ONLINE_PLAYER_REQ = 15219;//在线玩家请求
+    MSG_ONLINE_PLAYER_RESP = 15220;//在线玩家结果
+
+    MSG_LEAVE_TABLE_REQ = 15221;//请求离开桌子
+    MSG_LEAVE_TABLE_RESP = 15222;//离开桌子回复
+
+    MSG_KICK_USER_PUSH = 15223;//将用户提出房间
+
+    MSG_REPEAT_BET_REQ = 15224;//请求重复下注
+
+    MSG_CHANGE_TABLE_REQ = 15225;//快速换桌请求
+    MSG_CHANGE_TABLE_RESP = 15226;//快速换桌回复
+
+    MSG_SHOW_CHOOSE_TABLE_INFO_REQ = 15227;//展示选场换桌界面桌子信息请求
+    MSG_SHOW_CHOOSE_TABLE_INFO_RESP = 15228;//选场换桌界面桌子信息回复
+
+    MSG_TEST_CHANGE_CARDS_RESP = 15229;//改变发牌，测试用
+
+    MSG_TEST_USER_REBATE_RESP = 15230;//用户返利
+
+	MSG_REJOIN_GAME_REQ = 15231;//用户重新进入游戏
+
+    //15231~15248保留
+    MSG_GET_GAME_TABLE_LIST_REQ = 15249;//二倍场获取桌子列表请求
+
+    MSG_GET_GAME_TABLE_LIST_RESP = 15250;//二倍场获取桌子列表回复
+
+    MSG_QUERY_OTHERS_BETINFO_REQ = 15251;//查询其他玩家的下注信息
+
+    MSG_QUERY_OTHERS_BETINFO_RESP = 15252;//查询其他玩家的下注信息回复
+
+    MSG_UNDO_BET_REQ = 15253;//撤销上一次下注操作
+
+    MSG_REDO_BET_REQ = 15254;//重做上一次撤销的下注操作
+
+	MSG_CLEAR_ROAD_REQ = 15255;//清除录单信息
+
+    MSG_CLEAR_ROAD_RESP = 15256;//二倍场获取桌子列表回复
+    
+    MSG_TEST_SERVER = 110; //服务端测试用
+}
+
+//桌子状态
+enum TABLE_STATE
+{
+    TABLE_STATE_ERROR = 0;
+	TABLE_STATE_READY = 1;
+	TABLE_STATE_START_BET = 2;
+    TABLE_STATE_STOP_BET = 3;
+	TABLE_STATE_ENDING = 4;
+    TABLE_STATE_STOP_RUN = 5;
+}
+
+//玩家信息
+message UserInfo
+{
+    uint32 uid = 1;
+    string name = 2;
+    string avatar = 3;
+    uint32 seatid = 4;
+    int64 money = 5;
+    repeated int64 bet = 6;
+    int64 total_win = 7;
+    uint32 rstat_win_count = 8;
+    uint32 rstat_lose_count = 9;
+    uint32 rstat_total_count = 10;
+    int32 rstat_total_win = 11;
+}
+
+message Pair {
+    int32 first = 1;
+    int32 second = 2;
+}
+
+//重新进入游戏
+message ReJoinGameReq
+{
+    uint32 uid     = 1;
+    int32 tableId  = 2;//桌子id
+    string userinfo = 3;
+}
+
+
+//进桌请求桌子信息、断线重连
+message TableInfoPush
+{
+    uint64 server_time = 1;//1970以来的秒为单位的时间,考虑所有发给客户端的proto都带上,以后调时间节奏时用
+    
+    TABLE_STATE state = 2;
+    
+    int32 game_id = 3;//先不要用
+    
+    int32 table_id = 4;//先不要用
+
+    UserInfo myself_info = 5;
+
+    HandCards hand_cards0 = 6;
+    HAND_TYPE hand_type0 = 7;
+
+    HandCards hand_cards1 = 8;
+    HAND_TYPE hand_type1 = 9;
+
+    repeated UserInfo sit_down_list = 10;
+
+	repeated int64 pos_bet_sum_list = 11;// [0-6] 位置,每个位置的押注总数
+	
+    repeated int32 history_result = 12;
+
+    repeated int32 history_type = 13;
+
+    int32 reday_time = 14;
+
+    int32 bet_time = 15;
+
+    int32 end_time = 16;
+
+	int32 bet_count_down = 17;//下注剩余时间
+
+    repeated int32 kicking_people_num = 18; //踢人局数,3局警告,5局踢出
+
+    int32 online_num = 19;
+
+    repeated int32 bet_chip_conf = 20;
+
+    repeated Pair recomd_grade = 21;
+
+    repeated int32 bet_odds = 22;
+
+	repeated int64 region_max_bets = 23;//各个区域下注上限
+
+	int32 level_id = 24;
+
+    bool is_can_undo = 25;  //是否有可撤销的下注操作
+
+    bool is_can_redo = 26;  //是否有可重做的撤销操作
+}
+
+//通知准备游戏
+message GameRedayPush
+{
+    TABLE_STATE state = 1;
+
+    int32 online_num = 2;
+
+    repeated UserInfo sit_down_list = 3;
+
+    int32 table_id = 4;
+}
+
+//通知开始下注
+message StartBetPush
+{
+    TABLE_STATE state = 1;
+
+    int32 table_id = 2;
+}
+
+//通知停止下注
+message StopBetPush
+{
+    TABLE_STATE state = 1;
+
+    int32 table_id = 2;
+}
+
+//下注期间实时刷新下注筹码
+message BetDataActualTimePush
+{
+    int32 table_id = 1;
+
+    TABLE_STATE state = 2;
+
+    repeated int64 pos_bet_sum_list = 3;// [0-6] 位置,每个位置的押注总数
+
+    repeated UserInfo sit_down_list = 4;
+
+    int32 bet_count_down = 5;//下注剩余时间
+}
+
+//初期调试时使用
+message AllocTableReq
+{
+    uint32 uid     = 1;
+    int32 game_id  = 2;//每个游戏不同, teenpatti 是 150?
+    int64 alloc_param = 3;
+    string userinfo = 4;//extra
+}
+
+//正式:client(AllocTableReq)---> gamealloc ---> RoomServer(TableInfoPush) --> client
+//联调:client(AllocTableReq)---> RoomServer(TableInfoPush) --> client
+
+//牌型
+enum HAND_TYPE
+{
+    HAND_TYPE_UNK = 0;//未知
+    HAND_TYPE_HIGH_CARD = 1;//高牌
+    HAND_TYPE_PAIR = 2;//对子
+    HAND_TYPE_COLOR = 3;//同花
+    HAND_TYPE_SEQ = 4;//顺子
+    HAND_TYPE_PURE_SEQ = 5;//同花顺
+    HAND_TYPE_TRAIL = 6;//豹子
+}
+
+//proto 命名规范: 
+//类名用大驼峰,属性名用小写下划线
+//数组用 list 结尾
+//请求和应答 Req/Resp, client 发给 server
+//推送 Push, server 发给所有 client, 分成2种: 通知(无需客户端答复),命令(客户端必须应答)
+//上报 Put, client 发送给 server, 分成2种: 普通的上报; 应答;
+
+//术语:
+//桌子:table
+//一局:game (game start/end)
+//阶段:phase
+//发牌:deal cards
+//开牌:show cards
+
+//牌定义
+message Card
+{
+	//以下字段为所有扑克牌的固定字段
+	int32 dect = 1;//副:0,1,2
+	int32 suit = 2;//花色,黑红梅方0,1,2,3 或者 -1对应大小王或背面牌
+	int32 value = 3;//牌面值:A,2,3,4,5,6,7,8,9,10,J,Q,K,分别对应1-13,小王和大王都是-1
+	int32 joker = 4;//大小王标志:小王0,大王1,其他-1
+    //背面牌是suit=-1,value-1,joker=-1
+	
+	//以下为不同游戏类型的自定义字段,tp中这个代表每一张牌的大小
+	int32 rank = 5;//2,3,4,5,6,7,8,9,10,J,Q,K,A 分别是0,1,2,...12
+}
+
+//手牌(3张牌)
+message HandCards
+{
+    repeated Card card_list = 1;
+}
+
+//==============================================================================================
+//下注类型: 1-单注 2-重复押注 3-撤销 4-重做
+enum BET_TYPE
+{
+    BET_TYPE_NONE = 0;//未知
+    BET_TYPE_SINGLE = 1;//单注
+    BET_TYPE_REPEATED = 2;//重复押注
+    BET_TYPE_UNDO = 3;  //撤销
+    BET_TYPE_REDO = 4;  //重做
+}
+
+//押注请求
+message BetReq
+{
+	uint64 seq = 1;
+	int32 pos = 2;
+	int64 bet = 3;
+}
+
+//请求重复下注
+message RepeatBetReq
+{
+    uint64 seq = 1;
+	repeated int64 last_bet = 2;
+}
+
+//押注结果
+message BetResp
+{
+	uint64 seq = 1;
+    uint64 server_time = 2;
+    int32 result = 3;//0成功, 其他是失败错误号,比如刚好到15秒结束了
+	int32 pos = 4;
+	int64 bet = 5;
+    int64 money = 6;
+    repeated int64 bet_sum = 7;
+    repeated int64 pos_bet_sum_list = 8;// [0-6] 位置,每个位置的押注总数
+    int32 table_id = 9;
+    int32 type = 10;  // 1-单注 2-重复押注 3-撤销 4-重做
+    bool is_can_undo = 11;  //是否有可撤销的下注操作
+    bool is_can_redo = 12;  //是否有可重做的撤销操作
+}
+
+//撤销上一次下注操作
+message UndoBetReq
+{
+    uint64 seq = 1;
+    int32 table_id = 2;
+}
+
+//重做上一次撤销的下注操作
+message RedoBetReq
+{
+    uint64 seq = 1;
+    int32 table_id = 2;
+}
+
+//==============================================================================================
+
+//历史记录请求
+message HistoryReq
+{
+	uint32 uid = 1;
+}
+
+//历史记录结果
+message HistoryResp
+{
+    uint64 server_time = 1;
+	repeated int32 history_result = 2;
+    repeated int32 history_type = 3;
+    int32 table_id = 4;
+}
+
+//==============================================================================================
+
+//结算
+message SettlementPush
+{
+    uint64 server_time = 1;
+
+	HandCards hand_cards0 = 2;
+    HAND_TYPE hand_type0 = 3;
+
+    HandCards hand_cards1 = 4;
+    HAND_TYPE hand_type1 = 5;
+
+    UserInfo myself_win_lose = 6;
+
+    repeated UserInfo sit_down_list = 7;
+
+    repeated int64 pos_bet_sum_list = 8;// [0-6] 位置,每个位置的押注总数
+	
+	repeated int32 pos_win_flag = 9;//[0-6] 位置的输赢
+
+    int32 table_id = 10;
+}
+
+//==============================================================================================
+
+//在线玩家信息
+message OnlineInfo
+{
+    uint32 user_id = 1;
+    string name = 2;
+    string avatar = 3;
+    int64 money = 4;
+}
+
+//请求在线玩家
+message OnlinePlayersReq
+{
+    uint32 uid = 1;
+}
+
+//在线玩家结果
+message OnlinePlayersResp
+{
+    repeated OnlineInfo online_info = 1;
+    uint32 number = 2;
+    int32 table_id = 3;
+}
+
+//==============================================================================================
+
+//退桌、换桌请求
+message LeaveReq
+{
+    int32 uid = 1;
+	int32 table_id = 2;
+}
+
+//退桌回复
+message LeaveResp
+{
+	int32 table_id = 1;
+    int32 uid = 2;
+    int32 result = 3;//1成功，其他失败
+    string error_reason = 4;
+    repeated UserInfo sit_down_list = 5;
+    int32 type = 6; //0正常退出, 1 玩家5局不下注被踢，2 资产服返回下注失败被踢，3 资产服返回结算失败被踢, 4 服务器更新将所有用户踢出房间
+}
+
+//将用户踢出房间
+message KickUserPush
+{
+	uint64 server_time = 1;
+	int32 cur_num = 2; //1.您已经连续3局未下注，若连续5局未下注将被请出房间   2.您连续5局未下注，已被请出了房间
+    int32 total_num = 3;
+    int32 table_id = 4;
+}
+
+//==============================================================================================
+
+//快速换桌请求
+message ChangeTableReq
+{
+    int32 uid = 1;
+	int32 table_id = 2;
+    int32 target_tid = 3;
+}
+
+//快速换桌回复
+message ChangeTableResp
+{
+	int32 table_id = 1;
+    int32 uid = 2;
+    int32 result = 3;//1成功，其他失败
+    string error_reason = 4;
+    repeated UserInfo sit_down_list = 5;
+    int32 target_tid = 6;
+}
+
+//清除路单信息
+message ClearRoadReq
+{
+    int32 uid = 1;
+	int32 table_id = 2;
+}
+
+//清除路单信息
+message ClearRoadResp
+{
+	int32 table_id = 1;
+    int32 uid = 2;
+    int32 result = 3;//0成功，其他失败
+    string error_reason = 4;
+}
+
+//==============================================================================================
+
+//单个桌子信息
+message SingleTableInfo
+{
+    int32 show_table_id = 1;
+    repeated int32 show_result = 2;
+    repeated int32 show_type = 3;
+    TABLE_STATE  table_state = 4;  //桌子状态
+    int32 online_count = 5;         //桌子在线人数
+    uint64 rest_wait_time = 6;      //距离开始下注的剩余等待时间, 如果==0表下注阶段中
+    uint64 rest_bet_time = 7;       // 距离下注结束的等待时间
+}
+
+//展示可以选场的桌子请求
+message ShowChooseTableInfoReq
+{
+    int32 uid = 1;
+	int32 table_id = 2;
+}
+
+//展示可以选场的桌子回复
+message ShowChooseTableInfoResp
+{
+    uint64 server_time = 1;
+    int32 game_id = 2;
+    int32 params_id = 3;
+	repeated SingleTableInfo show_table_info = 4;
+    int32 table_id = 5;
+}
+
+//二级倍场根据svrid请求桌子信息
+message GameTableListReq
+{
+    int32 uid = 1;
+    string userinfo = 2;
+};
+
+//展示可以选场的桌子回复
+message GameTableListResp
+{
+    uint64 server_time = 1;
+    int32 game_id = 2;
+    int32 params_id = 3;
+	repeated SingleTableInfo show_table_info = 4;
+    int32 table_id = 5;
+};
+
+//查询其他玩家的下注信息
+message QueryOthersBetInfoReq
+{
+    int32 uid = 1;
+	int32 table_id = 2;
+    int32 target_uid = 3;   //要查询的玩家uid
+};
+
+//查询其他玩家的下注信息回复
+message QueryOthersBetInfoResp
+{
+    uint64 server_time = 1;
+    int32 result = 2;//1成功，其他失败
+    repeated int64 bet_list=3; //玩家下注信息
+    UserInfo user_info = 4;   //玩家信息
+};
+
+//==============================================================================================
+
+//推送用户返利
+message UserRebateResp
+{
+    int32 uid = 1;
+    int64 money = 2;
+    int32 table_id = 3;
+}
+
+//==============================================================================================
+
+//改变发牌，测试用的
+message TestChangeCardsReq
+{
+    repeated string left = 1;
+	repeated string right = 2;
+}
+
+//==============================================================================================
+
+message ErrorPush
+{
+    int32 error_code = 1;
+	string error_data = 2;
+}
+
+
+//==================================================================================================
+
+//游戏历史记录
+message ThreepattiBets
+{
+	int32 pos = 1;
+	int32 odds = 2;//每个pos的倍率
+	int64 posWin = 3;//每个pos输赢金额
+	int64 posBet = 4;//每个pso下注数量
+	int32 sidePot = 5;//边池
+	int32 bankerWin = 6;//上庄赢
+}			
+
+message ThreepattiData
+{
+	uint32 uid = 1;
+	int32 winFlag = 2;
+	repeated int32 handType = 3;
+	int64 bet = 4;// 单局总下注金额
+	int64 win = 5; //单局总输赢金额
+	int64 profit = 6;// 盈利
+	string roundId = 7;
+	int32 type = 8;//普通 上庄 jackpot
+	repeated ThreepattiBets betsInfo = 9;  //玩家每个位子的下注信息和倍率
+	repeated Card blueCards = 10;
+	repeated Card redCards = 11;
+}

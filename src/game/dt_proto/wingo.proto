@@ -1,0 +1,297 @@
+syntax = "proto3";
+package wingo;
+
+
+enum MSGID
+{
+    MSG_NULL = 0;
+	GAMEALLOC_CMD_ALLOC_TABLE_REQ = 0x07D4;
+
+	MSG_QUICK_ENTRY_REQ = 15800;
+	MSG_ERROR_PUSH = 15801;
+
+    MSG_TABLE_INFO_PUSH = 15802;//进房请求桌子信息、断线重连请求桌子信息
+
+    MSG_STATE_PUSH = 15803;//游戏状态变更的推送
+
+    MSG_BET_REQ = 15804;//押注请求
+    MSG_BET_RESP = 15805;//押注结果
+
+
+    MSG_GAME_HISTORY_REQ = 15806;//游戏历史记录请求
+    MSG_GAME_HISTORY_RESP = 15807;//游戏历史记录回应
+	
+	MSG_USER_HISTORY_REQ = 15808;//用户历史记录请求
+    MSG_USER_HISTORY_RESP = 15809;//用户历史记录回应
+
+
+    MSG_LEAVE_TABLE_REQ = 15810;//请求离开桌子
+    MSG_LEAVE_TABLE_RESP = 15811;//离开桌子回复
+
+	MSG_GAME_RESULT_REQ = 15812;//游戏历史
+    MSG_GAME_RESULT_RESP = 15813;//游戏历史回复
+
+	MSG_KICK_USER_PUSH = 15814;//踢出用户
+}
+
+//proto 命名规范: 
+//类名用大驼峰,属性名用小写下划线
+//数组用 list 结尾
+//请求和应答 Req/Resp, client 发给 server
+//推送 Push, server 发给所有 client, 分成2种: 通知(无需客户端答复),命令(客户端必须应答)
+//上报 Put, client 发送给 server, 分成2种: 普通的上报; 应答;
+
+//桌子状态
+enum ROUND_STATE
+{
+    TABLE_STATE_ERROR = 0;
+	TABLE_STATE_BET = 1;
+	TABLE_STATE_SETTLE = 2;
+    TABLE_STATE_SHOW = 3;
+}
+
+//订单状态
+enum ORDER_STATE
+{
+    ORDER_STATE_PENDING = 0; //未开奖
+	ORDER_STATE_SUCCESS = 1; //已结算
+	ORDER_STATE_ABNORMAL = 2; //异常
+}
+
+
+//直接进入桌子(断网重连)
+message QuickEntryReq
+{
+    uint32 uid			= 1;
+	int32 table_id		= 2;
+	int64 alloc_param	= 3;
+	string userinfo		= 4;
+}
+
+//玩家信息
+message UserInfo
+{
+    uint32 uid = 1;
+    string name = 2;
+    string avatar = 3;
+    int64 money = 4; //最新余额
+	int64 bet_total = 5; //本轮下注多少 
+	int64 win_total = 6; //本轮盈利多少
+	bool is_bet_today = 7; //当天是否下注 
+}
+
+//玩家下注信息
+message UserBetAreaInfo
+{
+    repeated int64 color_area_bet = 1; //颜色区域下注，依次为绿色、紫色、红色。例如：[20,0,10]，表示绿色区域押注20,紫色区域未押注,红色区域押注10
+    repeated int64 size_area_bet = 2; //大小区域下注，依次为大、小。例如：[20,0]，表示压大20，小未押注
+	repeated int64 value_area_bet = 3; //数值区域下注，依次为0~9。例如：[20,0,10,0,0,0,0,0,0,0]
+}
+
+//压住区域赔付倍率信息
+message PayoutMultiInfo
+{
+    repeated int64 color_area_multi = 1; //颜色区域返奖倍率，依次为绿色、紫色、红色。例如：[20000,45000,20000]，表示绿色区域返奖2倍，紫色区域返奖4.5倍，红色区域返奖2倍
+    repeated int64 size_area_multi = 2; //大小区域倍率，依次为大、小。
+	repeated int64 value_area_multi = 3; //数值区域倍率，依次为0~9。
+}
+
+
+//不同频次的wingo游戏详情
+message FrequencyItem
+{
+    int32 wingo_id = 1; //频次id
+    string title = 2; //轮次标题
+	int32 frequency_time = 3; //每轮总时长
+	string wingo_round_number = 4; //期号
+	ROUND_STATE state = 5; //轮次状态
+	int64 state_start_time = 6; //当前游戏状态开始时间
+    int64 state_end_time = 7; //当前游戏状态结束时间
+	int64 round_start_time = 8; //本轮游戏开始时间
+    int64 round_end_time = 9; //本轮游戏结束时间
+	UserBetAreaInfo user_bet_area_info = 10; // 当前用户下注详情
+	repeated int32 history_result_list = 11; //当日历史开奖结果[3,5,5,9,……]
+	int32 wingo_result = 12; //本期的开奖结果，只有在结算后有值
+}
+
+//推荐筹码
+message QuickAnteItem
+{
+	int64 money_min = 1; //用户资产下限
+    int64 money_max = 2; //用户资产上限
+	repeated int64  quick_ante_list = 3; // 押注的筹码选项列表
+}
+
+//进桌请求桌子信息、断线重连
+message TableInfoPush
+{
+    uint64 server_time = 1;//1970以来的秒为单位的时间,考虑所有发给客户端的proto都带上,以后调时间节奏时用
+    
+    UserInfo myself_info = 2;
+
+    PayoutMultiInfo payout_multi_info = 3; //各个区域的返奖倍率
+	
+	repeated QuickAnteItem quick_ante_list = 4; // 押注的筹码选项列表
+	
+	repeated FrequencyItem frequency_list = 5; //各个频次的wingo数据详情
+
+	int32 table_id = 6;
+	int32 fee_ratio = 7;//税率
+
+	int32 select_wingo_id = 8; //频次id
+}
+
+//游戏状态变更通知
+message StatePush
+{
+    uint64 server_time = 1;
+	
+    ROUND_STATE state = 2; //当前游戏的状态
+
+    FrequencyItem wingo_info = 3; //wingo具体的信息
+	
+	UserInfo user_info = 4; //余额。结算后余额会发生变化
+
+	int32 table_id = 5;
+}
+
+
+//==============================================================================================
+
+//押注请求
+message BetReq
+{
+	uint64 seq = 1;
+	repeated int64 color_area_bet = 2; //颜色区域下注，依次为绿色、紫色、红色。例如：[20,0,10]，表示绿色区域押注20,紫色区域未押注,红色区域押注10
+    repeated int64 size_area_bet = 3; //大小区域下注，依次为大、小。例如：[20,0]，表示压大20，小未押注
+	repeated int64 value_area_bet = 4; //数值区域下注，依次为0~9。例如：[20,0,10,0,0,0,0,0,0,0]
+	int32 wingo_id = 5; //频次id
+}
+
+
+//押注结果
+message BetResp
+{
+	uint64 seq = 1;
+    uint64 server_time = 2;
+    int32 result = 3;//0成功, 其他是失败错误号
+    int64 money = 4; //余额
+    repeated int64 color_area_bet_total = 5; //颜色区域下注总值，依次为绿色、紫色、红色。例如：[20,0,10]，表示绿色区域押注20,紫色区域未押注,红色区域押注10
+    repeated int64 size_area_bet_total = 6; //大小区域下注总值，依次为大、小。例如：[20,0]，表示压大20，小未押注
+	repeated int64 value_area_bet_total = 7; //数值区域下注总值，依次为0~9。例如：[20,0,10,0,0,0,0,0,0,0]
+	int32 wingo_id = 8; //频次id
+	int64 bet_failure_money = 9; //下注失败金额
+}
+
+//==============================================================================================
+
+//各个频次历史记录请求
+message GameHistoryReq
+{
+	int32 wingo_id = 1; //频次id
+	int32 page = 2; //分页参数
+	int32 limit = 3; //分页参数
+	string last_round_number = 4;//最后拉取的期号
+}
+
+//各个频次历史记录
+message GameHistoryItem
+{
+    int32 result = 1; //开奖结果
+	string wingo_round_number = 2; //期号
+	int64 result_time = 3; //开奖时间
+ 
+}
+
+//各个频次历史记录结果
+message GameHistoryResp
+{
+    uint64 server_time = 1;
+	repeated GameHistoryItem history_result_list = 2;
+	int64 total_size = 3;
+	int32 wingo_id = 4; //频次id
+}
+
+//各个频次用户记录请求
+message UserHistoryReq
+{
+	 int32 wingo_id = 1; //频次id
+	 int32 page = 2; //分页参数
+	 int32 limit = 3; //分页参数
+}
+
+//各个频次历史记录
+message UserHistoryItem
+{
+    int32 result = 1; //开奖结果
+	string wingo_round_number = 2; //期号
+	int64 result_time = 3; //开奖时间
+	uint64 order_id = 4; //订单id
+	int64 bet_amount = 5; //下注总额
+	repeated int32 bet_pos = 6; //下注区域0~14，对应绿、紫、红、大、小、0~9 。共15个位置
+	int64 bet_amount_after_tax = 7; //下注总额-扣税后
+	int64 bet_tax = 8; //本次下注扣税
+	bool is_bet_win = 9; // 是否压中
+	int64 winlose = 10; // 输赢金额
+	ORDER_STATE state = 11;
+}
+
+//各个频次用户记录结果
+message UserHistoryResp
+{
+    uint64 server_time = 1;
+	repeated UserHistoryItem history_result_list = 2;
+	int64 total_size = 3; 
+	int32 wingo_id = 4; //频次id
+}
+
+//各个频次历史记录请求
+message GameResultReq
+{
+	int32 wingo_id = 1; //频次id
+	int32 pageSize = 2; //
+}
+
+//各个频次历史记录结果
+message GameResultResp
+{
+    uint64 server_time = 1;
+	int64 wingo_id = 2;
+	repeated uint32 result_list = 3;
+}
+
+//==============================================================================================
+
+//离开请求
+message LeaveTableReq
+{
+    int32 uid = 1;
+	int32 table_id = 2;
+}
+
+//退桌回复
+message LeaveTableResp
+{
+	int32 table_id = 1;
+    int32 uid = 2;
+    int32 result = 3;//1成功，其他失败
+    string error_reason = 4;
+    int32 type = 5; //离开原因
+}
+
+
+message ErrorPush
+{
+    int32 error_code = 1;
+	string error_data = 2;
+}
+
+//将用户踢出房间
+message KickUserPush
+{
+  uint64 server_time = 1;
+  int64  no_betting_time= 2; 
+  int32 table_id = 3;
+  int32 error_code = 4;
+}
+

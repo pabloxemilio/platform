@@ -158,6 +158,226 @@
             </div>
           </div>
         </div>
+
+        <!-- Dragon Tiger (real client) -->
+        <div class="chart-card" style="border:1px solid var(--border-gold, rgba(230,179,37,0.25));">
+          <div class="chart-header"><div class="chart-title">🐲 Dragon Tiger — Table Controls</div></div>
+          <div class="text-sm text-muted" style="margin-bottom:10px">Live controls for the real Dragon Tiger client. Changes apply within ~15s, no restart needed.</div>
+
+          <div class="form-group">
+            <label class="form-label">Chip denominations (comma separated)</label>
+            <input class="form-control" name="dt_chips" placeholder="10,20,30,50,100,500,1000">
+            <div class="text-sm text-muted" style="margin-top:6px">The chip buttons shown at the table, smallest first.</div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="form-group">
+            <label class="form-label">Mock players at the table (0–7)</label>
+            <input class="form-control" name="dt_mock_users" type="number" min="0" max="7" placeholder="6">
+            <div class="text-sm text-muted" style="margin-top:6px">Bot players that sit and place live bets so the table looks active. 0 = none.</div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:120px"><label class="form-label">Bet window (sec)</label><input class="form-control" name="dt_bet_seconds" type="number" min="5" max="60" placeholder="15"></div>
+            <div style="flex:1;min-width:120px"><label class="form-label">Min bet</label><input class="form-control" name="dt_bet_min" type="number" min="1" placeholder="10"></div>
+            <div style="flex:1;min-width:120px"><label class="form-label">Max bet</label><input class="form-control" name="dt_bet_max" type="number" min="1" placeholder="500000"></div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:120px"><label class="form-label">Idle warn (rounds)</label><input class="form-control" name="dt_idle_warn" type="number" min="1" placeholder="5"></div>
+            <div style="flex:1;min-width:120px"><label class="form-label">Idle leave (rounds)</label><input class="form-control" name="dt_idle_kick" type="number" min="2" placeholder="8"></div>
+          </div>
+          <div class="divider"></div>
+
+          <label class="form-label">Payout odds (×10000 fixed-point — 10000 = 1:1)</label>
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:110px"><label class="form-label">Dragon</label><input class="form-control" name="dt_odds_dragon" type="number" placeholder="10000"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Tiger</label><input class="form-control" name="dt_odds_tiger" type="number" placeholder="10000"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Tie</label><input class="form-control" name="dt_odds_tie" type="number" placeholder="100000"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Suited Tie</label><input class="form-control" name="dt_odds_suited" type="number" placeholder="490000"></div>
+          </div>
+          <div class="text-sm text-muted">e.g. 10000 = 1:1, 80000 = 1:8, 100000 = 1:10, 490000 = 1:49.</div>
+        </div>
+
+        <!-- 7 Up 7 Down (sprlbegaming real client) -->
+        <div class="chart-card" style="border:1px solid var(--border-gold, rgba(230,179,37,0.25));margin-top:16px;">
+          <div class="chart-header"><div class="chart-title">🎲 7 Up 7 Down — Table Controls</div></div>
+          <div class="text-sm text-muted" style="margin-bottom:10px">Live controls for the real 7 Up 7 Down client. Changes apply within ~10s, no restart needed.</div>
+
+          <div class="form-group">
+            <label class="form-label">Chip denominations (comma separated)</label>
+            <input class="form-control" name="su_chips" placeholder="10,50,100,500,1000,5000">
+            <div class="text-sm text-muted" style="margin-top:6px">Chip buttons at the table, smallest first.</div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:110px"><label class="form-label">Bet window (sec)</label><input class="form-control" name="su_bet_seconds" type="number" min="5" max="60" placeholder="16"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Reveal (sec)</label><input class="form-control" name="su_settle_seconds" type="number" min="3" max="30" placeholder="8"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Result hold (sec)</label><input class="form-control" name="su_gameover_seconds" type="number" min="1" max="20" placeholder="4"></div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:110px"><label class="form-label">Mock online min</label><input class="form-control" name="su_bots_min" type="number" min="0" placeholder="45"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Mock online max</label><input class="form-control" name="su_bots_max" type="number" min="1" placeholder="75"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Min bet</label><input class="form-control" name="su_bet_min" type="number" min="1" placeholder="10"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Max bet / zone</label><input class="form-control" name="su_bet_max" type="number" min="1" placeholder="1000000"></div>
+          </div>
+          <div class="divider"></div>
+
+          <label class="form-label">Payout multiples (2 = 1:1 even money)</label>
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:110px"><label class="form-label">7 Down</label><input class="form-control" name="su_odds_down" type="number" step="0.1" placeholder="2"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">7 Up</label><input class="form-control" name="su_odds_up" type="number" step="0.1" placeholder="2"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Lucky 7</label><input class="form-control" name="su_odds_seven" type="number" step="0.1" placeholder="5"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Tile margin %</label><input class="form-control" name="su_tile_margin" type="number" step="0.5" placeholder="6"></div>
+          </div>
+          <div class="text-sm text-muted">Down/Up ≈ 2× (1:1), Lucky 7 ≈ 5× (1:4). Number-tile odds are auto-set by rarity minus the margin %.</div>
+          <div class="divider"></div>
+
+          <label class="form-label" style="color:var(--gold,#e6b325)">🎯 Win / RTP control</label>
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:140px">
+              <label class="form-label">House edge (%)</label>
+              <input class="form-control" name="su_house_edge" type="number" min="0" max="100" placeholder="6">
+              <div class="text-sm text-muted" style="margin-top:4px">% of rounds where the dice are biased toward the lowest payout for real players. 0 = fully fair, higher = more house profit.</div>
+            </div>
+            <div style="flex:1;min-width:140px">
+              <label class="form-label">Force result</label>
+              <select class="form-control" name="su_force_result">
+                <option value="off">Off (normal)</option>
+                <option value="down">Always 7 Down (2–6)</option>
+                <option value="up">Always 7 Up (8–12)</option>
+                <option value="seven">Always Lucky 7</option>
+              </select>
+              <div class="text-sm text-muted" style="margin-top:4px">Override every round's outcome. Use "Off" for live play.</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:140px">
+              <label class="form-label">Display currency</label>
+              <select class="form-control" name="su_currency">
+                <option value="PKR">PKR — ₨ (Pakistani Rupee)</option>
+                <option value="INR">INR — ₹ (Indian Rupee)</option>
+                <option value="USD">USD — $ (US Dollar)</option>
+                <option value="BDT">BDT — ৳ (Bangladeshi Taka)</option>
+                <option value="NPR">NPR — ₨ (Nepali Rupee)</option>
+                <option value="AED">AED — د.إ</option>
+                <option value="NGN">NGN — ₦</option>
+                <option value="PHP">PHP — ₱</option>
+                <option value="BRL">BRL — R$</option>
+                <option value="THB">THB — ฿</option>
+              </select>
+              <div class="text-sm text-muted" style="margin-top:4px">Currency symbol shown in the game (balance, bets, wins).</div>
+            </div>
+            <div style="flex:1;min-width:140px">
+              <label class="form-label">Win animation</label>
+              <select class="form-control" name="su_win_animation">
+                <option value="1">On — stars + coins fly to avatar</option>
+                <option value="0">Off</option>
+              </select>
+              <div class="text-sm text-muted" style="margin-top:4px">Show the winning celebration (×multiplier stars, coins to avatars, win count-up).</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+
+          <label class="form-label">⭐ Multiple Mode (×N star tiles)</label>
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:140px"><label class="form-label">Rounds with stars (%)</label><input class="form-control" name="su_double_chance" type="number" min="0" max="100" placeholder="70"></div>
+            <div style="flex:1;min-width:140px"><label class="form-label">Max boosted tiles</label><input class="form-control" name="su_double_zones" type="number" min="1" max="11" placeholder="4"></div>
+          </div>
+          <div class="text-sm text-muted">How often number tiles light up with a ×N multiplier star, and how many per round (up to ×36).</div>
+        </div>
+
+        <!-- Vortex (symbol-slider multiplier game) -->
+        <div class="chart-card" style="border:1px solid var(--border-gold, rgba(230,179,37,0.25));margin-top:16px;">
+          <div class="chart-header"><div class="chart-title">🌀 Vortex — Full Controls</div></div>
+          <div class="text-sm text-muted" style="margin-bottom:10px">Every knob for the Vortex crash/slider game. Applies within ~10s, no restart.</div>
+
+          <label class="form-label" style="color:var(--gold,#e6b325)">💰 Economy / RTP</label>
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:110px"><label class="form-label">RTP %</label><input class="form-control" name="vtx_rtp" type="number" step="0.5" min="50" max="100" placeholder="97"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Instant-bust %</label><input class="form-control" name="vtx_instant_bust" type="number" step="0.5" min="0" max="100" placeholder="3"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Max multiplier</label><input class="form-control" name="vtx_max_coef" type="number" step="1" min="2" placeholder="200"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Max win (0=off)</label><input class="form-control" name="vtx_max_win" type="number" step="1" min="0" placeholder="0"></div>
+          </div>
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:160px">
+              <label class="form-label">Force result (testing)</label>
+              <select class="form-control" name="vtx_force_result">
+                <option value="off">Off (normal RTP)</option>
+                <option value="win">Always reach max (players win)</option>
+                <option value="bust">Always instant bust</option>
+              </select>
+            </div>
+            <div style="flex:1;min-width:160px"><label class="form-label">Display currency</label>
+              <select class="form-control" name="vtx_currency">
+                <option value="PKR">PKR — ₨</option><option value="INR">INR — ₹</option><option value="USD">USD — $</option><option value="BDT">BDT — ৳</option><option value="NPR">NPR — ₨</option><option value="AED">AED — د.إ</option><option value="NGN">NGN — ₦</option><option value="PHP">PHP — ₱</option><option value="BRL">BRL — R$</option><option value="THB">THB — ฿</option>
+              </select>
+            </div>
+          </div>
+          <div class="text-sm text-muted">RTP = average payout. Instant-bust = % of rounds that collapse at 1.00x. "Force" is for testing only.</div>
+          <div class="divider"></div>
+
+          <label class="form-label">⏱️ Round timing</label>
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:110px"><label class="form-label">Bet window (s)</label><input class="form-control" name="vtx_bet_seconds" type="number" step="0.5" min="2" max="60" placeholder="6"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Result hold (s)</label><input class="form-control" name="vtx_result_seconds" type="number" step="0.1" min="1" max="20" placeholder="3.2"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Tick (ms)</label><input class="form-control" name="vtx_tick_ms" type="number" step="10" min="30" max="500" placeholder="80"></div>
+          </div>
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:110px"><label class="form-label">Climb speed</label><input class="form-control" name="vtx_curve_speed" type="number" step="0.01" min="0.01" max="1" placeholder="0.09"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Climb accel</label><input class="form-control" name="vtx_curve_accel" type="number" step="0.01" min="0" max="1" placeholder="0.05"></div>
+          </div>
+          <div class="divider"></div>
+
+          <label class="form-label">🎯 Bets &amp; chips</label>
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:110px"><label class="form-label">Min bet</label><input class="form-control" name="vtx_min_bet" type="number" step="0.1" min="0.1" placeholder="1"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Max bet</label><input class="form-control" name="vtx_max_bet" type="number" step="1" min="1" placeholder="1000"></div>
+            <div style="flex:1;min-width:110px"><label class="form-label">Default chip</label><input class="form-control" name="vtx_default_chip" type="number" step="1" min="1" placeholder="10"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Chip denominations (comma separated)</label>
+            <input class="form-control" name="vtx_chips" placeholder="1,2,3,5,10,15,20,50,100,200,500">
+          </div>
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:140px"><label class="form-label">Auto-cashout</label><select class="form-control" name="vtx_auto_cashout"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
+            <div style="flex:1;min-width:140px"><label class="form-label">Partial cashout</label><select class="form-control" name="vtx_partial_cashout"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
+          </div>
+          <div class="divider"></div>
+
+          <label class="form-label">🔥 Symbol coefficient ladders</label>
+          <div class="form-group">
+            <label class="form-label">Earth (Symbol1)</label><input class="form-control" name="vtx_coeff_symbol1" placeholder="1.55,4.85,10,7">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Water (Symbol2)</label><input class="form-control" name="vtx_coeff_symbol2" placeholder="2.5,7.7,16,27.5,44,20.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fire (Symbol3)</label><input class="form-control" name="vtx_coeff_symbol3" placeholder="3.9,12.5,28,52,85,133,200">
+          </div>
+          <label class="form-label">Symbol rarity weights (higher = more common)</label>
+          <div class="form-group" style="display:flex;gap:10px;flex-wrap:wrap">
+            <div style="flex:1;min-width:90px"><label class="form-label">Earth</label><input class="form-control" name="vtx_weight_symbol1" type="number" placeholder="50"></div>
+            <div style="flex:1;min-width:90px"><label class="form-label">Water</label><input class="form-control" name="vtx_weight_symbol2" type="number" placeholder="30"></div>
+            <div style="flex:1;min-width:90px"><label class="form-label">Fire</label><input class="form-control" name="vtx_weight_symbol3" type="number" placeholder="12"></div>
+            <div style="flex:1;min-width:90px"><label class="form-label">Neutral</label><input class="form-control" name="vtx_weight_neutral" type="number" placeholder="40"></div>
+            <div style="flex:1;min-width:90px"><label class="form-label">Bust</label><input class="form-control" name="vtx_weight_loss" type="number" placeholder="28"></div>
+          </div>
+          <div class="divider"></div>
+
+          <label class="form-label">👥 Presentation</label>
+          <div class="form-group" style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:120px"><label class="form-label">Online min</label><input class="form-control" name="vtx_online_min" type="number" placeholder="90"></div>
+            <div style="flex:1;min-width:120px"><label class="form-label">Online max</label><input class="form-control" name="vtx_online_max" type="number" placeholder="260"></div>
+          </div>
+        </div>
       </div>
 
       <div style="margin-top:4px">

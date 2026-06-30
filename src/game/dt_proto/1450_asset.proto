@@ -1,0 +1,168 @@
+syntax = "proto3";
+package asset;
+
+enum ASSET_CMD
+{
+    ASSET_CMD_NONE = 0x0;
+    ASSET_CMD_GET_ASSET = 0x05AA;
+	ASSET_CMD_GET_ASSET_RESP = 0x05AB;
+	ASSET_CMD_UPDATE_ASSET = 0x05AC;
+	ASSET_CMD_UPDATE_ASSET_RESP = 0x05AD;
+	ASSET_CMD_GET_ASSET_BYFIELD = 0x05AE;
+	ASSET_CMD_GET_ASSET_BYFIELD_RESP = 0x05AF;
+	
+	ASSET_CMD_ASSET_FLOW_PUSH = 0x05B0;
+
+	RESET_BALANCE_REQ = 10038; //重置用户余额, 仅试玩平台使用
+    RESET_BALANCE_RESP = 10039; //重置用户余额
+}
+
+message AssetReq
+{
+    uint32 uid = 1;
+	bytes trans = 2;  //透传数据
+}
+
+message AssetResp
+{
+    uint32 uid = 1;
+	int32 result = 2; //0成功，1查询失败，2财富不足
+    int64 amount = 3; //充值金额
+    int64 coin = 4;   //游戏金额
+	uint64 totalbet = 5;
+	uint64 totalrecharge = 6;
+	uint32 rechargecount = 7;
+    bytes trans = 8;  //透传数据
+}
+
+enum OP_FIELD
+{
+    FIELD_NONE = 0;
+	FIELD_AMOUNT = 1;
+    FIELD_COIN = 2;
+	FIELD_TOTALBET = 3;
+    FIELD_TOTALRECHARGE = 4;
+	FIELD_BALANCE = 5;
+	FIELD_WITHDRAW_LIMIT = 6;
+	FIELD_TOTALWITHDRAW = 7;
+    FIELD_TOTALWIN = 8;
+	FIELD_WITHDRAWCOUNT = 9;
+	FIELD_RECHARGECOUNT = 10;
+	FIELD_TOTALVALIDFLOW = 11;
+	FIELD_VSTOTALVALIDFLOW = 12;
+}
+
+enum OP_ACT
+{
+    ACT_NONE = 0;
+	ACT_BET = 1;
+	ACT_WINLOST = 2;
+    ACT_RECHARGE = 3;
+	ACT_SPIN_WITHDRAW = 4;
+	ACT_WITHDRAW = 5;
+	ACT_REGISTER = 6;
+	ACT_BACKEND = 7;
+	ACT_REBATE = 8;
+	ACT_CANCEL_BET = 9;
+	ACT_CANCEL_WINLOST = 10;
+	ACT_FREEZE = 11;
+	ACT_VIP_WELFARE = 12;
+	ACT_WITHDRAW_REJECT = 13;
+	ACT_INVITE = 14;
+	ACT_COMMISSIONS = 15;
+	ACT_GAME_REWARD = 16;
+	ACT_RANK = 17; // 排行榜奖励
+	ACT_VIP_UPGRADE = 18;
+	ACT_ACTIVITYGIFT = 19;//活动奖励
+	ACT_GIFT = 20;//兑换码奖励
+	ACT_VIP_BET_REDATE = 21;//下注返水
+}
+
+enum OP_UPDATE_TYPE
+{
+    UPDATE_TYPE_INC_DEC = 0;
+	UPDATE_TYPE_SET = 1;
+}
+
+message FieldValue
+{
+	OP_FIELD field =1;
+    sint64 val = 2;
+}
+
+message AssetByFieldReq
+{
+    uint32 uid = 1;
+	repeated OP_FIELD fields = 2;
+	bytes trans = 3;  //透传数据
+}
+
+message AssetByFieldResp
+{
+    uint32 uid = 1;
+	int32 result = 2;  //0成功，1查询失败，2财富不足
+    repeated FieldValue fieldval = 3;
+    bytes trans = 4;  //透传数据
+}
+
+message Oparition
+{
+	OP_FIELD field =1;
+    OP_ACT act = 2;
+	sint64 delt = 3;
+	OP_UPDATE_TYPE upatetype = 4;//部分字段直接置0时使用
+}
+message GameInfo
+{
+	string th = 1;
+	string game = 2;
+	string provider = 3;
+	uint32 gametype = 4;
+    string cycle = 5;
+	string orderid = 6;
+	string associatedorder = 7;
+}
+	
+message UpdateAssetReq
+{
+    uint32 uid = 1;
+	repeated Oparition op = 2;
+	GameInfo gameinfo = 3;
+	string ext = 4;
+	uint64 optime = 5;
+	bytes trans = 6;  //透传数据
+}
+
+message UpdateAssetResp
+{
+    uint32 uid = 1;
+	int32 result = 2;         //0成功,1协议解析失败,2参数错误,3数据库错误,4财富不足
+	repeated FieldValue fieldval = 3;
+	bytes trans = 4;  //透传数据
+}
+
+message AssetFlow
+{
+    uint32 uid = 1;
+	Oparition op = 2;
+	GameInfo gameinfo = 3;
+	string ext = 4;
+	uint64 optime = 5;
+	int32 result = 6;
+	repeated FieldValue fieldval = 7;
+}
+
+message AssetFlowPush
+{
+    repeated AssetFlow flow = 1;
+}
+
+message ResetUserBalanceReq
+{
+
+}
+
+message ResetUserBalanceResp
+{
+    int64 balance = 1;
+}

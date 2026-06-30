@@ -6,6 +6,9 @@
 const GAMES = [
   { id: 1,  name: 'Aviator',        provider: 'Spribe',    thumb: 'images/aviator_game.png',    badge: 'hot',     rtp: '97%',   category: ['crash','hot'] },
   { id: 13, name: 'Chicken Road',   provider: 'InOut',     thumb: 'images/mines_game.png',      badge: 'hot',     rtp: '95.5%', category: ['crash','hot'] },
+  { id: 14, name: '7 Up 7 Down',    provider: 'KBP',       thumb: 'images/dice_game.png',       badge: 'live',    rtp: '95.8%', category: ['live','hot','popular'] },
+  { id: 15, name: 'Vortex',         provider: 'Turbo',     thumb: 'vortex/art/logo.webp',       badge: 'hot',     rtp: '97%',   category: ['crash','hot','new'] },
+  { id: 16, name: 'Vortex Classic', provider: 'AVAITOR',   thumb: 'vortex/art/logo.webp',       badge: 'new',     rtp: '97%',   category: ['crash','new'] },
   { id: 2,  name: 'Fortune Slots',  provider: 'JILI',      thumb: 'images/slots_game.png',      badge: 'popular', rtp: '96.5%', category: ['slots','popular'] },
   { id: 3,  name: 'Live Roulette',  provider: 'Evolution', thumb: 'images/live_casino_game.png',badge: 'live',    rtp: '97.3%', category: ['live','popular'] },
   { id: 4,  name: 'Mines',          provider: 'Spribe',    thumb: 'images/mines_game.png',      badge: 'hot',     rtp: '97%',   category: ['crash','hot'] },
@@ -15,7 +18,7 @@ const GAMES = [
   { id: 8,  name: 'Mega Slots',     provider: 'PG Soft',   thumb: 'images/slots_game.png',      badge: '',        rtp: '95.8%', category: ['slots'] },
   { id: 9,  name: 'Crash Gold',     provider: 'Spribe',    thumb: 'images/aviator_game.png',    badge: 'hot',     rtp: '97%',   category: ['crash','hot'] },
   { id: 10, name: 'Live Baccarat',  provider: 'Evolution', thumb: 'images/live_casino_game.png',badge: 'live',    rtp: '98.9%', category: ['live'] },
-  { id: 11, name: 'Dragon Tiger',   provider: 'JILI',      thumb: 'images/live_casino_game.png',badge: 'popular', rtp: '96.3%', category: ['live','popular'] },
+  { id: 11, name: 'Dragon Tiger',   provider: 'KBP',       thumb: 'dragontiger/art/logo1_c49ed6.png', badge: 'live', rtp: '96.3%', category: ['live','popular','hot'] },
   { id: 12, name: 'Ocean King',     provider: 'JILI',      thumb: 'images/fishing_game.png',    badge: 'new',     rtp: '96%',   category: ['fishing','new'] },
 ];
 
@@ -137,6 +140,23 @@ async function loadGameThumbs() {
     });
     if (changed) renderGames(activeCategory || 'all');
   } catch (e) { /* keep built-in thumbs */ }
+  // hide tiles the admin disabled (status != 'active')
+  try {
+    const res = await fetch('/api/games/catalog');
+    const data = await res.json();
+    const list = (data.games || data);
+    if (Array.isArray(list)) {
+      const status = {};
+      list.forEach(g => { if (g && g.name) status[g.name.toLowerCase().trim()] = (g.status || 'active'); });
+      let changed = false;
+      GAMES.forEach(g => {
+        const st = status[g.name.toLowerCase().trim()];
+        const hidden = !!st && st !== 'active';   // only hide games that exist in the DB and are disabled
+        if (!!g.hidden !== hidden) { g.hidden = hidden; changed = true; }
+      });
+      if (changed) renderGames(activeCategory || 'all');
+    }
+  } catch (e) { /* if catalog unavailable, show all built-ins */ }
 }
 
 // Load admin-managed hero banners (falls back to the built-in HERO_SLIDES).
@@ -240,9 +260,10 @@ function renderGames(category) {
   const grid = $('#gameGrid');
   if (!grid) return;
 
-  const filtered = category === 'all'
+  const filtered = (category === 'all'
     ? GAMES
-    : GAMES.filter(g => g.category.includes(category));
+    : GAMES.filter(g => g.category.includes(category))
+  ).filter(g => !g.hidden);   // skip games the admin disabled
 
   grid.innerHTML = filtered.map(g => {
     const fav = favorites.has(g.id);
@@ -304,6 +325,53 @@ function launchChicken() {
   window.location.href = '/chicken2.html?authToken=' + encodeURIComponent(token) +
     '&operatorId=platform&currency=' + encodeURIComponent(currentCurrency()) + '&gameMode=chicken-road-two&lang=en';
 }
+function launchDragonTiger() {
+  const token = (typeof getToken === 'function') ? getToken() : null;
+  if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
+  // REAL KBP Cocos client (mirrored at /dt) wired to our agent WS at /dt-agent.
+  const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const agent = btoa(wsProto + '://' + location.host + '/dt-agent?ptoken=' + encodeURIComponent(token));
+  window.location.href = '/dt/index.html?token=' + encodeURIComponent(token) +
+    '&agent=' + encodeURIComponent(agent) +
+    '&gameID=204&DisplayMode=1&lang=en-US&uid=0';
+}
+// Fallback to the platform-native Dragon Tiger build (always works):
+function launchDragonTigerNative() {
+  const token = (typeof getToken === 'function') ? getToken() : null;
+  if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
+  window.location.href = '/dragontiger.html?token=' + encodeURIComponent(token) + '&cur=' + encodeURIComponent(currentCurrency());
+}
+function launchSevenUpDown() {
+  const token = (typeof getToken === 'function') ? getToken() : null;
+  if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
+  // REAL sprlbegaming 7Up7Down client (mirrored at /sprl7ud), wired to our wallet.
+  // Client reads ?token= directly and connects same-origin to /su/api/game/websocket.
+  window.location.href = '/sprl7ud/index.html?token=' + encodeURIComponent(token);
+}
+function launchSevenUpDownNative() {
+  const token = (typeof getToken === 'function') ? getToken() : null;
+  if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
+  window.location.href = '/sevenupdown.html?token=' + encodeURIComponent(token) + '&cur=' + encodeURIComponent(currentCurrency());
+}
+function launchVortex() {
+  // REAL pixel-perfect Turbo Games Vortex client (mirrored + served on host port+9),
+  // own engine wired to the player's Supabase wallet + currency + admin RTP.
+  const token = (typeof getToken === 'function') ? getToken() : null;
+  if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
+  var p = (parseInt(location.port, 10) || 3000) + 9;
+  window.location.href = location.protocol + '//' + location.hostname + ':' + p + '/?cid=turbogames&sub_partner_id=turbogames&locale=en&token=' + encodeURIComponent(token);
+}
+function launchVortexClassic() {
+  // self-contained smooth Vortex (same domain), own engine + wallet + admin RTP, no external deps.
+  const token = (typeof getToken === 'function') ? getToken() : null;
+  if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
+  window.location.href = '/vortex.html?token=' + encodeURIComponent(token) + '&cur=' + encodeURIComponent(currentCurrency());
+}
+function launchMines() {
+  const token = (typeof getToken === 'function') ? getToken() : null;
+  if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
+  window.location.href = '/mines.html?token=' + encodeURIComponent(token) + '&cur=' + encodeURIComponent(currentCurrency());
+}
 
 function openGame(id) {
   if (typeof loggedIn === 'function' && !loggedIn()) {
@@ -314,7 +382,12 @@ function openGame(id) {
   const g = GAMES.find(g => g.id === id);
   if (g && g.name === 'Aviator') { showToast('🎮 Launching Aviator…', 'success'); return launchAviator(); }
   if (g && /chicken/i.test(g.name)) { showToast('🐔 Launching Chicken Road…', 'success'); return launchChicken(); }
-  showToast(`🎮 ${g.name} is coming soon — try Aviator or Chicken Road, live now!`, 'info');
+  if (g && /dragon\s*tiger/i.test(g.name)) { showToast('🐲 Launching Dragon vs Tiger…', 'success'); return launchDragonTiger(); }
+  if (g && /7\s*up\s*7\s*down/i.test(g.name)) { showToast('🎲 Launching 7 Up 7 Down…', 'success'); return launchSevenUpDown(); }
+  if (g && /vortex\s*classic/i.test(g.name)) { showToast('🌀 Entering Vortex Classic…', 'success'); return launchVortexClassic(); }
+  if (g && /vortex/i.test(g.name)) { showToast('🌀 Entering the Vortex…', 'success'); return launchVortex(); }
+  if (g && /^mines$/i.test(g.name)) { showToast('💣 Launching Mines…', 'success'); return launchMines(); }
+  showToast(`🎮 ${g.name} is coming soon — try Aviator, Chicken Road, Dragon Tiger, 7 Up 7 Down, Vortex or Mines, live now!`, 'info');
 }
 
 function toggleFav(id) {

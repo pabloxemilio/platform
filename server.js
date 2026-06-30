@@ -44,6 +44,8 @@ const staticOpts = {
     if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache, must-revalidate');
   },
 };
+// sprl7ud is actively patched (main bundle) — serve it no-cache so patches always load.
+app.use('/sprl7ud', (req, res, next) => { res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); next(); });
 // Serve admin panel
 app.use('/admin', express.static(path.join(__dirname, 'admin'), staticOpts));
 // Serve frontend (optional - copy AVAITOR folder here)
@@ -87,6 +89,9 @@ app.get('/api/banners', async (req, res) => {
   catch { res.json({ banners: [] }); }
 });
 
+// ── sprlbegaming 7Up7Down REST shim (game is WS-driven; answer any REST it probes) ──
+app.all('/su/*', (req, res) => res.json({ code: 0, msg: 'ok', data: {} }));
+
 // ── ChickenRoad boot REST (must be registered BEFORE the /api/game/* catch-all) ──
 require('./src/game/chicken').registerRest(app);
 
@@ -118,12 +123,35 @@ const server = http.createServer(app);
 require('./src/game/aviator').attach(server);
 // Attach ChickenRoad 2 (socket.io/engine.io at /io/)
 require('./src/game/chicken').attachWs(server);
+// Attach Dragon vs Tiger (WebSocket at /api/game/dragontiger)
+require('./src/game/dragontiger').attach(server);
+// Attach 7 Up 7 Down (WebSocket at /api/game/sevenupdown)
+require('./src/game/sevenupdown').attach(server);
+// Attach Vortex crash game (WebSocket at /api/game/vortex)
+require('./src/game/vortex').attach(server);
+// Attach Mines (WebSocket at /api/game/mines)
+require('./src/game/mines').attach(server);
+// Attach Dragon Tiger REAL client agent (instrumented protobuf capture at /dt-agent)
+require('./src/game/dtreal').attach(server);
+// Attach 7 Up 7 Down REAL KB client agent (protobuf at /ud-agent)
+require('./src/game/abupdown').attach(server);
+// Attach 7 Up 7 Down sprlbegaming client (JSON-WS at /su/api/game/websocket)
+require('./src/game/sprl7ud').attach(server);
 
 const PORT = process.env.PORT || 3000;
+// Real mirrored Vortex client host (own port → no path collisions, proxies to live backend)
+const VORTEX_REAL_PORT = process.env.VORTEX_REAL_PORT || (Number(PORT) + 9);
+try { require('./src/game/vortexReal').start(VORTEX_REAL_PORT); } catch (e) { console.warn('vortexReal host failed:', e.message); }
+
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 AVAITOR Casino API running on port ${PORT}`);
   console.log(`📊 Admin panel:  http://localhost:${PORT}/admin`);
   console.log(`🎮 Aviator game: http://localhost:${PORT}/aviator.html`);
+  console.log(`🐲 Dragon Tiger: http://localhost:${PORT}/dragontiger.html`);
+  console.log(`🎲 7 Up 7 Down: http://localhost:${PORT}/sevenupdown.html`);
+  console.log(`🌀 Vortex (mine): http://localhost:${PORT}/vortex.html`);
+  console.log(`🌀 Vortex (REAL): http://localhost:${VORTEX_REAL_PORT}/`);
+  console.log(`💣 Mines:        http://localhost:${PORT}/mines.html`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
 });
 

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8">
+<title>Mines</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<style>
+  :root{--teal:#19e3b1;--teal2:#0c8f6e;--red:#ff4d5e;--red2:#7a1622;--gold:#f6cf57;
+    --bg0:#0b1622;--bg1:#10202f;--tile:#1c3346;--tile2:#274961;--line:rgba(25,227,177,.25);--panel:rgba(8,20,30,.7);}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;font-family:"Segoe UI",Roboto,system-ui,Arial,sans-serif;color:#eaf6ff;background:var(--bg0);user-select:none}
+  #app{position:fixed;inset:0;display:flex;flex-direction:column;background:radial-gradient(120% 80% at 50% 0%,#13314a 0%,#0b1622 55%,#070f17 100%)}
+  .hidden{display:none!important}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:linear-gradient(180deg,rgba(0,0,0,.45),transparent)}
+  .icon-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--teal);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .title{flex:1;text-align:center;font-weight:900;letter-spacing:3px;font-size:18px;text-transform:uppercase;
+    background:linear-gradient(180deg,#fff,var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .balance{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}
+  .balance .lbl{font-size:9px;color:var(--teal);opacity:.85;letter-spacing:1px}
+  .balance .val{font-size:16px;font-weight:800}
+
+  /* multiplier ladder */
+  .ladder{display:flex;gap:5px;padding:7px 12px;overflow-x:auto;scrollbar-width:none}
+  .ladder::-webkit-scrollbar{display:none}
+  .rung{flex:0 0 auto;font-size:11px;font-weight:800;padding:3px 9px;border-radius:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#9fc7df}
+  .rung.done{color:#06241b;background:var(--teal);border-color:var(--teal)}
+  .rung.cur{color:var(--gold);border-color:var(--gold);box-shadow:0 0 10px rgba(246,207,87,.4)}
+
+  /* grid */
+  .gridwrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;padding:6px 12px}
+  .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:min(94vw,520px);aspect-ratio:1}
+  .tile{border-radius:14px;background:linear-gradient(160deg,var(--tile2),var(--tile));border:1px solid rgba(255,255,255,.08);
+    box-shadow:inset 0 -4px 10px rgba(0,0,0,.35),0 3px 6px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;
+    font-size:clamp(20px,7vw,40px);cursor:pointer;transition:transform .08s,background .2s,box-shadow .2s;position:relative}
+  .tile:active{transform:scale(.95)}
+  .tile.idle{opacity:.65;cursor:default}
+  .tile.busyhint::after{content:"";position:absolute;inset:30% 30%;border-radius:50%;background:rgba(255,255,255,.06)}
+  .tile.gem{background:radial-gradient(circle at 50% 38%,rgba(25,227,177,.35),rgba(12,40,55,.9));border-color:var(--teal);animation:pop .35s ease}
+  .tile.mine{background:radial-gradient(circle at 50% 38%,rgba(255,77,94,.4),rgba(40,12,18,.9));border-color:var(--red)}
+  .tile.minehit{background:radial-gradient(circle at 50% 38%,rgba(255,77,94,.7),rgba(60,10,18,.95));border-color:#ff8090;animation:shake .4s ease}
+  .tile.dim{opacity:.4}
+  @keyframes pop{0%{transform:scale(.5)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
+
+  /* panel */
+  .panel{padding:8px 12px 12px;display:flex;flex-direction:column;gap:9px;background:linear-gradient(0deg,rgba(7,15,23,.92),transparent);z-index:3}
+  .seg{display:flex;gap:8px}
+  .field{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:7px 10px}
+  .field .flbl{font-size:10px;color:var(--teal);letter-spacing:1px;margin-bottom:3px}
+  .stepper{display:flex;align-items:center;gap:6px}
+  .stepper button{width:32px;height:32px;border-radius:8px;border:none;background:rgba(255,255,255,.08);color:#fff;font-size:18px;cursor:pointer}
+  .stepper button:active{background:rgba(255,255,255,.18)}
+  .stepper .sv{flex:1;text-align:center;font-size:17px;font-weight:800}
+  .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;padding:6px 11px;border-radius:18px;font-weight:800;font-size:12px;cursor:pointer;color:#06241b;
+    background:radial-gradient(circle at 50% 30%,#a9ffe8,var(--teal) 70%);border:2px solid rgba(255,255,255,.5)}
+  .chip:active{transform:scale(.95)}
+  .mpre{display:flex;gap:6px;flex-wrap:wrap}
+  .mpre .m{padding:5px 10px;border-radius:14px;font-size:12px;font-weight:800;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#cfe}
+  .mpre .m.sel{background:var(--red);border-color:var(--red);color:#fff}
+
+  .mainbtn{height:58px;border:none;border-radius:14px;font-weight:900;font-size:18px;letter-spacing:1px;cursor:pointer;color:#04140a;
+    background:linear-gradient(180deg,#2bf0a6,#12a574);box-shadow:0 6px 18px rgba(25,227,177,.3);transition:transform .1s,filter .2s}
+  .mainbtn:active{transform:scale(.98)}
+  .mainbtn.cashout{background:linear-gradient(180deg,#ffd86b,#e0a020);color:#241500}
+  .mainbtn.cashout .sub{display:block;font-size:12px;font-weight:700;opacity:.85;letter-spacing:0}
+  .mainbtn:disabled{filter:grayscale(.5) brightness(.85);cursor:default}
+
+  .banner{position:fixed;left:50%;top:28%;transform:translate(-50%,-50%) scale(.6);opacity:0;font-weight:900;font-size:clamp(26px,8vw,52px);
+    letter-spacing:2px;pointer-events:none;text-align:center;text-shadow:0 4px 22px #000;z-index:30}
+  .banner.show{animation:bn 2.2s ease forwards}
+  @keyframes bn{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0}}
+  .toast{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);background:rgba(0,0,0,.82);border:1px solid var(--line);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;z-index:40;opacity:0;transition:opacity .25s}
+  .toast.show{opacity:1}
+  .overlay{position:fixed;inset:0;background:rgba(7,15,23,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:50;text-align:center;padding:20px}
+  .spin{width:42px;height:42px;border:4px solid rgba(255,255,255,.2);border-top-color:var(--teal);border-radius:50%;animation:sp 1s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .logo{font-size:40px;font-weight:900;letter-spacing:4px;color:var(--teal)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="icon-btn" id="backBtn" title="Lobby">‹</div>
+    <div class="title">💣 Mines</div>
+    <div style="display:flex;align-items:center">
+      <div class="balance"><span class="lbl">BALANCE</span><span class="val" id="bal">—</span></div>
+      <div class="icon-btn" id="soundBtn" title="Sound" style="margin-left:8px">🔊</div>
+    </div>
+  </div>
+
+  <div class="ladder" id="ladder"></div>
+
+  <div class="gridwrap">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="panel">
+    <!-- setup (idle) -->
+    <div id="setup">
+      <div class="seg">
+        <div class="field">
+          <div class="flbl">BET</div>
+          <div class="stepper"><button id="betMinus">–</button><div class="sv" id="betVal">100</div><button id="betPlus">+</button></div>
+        </div>
+        <div class="field">
+          <div class="flbl">MINES</div>
+          <div class="stepper"><button id="mMinus">–</button><div class="sv" id="mVal">3</div><button id="mPlus">+</button></div>
+        </div>
+      </div>
+      <div class="chips" id="chips" style="margin-top:8px"></div>
+      <div class="mpre" id="mpre" style="margin-top:8px"></div>
+    </div>
+    <!-- play status -->
+    <div id="playinfo" class="hidden seg">
+      <div class="field"><div class="flbl">MULTIPLIER</div><div class="sv" id="curMult" style="color:var(--gold)">1.00x</div></div>
+      <div class="field"><div class="flbl">GEMS LEFT</div><div class="sv" id="gemsLeft">—</div></div>
+    </div>
+    <button class="mainbtn" id="mainBtn">BET</button>
+  </div>
+</div>
+
+<div class="banner" id="banner"></div>
+<div class="toast" id="toast"></div>
+<div class="overlay" id="overlay">
+  <div class="logo">💣 MINES</div><div class="spin"></div>
+  <div id="ovText" style="color:#9fc7df;font-size:14px">Loading…</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id);};
+  var qs=new URLSearchParams(location.search);
+  var token=qs.get('token')||qs.get('authToken')||localStorage.getItem('av_token')||localStorage.getItem('token');
+  var CUR={PKR:'₨',INR:'₹',USD:'$'};var TILES=25;
+
+  var st={cur:'PKR',sym:'₨',balance:0,phase:'idle',bet:100,mines:3,chips:[10,50,100,500,1000],
+    min:10,max:50000,minMines:1,maxMines:24,revealed:[],multiplier:1,ladder:[],sound:true,connected:false};
+
+  var AC=null;function beep(f,d,t,v){if(!st.sound)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain();o.type=t||'sine';o.frequency.value=f;g.gain.value=v||0.05;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+(d||0.12));o.stop(AC.currentTime+(d||0.12));}catch(e){}}
+  var sfx={gem:function(){beep(740,0.08,'sine',0.05);setTimeout(function(){beep(990,0.09,'sine',0.04);},60);},
+    boom:function(){beep(150,0.4,'sawtooth',0.07);},win:function(){beep(660,0.12);setTimeout(function(){beep(990,0.18);},110);setTimeout(function(){beep(1320,0.22);},250);},
+    click:function(){beep(520,0.06,'square',0.035);}};
+
+  function money(n){return st.sym+' '+Number(n||0).toLocaleString(undefined,{maximumFractionDigits:2});}
+  function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},1700);}
+  function renderBalance(){$('bal').textContent=money(st.balance);}
+  function renderBet(){$('betVal').textContent=st.bet;}
+  function renderMines(){$('mVal').textContent=st.mines;document.querySelectorAll('#mpre .m').forEach(function(e){e.classList.toggle('sel',+e.dataset.m===st.mines);});}
+  function renderChips(){var b=$('chips');b.innerHTML='';st.chips.forEach(function(v){var d=document.createElement('div');d.className='chip';d.textContent=v>=1000?(v/1000)+'K':v;d.onclick=function(){st.bet=v;sfx.click();renderBet();};b.appendChild(d);});}
+  function renderMpre(){var b=$('mpre');b.innerHTML='';[1,3,5,10,24].forEach(function(v){var d=document.createElement('div');d.className='m';d.dataset.m=v;d.textContent=v+(v===1?' mine':' mines');d.onclick=function(){st.mines=v;sfx.click();renderMines();};b.appendChild(d);});renderMines();}
+
+  function buildGrid(){var g=$('grid');g.innerHTML='';for(var i=0;i<TILES;i++){var t=document.createElement('div');t.className='tile idle';t.dataset.cell=i;t.onclick=onTile;g.appendChild(t);}}
+  function tiles(){return $('grid').children;}
+  function setTilesPlayable(on){for(var i=0;i<TILES;i++){var t=tiles()[i];t.classList.toggle('idle',!on);if(on&&!t.classList.contains('gem')&&!t.classList.contains('mine')&&!t.classList.contains('minehit'))t.classList.add('busyhint');}}
+  function resetGrid(){buildGrid();}
+
+  function renderLadder(){
+    var l=$('ladder');l.innerHTML='';
+    if(!st.ladder.length){return;}
+    var done=st.revealed.length;
+    st.ladder.forEach(function(x,i){var r=document.createElement('div');r.className='rung'+(i<done?' done':i===done?' cur':'');r.textContent=x.toFixed(2)+'x';l.appendChild(r);});
+    var cur=l.children[Math.min(done,st.ladder.length-1)];if(cur)cur.scrollIntoView({inline:'center',block:'nearest'});
+  }
+
+  function showSetup(on){$('setup').classList.toggle('hidden',!on);$('playinfo').classList.toggle('hidden',on);}
+  function renderButton(){
+    var b=$('mainBtn');b.disabled=false;b.classList.remove('cashout');b.innerHTML='';
+    if(st.phase==='playing'){
+      if(st.revealed.length>0){b.classList.add('cashout');b.innerHTML='CASH OUT <span class="sub">'+money(st.bet*st.multiplier)+' ('+st.multiplier.toFixed(2)+'x)</span>';}
+      else {b.classList.add('cashout');b.disabled=true;b.innerHTML='PICK A TILE <span class="sub">reveal a gem to cash out</span>';}
+    } else { b.textContent='BET '+money(st.bet); }
+  }
+
+  function showBanner(txt,col){var b=$('banner');b.textContent=txt;b.style.color=col;b.classList.remove('show');void b.offsetWidth;b.classList.add('show');}
+
+  // ── ws ──
+  var ws=null,pingT=null;
+  function wsUrl(){var pr=location.protocol==='https:'?'wss:':'ws:';return pr+'//'+location.host+'/api/game/mines?token='+encodeURIComponent(token||'');}
+  function connect(){
+    if(!token){overlay('Please log in from the lobby to play.',true);return;}
+    try{ws=new WebSocket(wsUrl());}catch(e){overlay('Connection failed.',true);return;}
+    ws.onopen=function(){st.connected=true;pingT=setInterval(function(){send('ping');},20000);};
+    ws.onmessage=function(ev){var m;try{m=JSON.parse(ev.data);}catch(e){return;}handle(m.act,m.data||{});};
+    ws.onclose=function(ev){clearInterval(pingT);st.connected=false;if(ev.code===4001){overlay('Session expired — open the game again from the lobby.',true);return;}toast('Reconnecting…');setTimeout(connect,1500);};
+    ws.onerror=function(){try{ws.close();}catch(e){}};
+  }
+  function send(act,data){if(ws&&ws.readyState===1){try{ws.send(JSON.stringify({act:act,data:data||{}}));}catch(e){}}}
+  function overlay(t,keep){var ov=$('overlay');if(t){ov.classList.remove('hidden');$('ovText').textContent=t;ov.querySelector('.spin').style.display=keep?'none':'';}else ov.classList.add('hidden');}
+
+  function startIdle(){st.phase='idle';st.revealed=[];st.multiplier=1;st.ladder=[];showSetup(true);setTilesPlayable(false);renderLadder();renderButton();}
+
+  function handle(act,d){
+    switch(act){
+      case 'init':
+        st.cur=d.currency||'PKR';st.sym=CUR[st.cur]||st.cur+' ';st.balance=d.balance;
+        if(d.limits){st.chips=d.limits.chips||st.chips;st.min=d.limits.min;st.max=d.limits.max;if(st.chips.indexOf(st.bet)<0)st.bet=st.chips[Math.min(2,st.chips.length-1)];}
+        st.minMines=d.minMines||1;st.maxMines=d.maxMines||24;
+        renderChips();renderMpre();renderBet();renderMines();renderBalance();resetGrid();overlay('');
+        if(d.game){ // resume in-progress game
+          st.phase='playing';st.bet=d.game.bet;st.mines=d.game.mines;st.revealed=d.game.revealed||[];st.multiplier=d.game.multiplier||1;st.ladder=d.ladder||[];
+          st.revealed.forEach(function(c){markTile(c,'gem','💎');});showSetup(false);setTilesPlayable(true);$('curMult').textContent=st.multiplier.toFixed(2)+'x';$('gemsLeft').textContent=d.game.gemsLeft;renderLadder();renderButton();
+        } else startIdle();
+        break;
+      case 'started':
+        st.phase='playing';st.bet=d.bet;st.mines=d.mines;st.revealed=[];st.multiplier=1;st.ladder=d.ladder||[];st.balance=d.balance;
+        renderBalance();resetGrid();setTilesPlayable(true);showSetup(false);$('curMult').textContent='1.00x';$('gemsLeft').textContent=(TILES-d.mines);renderLadder();renderButton();
+        break;
+      case 'reveal':
+        st.revealed=d.revealed;st.multiplier=d.multiplier;markTile(d.cell,'gem','💎');sfx.gem();
+        $('curMult').textContent=d.multiplier.toFixed(2)+'x';$('gemsLeft').textContent=d.gemsLeft;renderLadder();renderButton();
+        break;
+      case 'boom':
+        st.phase='idle';markTile(d.cell,'minehit','💣');revealMines(d.mines,d.cell);sfx.boom();
+        showBanner('BOOM!','#ff4d5e');dimUnrevealed();
+        setTimeout(startIdle,1900);
+        break;
+      case 'cashout':
+        st.phase='idle';st.balance=d.balance;renderBalance();if(d.mines)revealMines(d.mines,-1);
+        showBanner('+ '+money(d.win),'#19e3b1');toast('Cashed out '+money(d.win)+' @ '+d.multiplier.toFixed(2)+'x');sfx.win();
+        setTimeout(startIdle,1900);
+        break;
+      case 'err':
+        toast(d.reason==='insufficient'?'Not enough balance':d.reason==='invalid_bet'?'Bet outside limits':d.reason==='in_progress'?'Finish current game first':d.reason==='cannot_cashout'?'Reveal a gem first':'Action not allowed');
+        if(d.reason==='insufficient'||d.reason==='invalid_bet')startIdle();
+        break;
+      case 'pong':break;
+    }
+  }
+  function markTile(cell,cls,txt){var t=tiles()[cell];if(!t)return;t.classList.remove('busyhint','idle');t.classList.add(cls);t.textContent=txt;}
+  function revealMines(mines,hit){mines.forEach(function(c){if(c===hit)return;var t=tiles()[c];if(t&&!t.classList.contains('gem')){t.classList.add('mine');t.textContent='💣';}});}
+  function dimUnrevealed(){for(var i=0;i<TILES;i++){var t=tiles()[i];if(!t.classList.contains('gem')&&!t.classList.contains('mine')&&!t.classList.contains('minehit'))t.classList.add('dim');}}
+
+  function onTile(e){
+    if(st.phase!=='playing')return;
+    var cell=+e.currentTarget.dataset.cell;
+    if(st.revealed.indexOf(cell)>=0||e.currentTarget.classList.contains('gem')||e.currentTarget.classList.contains('mine'))return;
+    send('reveal',{cell:cell});
+  }
+  $('mainBtn').onclick=function(){
+    if(st.phase==='playing'){if(st.revealed.length>0)send('cashout',{});return;}
+    send('start',{bet:st.bet,mines:st.mines});
+  };
+  function betStep(){return st.bet<=100?10:st.bet<=1000?50:500;}
+  $('betPlus').onclick=function(){if(st.phase!=='idle')return;st.bet=Math.min(st.max,st.bet+betStep());renderBet();renderButton();};
+  $('betMinus').onclick=function(){if(st.phase!=='idle')return;st.bet=Math.max(st.min,st.bet-betStep());renderBet();renderButton();};
+  $('mPlus').onclick=function(){if(st.phase!=='idle')return;st.mines=Math.min(st.maxMines,st.mines+1);renderMines();};
+  $('mMinus').onclick=function(){if(st.phase!=='idle')return;st.mines=Math.max(st.minMines,st.mines-1);renderMines();};
+  $('soundBtn').onclick=function(){st.sound=!st.sound;$('soundBtn').textContent=st.sound?'🔊':'🔇';};
+  $('backBtn').onclick=function(){location.href='/';};
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&st.connected)send('sync');});
+
+  buildGrid();renderChips();renderMpre();renderBet();renderMines();connect();
+})();
+</script>
+</body>
+</html>

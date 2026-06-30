@@ -1,0 +1,28 @@
+{
+  
+  "name": "KBP",
+  "short_name": "KBP",
+  "name_des": "h5网页安装到设备上后，显示的名称",
+
+  "start_url": "/res/kbp/develop_v1.2.0/index.html",
+  "start_url_des": "start_url必须为域名之后的完整路径",
+
+  "cache_storage_key": "minimal-pwa-15",
+  "cache_storage_key_des": "本地更新的唯一标志",
+
+  "display": "standalone",
+  "background_color": "red",
+  "theme_color": "#ccc",
+  "icons": [
+    {
+      "src": "./icons/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icons/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

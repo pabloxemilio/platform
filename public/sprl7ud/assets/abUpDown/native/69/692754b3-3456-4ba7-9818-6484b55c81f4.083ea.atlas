@@ -1,0 +1,146 @@
+
+jieduantixing.png
+size: 1000,264
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+down_kuang_1_on
+  rotate: true
+  xy: 343, 17
+  size: 245, 275
+  orig: 245, 275
+  offset: 0, 0
+  index: -1
+down_kuang_2_on
+  rotate: false
+  xy: 758, 75
+  size: 136, 187
+  orig: 136, 187
+  offset: 0, 0
+  index: -1
+down_kuang_3_on
+  rotate: false
+  xy: 2, 6
+  size: 177, 256
+  orig: 177, 256
+  offset: 0, 0
+  index: -1
+down_kuang_4_on
+  rotate: false
+  xy: 620, 71
+  size: 136, 191
+  orig: 136, 191
+  offset: 0, 0
+  index: -1
+gx_01
+  rotate: false
+  xy: 620, 12
+  size: 135, 57
+  orig: 135, 70
+  offset: 0, 7
+  index: -1
+rdh_00
+  rotate: false
+  xy: 896, 128
+  size: 100, 134
+  orig: 100, 134
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/bianguang_00
+  rotate: false
+  xy: 181, 6
+  size: 160, 256
+  orig: 160, 256
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/d/fang_00
+  rotate: false
+  xy: 826, 4
+  size: 31, 28
+  orig: 31, 28
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/d/hei_00
+  rotate: true
+  xy: 897, 13
+  size: 36, 27
+  orig: 36, 27
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/d/hong_00
+  rotate: true
+  xy: 795, 34
+  size: 39, 29
+  orig: 39, 29
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/d/mei_00
+  rotate: true
+  xy: 826, 34
+  size: 39, 29
+  orig: 39, 29
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/d/xin_logo_00000
+  rotate: false
+  xy: 857, 36
+  size: 37, 37
+  orig: 37, 37
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/l/fangkuai_00
+  rotate: false
+  xy: 859, 2
+  size: 36, 32
+  orig: 36, 32
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/l/heitao_00
+  rotate: false
+  xy: 896, 89
+  size: 35, 37
+  orig: 35, 37
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/l/hongtao_00
+  rotate: true
+  xy: 896, 51
+  size: 36, 33
+  orig: 36, 33
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/l/meihua_00
+  rotate: false
+  xy: 757, 30
+  size: 36, 39
+  orig: 36, 39
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/u/fang_0
+  rotate: false
+  xy: 931, 59
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/u/hei_0
+  rotate: false
+  xy: 793, 2
+  size: 31, 26
+  orig: 31, 26
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/u/hong_0
+  rotate: false
+  xy: 757, 2
+  size: 34, 26
+  orig: 34, 26
+  offset: 0, 0
+  index: -1
+zhuomian_bianbian/u/mei_0
+  rotate: true
+  xy: 926, 18
+  size: 31, 27
+  orig: 31, 27
+  offset: 0, 0
+  index: -1

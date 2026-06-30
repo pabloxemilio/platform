@@ -1,0 +1,124 @@
+syntax = "proto3";
+package gamerecord;
+
+enum ASSET_CMD
+{
+    GAMERECORD_CMD_NONE = 0x0;
+
+	GAMERECORD_CMD_GET_RECORD_REQ = 0x0B22;
+	GAMERECORD_CMD_GET_RECORD_RESP = 0x0B23;
+	GAMERECORD_CMD_RECORD_PUSH = 0x0B24;
+	GAMERECORD_CMD_RECORD_CACHE_PUSH = 0x0B25;
+	GAMERECORD_CMD_GET_DETAIL_REQ = 0x0B26;
+	GAMERECORD_CMD_GET_DETAIL_RESP = 0x0B27;
+}
+
+enum BET_ACT
+{
+    BET_ACT_NONE = 0;
+	BET_ACT_NORMAL_BET = 1;
+}
+
+enum WIN_ACT
+{
+    WIN_ACT_NONE = 0;
+	WIN_ACT_NORMAL_WIN = 1;
+	WIN_ACT_JACKPOT = 2;
+	WIN_ACT_DEALER = 3;
+}
+
+message GameRecordReq
+{
+    uint32 uid = 1;
+	uint32 game = 2;
+	uint64 pos = 3;  //请求位置标识，按页请求时，带上带上返回的最后(按时间说是最老)一个数据的id，将返回此标记位置之前（按时间）的的数据，第一页请求带0
+	uint32 size = 4; //请求获取量
+	bytes trans = 5; //透传数据
+}
+
+message GameRecordResp
+{
+    message GameRecordItem
+	{
+	    string roundid = 1;
+		int64 bet = 2;
+		BET_ACT betact = 3;
+		int64 win = 4;
+		WIN_ACT winact = 5;
+		uint64 timestamp = 6;
+		int32 firstofdayflag = 7; //1表示是当天的首条记录，有此记录表示即已经加载完当天的所有记录
+		bytes detail = 8; //游戏详情json，字段定义要简洁，勿加多余字段  
+		uint64 id = 9; //位置标识，按页请求时，带上此值，将返回此标记位置之前（按时间）的的数据	
+	}
+	message DayAmountItem
+	{
+		uint32 year = 1;
+		uint32 month = 2;
+		uint32 day = 3;
+		int64 betamount = 4;
+		int64 winamount = 5; 
+	}
+    uint32 uid = 1;
+	uint32 game = 2;
+	int32 result = 3; //0成功，非0表示失败
+	int32 timezoneinmin = 4; //记录的时间戳转换为日期时间的时区，单位为分钟
+	int32 endflag = 5; //1表示已查询出全部数据
+	repeated GameRecordItem list = 6;
+	repeated DayAmountItem daylist = 7; 
+	uint32 totalsize = 8;//记录总条目
+	bytes trans = 9;  //透传数据
+}
+
+message GameRecordDetailReq
+{
+    uint32 uid = 1;
+	uint32 game = 2;
+	uint64 id = 3;
+}
+
+message GameRecordDetailResp
+{
+	uint32 uid = 1;
+	uint32 game = 2;
+	uint64 id = 3;
+	int32 result = 4; //0成功，非0表示失败
+	bytes detail = 5;
+}
+
+message GameRecordData
+{
+	uint32 uid = 1;
+	uint32 game = 2; 
+	string roundid = 3;  
+	int64 bet = 4;
+	BET_ACT betact = 5;
+	int64 win = 6;
+	WIN_ACT winact = 7;
+	uint64 timestamp = 8;
+	bytes detail = 9; //游戏详情json，字段定义要简洁，勿加多余字段
+	uint32 agencyid = 10;  
+}
+ 
+message GameRecordPush 
+{
+    repeated GameRecordData list = 1;
+}
+
+message GameRecordDataCache
+{
+	uint32 uid = 1;
+	uint32 game = 2; 
+	string roundid = 3;  
+	int64 bet = 4;
+	BET_ACT betact = 5;
+	int64 win = 6;
+	WIN_ACT winact = 7;
+	uint64 timestamp = 8;
+	bytes detail = 9;
+	int64 daybetamount = 10;
+	int64 daywinamount = 11;
+	int32 timezoneinmin = 12;
+	int32 firstofdayflag = 13;   
+	uint32 recordcount = 14;
+	uint64 cacheindex = 15;
+}

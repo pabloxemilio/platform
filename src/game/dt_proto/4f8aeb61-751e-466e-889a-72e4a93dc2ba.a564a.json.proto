@@ -1,0 +1,97 @@
+
+syntax = "proto3";
+
+package client_common;
+
+enum CLIENT_COMMON_MSGID
+{
+    CLIENT_COMMON_MSGID_NULL = 0;
+    //玩家在大厅充值界面充值成功后, 给客户端发送充值通知消息
+    CLIENT_COMMON_MSGID_USER_RECHARGE_NOTIFY = 76001;
+    MSG_GENERAL_NOTICE_PUSH = 76002;         //活动推送
+    MSG_REWARD_UPDATE_PUSH = 76003;			//奖励变更通知
+    MSG_USE_CHANGE_LANG = 76004;			//用户设置语言
+    MSG_UPDATE_BALANCE_PUSH = 76006;        //更新余额
+}
+
+//c++活动模板id枚举 2000-2999, php活动模板id枚举 3000-3999
+enum ActivityID {
+    ACTIVITY_ID_NONE = 0;
+    ACTIVITY_ID_FR_ACT = 2000;
+    ACTIVITY_ID_0_BUY = 2001;
+    ACTIVITY_ID_JIKA = 2002;
+}
+
+enum SceneFrom {
+    SCENE_FROM_NONE = 0;
+    SCENE_FROM_H5 = 1;          //php的活动
+    SCENE_FROM_APP = 2;         //c++的活动
+}
+
+
+//玩家在进入206/207子游戏后, 在大厅充值成功后通过该消息通知给客户端
+message UserRechargeNoticePush     
+{
+    uint32 uid = 1;
+    int64 amount = 2;       //玩家充值金额
+    int64 extra = 3;        //充值的赠送金额(bonus)
+    int64 balance = 4;      //当前最新的balance
+}
+
+//红点推送
+message GeneralNoticePush
+{
+    uint32 act_id = 1;              //活动id
+    uint32 uid = 2;                 //uid
+    int32 event_type = 3;            //1:红点 2:通知 3:取消红点
+    int32 red_point_type = 4;       //红点类型
+    int32 server_from = 5;          //h5/app
+    string notify_msg = 6;          //通知信息
+}
+
+//派奖场景
+enum RewardScene
+{   
+    RD_SCENE_NONE = 0;
+    RD_SCENE_TASK_SHUANGJU = 1;     //爽局任务派奖
+    RD_SCENE_TASK_FREE_MATCH = 2;   //免费赛任务派奖
+    RD_SCENE_TASK_POP = 3;          //浮窗小游戏任务派奖
+    RD_SCENE_ACTIVITY = 4;          //活动派奖
+}
+
+//道具类型
+enum ItemType
+{
+    ITYPE_NONE = 0;
+	ITYPE_CASH = 1; //现金
+	ITYPE_TICKET= 2; //门票
+	ITYPE_MATCH_FREE_NUM = 3; //免费赛次数
+    ITYPE_BONUS = 4; //彩金, 暂时不支持彩金道具，表示彩金使用 ITYPE_CASH + withdraw_limit_ratio > 0表示
+}
+
+//描述道具item
+message OneItem
+{
+    int64 item_id = 1;   //道具id
+    int64 item_num = 2;  //道具数量
+    int32 type = 3;       //道具类型 ItemType
+}
+
+message UserRewardUpdateNoticePush
+{
+	uint32 uid = 1;
+	int64 balance = 2;
+	repeated OneItem reward_list= 3;
+}
+
+message UserChangeLangReq
+{
+	uint32 uid = 1;
+    string lang = 2;  
+}
+
+message UserUpdateBalancePush
+{
+    uint32 uid = 1;
+    int64 balance = 2;
+};

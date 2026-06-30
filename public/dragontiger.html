@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8">
+<title>Dragon vs Tiger</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<link rel="icon" href="/dragontiger/art/favicon.ico">
+<style>
+  :root{
+    --gold:#f6cf57; --gold2:#b8862a; --dragon:#1e8bff; --dragon2:#0a3f7a;
+    --tiger:#ff5630; --tiger2:#7a1c0a; --tie:#27c08a; --tie2:#0c5b40;
+    --ink:#0b0f0a; --panel:rgba(8,16,10,.62); --line:rgba(246,207,87,.35);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;font-family:"Segoe UI",Roboto,system-ui,Arial,sans-serif;color:#fff;background:#05110a;user-select:none}
+  #app{position:fixed;inset:0;display:flex;flex-direction:column;
+    background:linear-gradient(rgba(3,12,6,.55),rgba(2,8,4,.85)),url('/dragontiger/art/junglee_bg2_6a83b3.jpg') center/cover no-repeat;}
+  .hidden{display:none!important}
+
+  /* ── top bar ── */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;
+    background:linear-gradient(180deg,rgba(0,0,0,.55),transparent)}
+  .icon-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:rgba(0,0,0,.35);
+    color:var(--gold);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .title{flex:1;text-align:center;font-family:"Luckiest Guy","Segoe UI",cursive;letter-spacing:1px;
+    font-weight:800;font-size:18px;text-transform:uppercase;
+    background:linear-gradient(180deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 1px 0 rgba(0,0,0,.3)}
+  .balance{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}
+  .balance .lbl{font-size:9px;color:var(--gold);opacity:.8;letter-spacing:1px}
+  .balance .val{font-size:16px;font-weight:800;color:#fff}
+  .online{font-size:10px;color:#9fe6c0;margin-right:6px}
+  .online b{color:#fff}
+
+  /* ── history road ── */
+  .road{display:flex;gap:4px;padding:6px 12px;overflow-x:auto;scrollbar-width:none}
+  .road::-webkit-scrollbar{display:none}
+  .bead{flex:0 0 auto;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:800;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+  .bead.dragon{background:radial-gradient(circle at 30% 30%,#5cb0ff,var(--dragon2))}
+  .bead.tiger{background:radial-gradient(circle at 30% 30%,#ff8a6b,var(--tiger2))}
+  .bead.tie{background:radial-gradient(circle at 30% 30%,#6ce6b6,var(--tie2))}
+
+  /* ── table ── */
+  .table{flex:1;display:flex;align-items:center;justify-content:center;gap:2vw;padding:4px 10px;min-height:0}
+  .side{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;max-width:34%}
+  .side .name{font-family:"Luckiest Guy",cursive;font-size:clamp(16px,4.4vw,30px);letter-spacing:1px;text-shadow:0 2px 6px #000}
+  .side.d .name{color:#7fbcff} .side.t .name{color:#ff9173}
+  .side .mult{font-size:11px;color:var(--gold);font-weight:700}
+
+  .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;flex:0 0 auto}
+  .vs{font-family:"Luckiest Guy",cursive;font-size:clamp(20px,6vw,40px);color:var(--gold);text-shadow:0 0 14px rgba(246,207,87,.6)}
+
+  /* timer ring */
+  .ring{position:relative;width:84px;height:84px}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .bg{fill:none;stroke:rgba(255,255,255,.12);stroke-width:7}
+  .ring .fg{fill:none;stroke:var(--gold);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .95s linear,stroke .3s}
+  .ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800}
+  .status{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#fff;min-height:16px;text-align:center}
+  .status.open{color:#9fe6c0} .status.closed{color:#ffd06b}
+
+  /* cards */
+  .card{width:clamp(58px,15vw,104px);aspect-ratio:5/7;perspective:700px}
+  .card .inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.2,.7,.2,1);transform-style:preserve-3d}
+  .card.flip .inner{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;border-radius:9px;backface-visibility:hidden;display:flex;flex-direction:column;
+    overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.55)}
+  .back{background:
+      repeating-linear-gradient(45deg,rgba(0,0,0,.18) 0 6px,transparent 6px 12px),
+      linear-gradient(135deg,#1c6b3a,#0c3a20);border:2px solid var(--gold);
+      align-items:center;justify-content:center}
+  .back::after{content:"🐉";font-size:26px;filter:drop-shadow(0 1px 2px #000)}
+  .side.t .back::after{content:"🐯"}
+  .front{transform:rotateY(180deg);background:linear-gradient(160deg,#fff,#eef1f5);color:#16110b;
+    border:2px solid #fff;padding:5px}
+  .front .r{font-size:clamp(15px,4.4vw,26px);font-weight:900;line-height:1;align-self:flex-start}
+  .front .s{font-size:clamp(20px,6vw,40px);text-align:center;margin-top:auto;margin-bottom:auto}
+  .front .r2{align-self:flex-end;transform:rotate(180deg)}
+  .front.red{color:#d7263d}
+  .card.win{animation:pop .5s ease}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+  /* glowing winner halo on a side */
+  .side.glow .name{animation:flash 1s ease infinite}
+  @keyframes flash{50%{text-shadow:0 0 18px currentColor}}
+
+  /* ── bet zones ── */
+  .zones{display:flex;gap:6px;padding:6px 10px}
+  .zone{flex:1;border-radius:12px;padding:8px 6px 10px;text-align:center;position:relative;cursor:pointer;
+    border:2px solid transparent;background:var(--panel);transition:transform .1s,box-shadow .2s,border-color .2s;overflow:hidden}
+  .zone:active{transform:scale(.97)}
+  .zone .zname{font-family:"Luckiest Guy",cursive;font-size:clamp(13px,3.6vw,20px);letter-spacing:1px}
+  .zone .zmult{font-size:10px;font-weight:700;opacity:.85}
+  .zone .pool{font-size:10px;color:#cfe;opacity:.8;margin-top:2px}
+  .zone .mybet{font-size:13px;font-weight:800;color:var(--gold);min-height:16px;margin-top:3px}
+  .zone.d{border-color:rgba(30,139,255,.5);box-shadow:inset 0 -22px 30px -22px var(--dragon)}
+  .zone.t{border-color:rgba(255,86,48,.5);box-shadow:inset 0 -22px 30px -22px var(--tiger)}
+  .zone.tie{border-color:rgba(39,192,138,.5);box-shadow:inset 0 -22px 30px -22px var(--tie)}
+  .zone.d .zname{color:#7fbcff} .zone.t .zname{color:#ff9173} .zone.tie .zname{color:#6ce6b6}
+  .zone.sel{outline:2px solid var(--gold);outline-offset:-2px}
+  .zone.disabled{opacity:.55;pointer-events:none;filter:grayscale(.3)}
+  .zone.won{animation:zonewin 1.2s ease}
+  @keyframes zonewin{0%,100%{box-shadow:inset 0 0 0 1px var(--gold)}50%{box-shadow:0 0 24px var(--gold),inset 0 0 0 2px var(--gold)}}
+  .chiplet{position:absolute;top:4px;right:6px;font-size:9px;background:rgba(0,0,0,.45);border:1px solid var(--gold);
+    color:var(--gold);border-radius:10px;padding:1px 5px}
+
+  /* ── chips + actions ── */
+  .tray{display:flex;align-items:center;gap:6px;padding:6px 10px 10px;overflow-x:auto;scrollbar-width:none}
+  .tray::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;width:46px;height:46px;border-radius:50%;cursor:pointer;position:relative;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#16110b;
+    background:radial-gradient(circle at 50% 35%,#ffe39a,var(--gold) 55%,var(--gold2));
+    border:3px dashed rgba(255,255,255,.7);box-shadow:0 3px 8px rgba(0,0,0,.5);transition:transform .12s}
+  .chip.sel{transform:translateY(-7px) scale(1.06);box-shadow:0 0 0 2px var(--gold),0 6px 14px rgba(0,0,0,.6)}
+  .act{flex:0 0 auto;margin-left:auto;display:flex;gap:6px}
+  .btn{border:1px solid var(--line);background:rgba(0,0,0,.4);color:var(--gold);border-radius:10px;
+    padding:0 14px;height:40px;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:5px}
+  .btn:active{transform:scale(.96)}
+  .btn.primary{background:linear-gradient(180deg,var(--gold),var(--gold2));color:#1a1206;border:none}
+
+  /* result banner + float */
+  .banner{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%) scale(.6);opacity:0;
+    font-family:"Luckiest Guy",cursive;font-size:clamp(28px,9vw,64px);letter-spacing:2px;
+    pointer-events:none;text-align:center;text-shadow:0 4px 22px #000;z-index:30;transition:none}
+  .banner.show{animation:bn 2.6s ease forwards}
+  @keyframes bn{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    80%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.05)}}
+  .float{position:fixed;left:50%;top:50%;transform:translateX(-50%);color:var(--gold);font-weight:900;
+    font-size:26px;text-shadow:0 2px 8px #000;pointer-events:none;z-index:31}
+  .float.go{animation:fl 1.6s ease forwards}
+  @keyframes fl{0%{opacity:0;top:55%}20%{opacity:1}100%{opacity:0;top:30%}}
+
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.8);
+    border:1px solid var(--line);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;z-index:40;
+    opacity:0;transition:opacity .25s}
+  .toast.show{opacity:1}
+
+  /* overlay (loading / login needed) */
+  .overlay{position:fixed;inset:0;background:rgba(3,10,6,.92);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;z-index:50;text-align:center;padding:20px}
+  .overlay img{width:160px;max-width:50%}
+  .spin{width:42px;height:42px;border:4px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:sp 1s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  @media (orientation:portrait){
+    .table{gap:1vw}
+    .side{max-width:30%}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- top bar -->
+  <div class="topbar">
+    <div class="icon-btn" id="backBtn" title="Lobby">‹</div>
+    <div class="title">Dragon&nbsp;<span style="color:var(--gold)">vs</span>&nbsp;Tiger</div>
+    <div style="display:flex;align-items:center">
+      <span class="online">👥 <b id="online">—</b></span>
+      <div class="balance"><span class="lbl">BALANCE</span><span class="val" id="bal">—</span></div>
+      <div class="icon-btn" id="soundBtn" title="Sound" style="margin-left:8px">🔊</div>
+    </div>
+  </div>
+
+  <!-- history road -->
+  <div class="road" id="road"></div>
+
+  <!-- table -->
+  <div class="table">
+    <div class="side d" id="sideD">
+      <div class="name">DRAGON</div>
+      <div class="card" id="cardD"><div class="inner">
+        <div class="face back"></div><div class="face front" id="frontD"></div>
+      </div></div>
+      <div class="mult">PAYS 1 : 1</div>
+    </div>
+
+    <div class="center">
+      <div class="vs">VS</div>
+      <div class="ring">
+        <svg width="84" height="84" viewBox="0 0 84 84">
+          <circle class="bg" cx="42" cy="42" r="37"/>
+          <circle class="fg" id="ringFg" cx="42" cy="42" r="37" stroke-dasharray="232.5" stroke-dashoffset="0"/>
+        </svg>
+        <div class="num" id="timer">—</div>
+      </div>
+      <div class="status" id="status">CONNECTING…</div>
+    </div>
+
+    <div class="side t" id="sideT">
+      <div class="name">TIGER</div>
+      <div class="card" id="cardT"><div class="inner">
+        <div class="face back"></div><div class="face front" id="frontT"></div>
+      </div></div>
+      <div class="mult">PAYS 1 : 1</div>
+    </div>
+  </div>
+
+  <!-- bet zones -->
+  <div class="zones" id="zones">
+    <div class="zone d" data-zone="dragon">
+      <div class="zname">DRAGON</div><div class="zmult">1 : 1</div>
+      <div class="pool" id="poolD">—</div><div class="mybet" id="myD"></div>
+      <span class="chiplet hidden" id="chipD"></span>
+    </div>
+    <div class="zone tie" data-zone="tie">
+      <div class="zname">TIE</div><div class="zmult">8 : 1</div>
+      <div class="pool" id="poolTie">—</div><div class="mybet" id="myTie"></div>
+      <span class="chiplet hidden" id="chipTie"></span>
+    </div>
+    <div class="zone t" data-zone="tiger">
+      <div class="zname">TIGER</div><div class="zmult">1 : 1</div>
+      <div class="pool" id="poolT">—</div><div class="mybet" id="myT"></div>
+      <span class="chiplet hidden" id="chipT"></span>
+    </div>
+  </div>
+
+  <!-- chips + actions -->
+  <div class="tray" id="tray">
+    <div class="chips" id="chips" style="display:flex;gap:6px"></div>
+    <div class="act">
+      <button class="btn" id="undoBtn">↶ Undo</button>
+      <button class="btn primary" id="repeatBtn">↻ Rebet</button>
+    </div>
+  </div>
+</div>
+
+<div class="banner" id="banner"></div>
+<div class="toast" id="toast"></div>
+<div class="overlay" id="overlay">
+  <img src="/dragontiger/art/logo1_c49ed6.png" alt="" onerror="this.style.display='none'">
+  <div class="spin"></div>
+  <div id="ovText" style="color:#cfe;font-size:14px">Loading table…</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+
+  // ── session / token ──
+  var qs = new URLSearchParams(location.search);
+  var token = qs.get('token') || qs.get('authToken') || localStorage.getItem('av_token') || localStorage.getItem('token');
+  var BET_MAX = 15, RING_LEN = 232.5;
+  var SUIT_SYM = { S:'♠', H:'♥', C:'♣', D:'♦' };
+  var RANKS = {1:'A',11:'J',12:'Q',13:'K'};
+  var CUR = { PKR:'₨', INR:'₹', USD:'$' };
+
+  var st = {
+    cur:'PKR', sym:'₨', balance:0, phase:'', timeLeft:0,
+    bets:{dragon:0,tiger:0,tie:0}, pools:{dragon:0,tiger:0,tie:0},
+    chips:[10,50,100,500,1000], chip:50, lastBets:null, sound:true, connected:false
+  };
+
+  // ── audio (programmatic, no asset files) ──
+  var AC=null;
+  function beep(freq,dur,type,vol){
+    if(!st.sound) return;
+    try{
+      AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+      var o=AC.createOscillator(),g=AC.createGain();
+      o.type=type||'sine'; o.frequency.value=freq;
+      g.gain.value=vol||0.05; o.connect(g); g.connect(AC.destination);
+      o.start(); g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+(dur||0.12));
+      o.stop(AC.currentTime+(dur||0.12));
+    }catch(e){}
+  }
+  var sfx={click:function(){beep(520,0.07,'square',0.04);},
+           win:function(){beep(660,0.12);setTimeout(function(){beep(880,0.16);},110);setTimeout(function(){beep(1175,0.22);},240);},
+           lose:function(){beep(200,0.25,'sawtooth',0.05);},
+           flip:function(){beep(420,0.06,'triangle',0.04);},
+           tick:function(){beep(700,0.03,'square',0.025);}};
+
+  // ── helpers ──
+  function money(n){ return st.sym+' '+Number(n||0).toLocaleString(undefined,{maximumFractionDigits:2}); }
+  function shortK(n){ n=Number(n||0); return n>=1000? (n/1000).toFixed(n>=10000?0:1)+'K' : String(Math.round(n)); }
+  function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},1800); }
+
+  function cardFace(el,c){
+    if(!c){ return; }
+    var red = (c.suit==='H'||c.suit==='D');
+    el.classList.toggle('red',red);
+    var r = RANKS[c.rank]||String(c.rank);
+    el.innerHTML='<div class="r">'+r+' '+SUIT_SYM[c.suit]+'</div>'+
+                 '<div class="s">'+SUIT_SYM[c.suit]+'</div>'+
+                 '<div class="r r2">'+r+' '+SUIT_SYM[c.suit]+'</div>';
+  }
+
+  function renderChips(){
+    var box=$('chips'); box.innerHTML='';
+    st.chips.forEach(function(v){
+      var d=document.createElement('div');
+      d.className='chip'+(v===st.chip?' sel':'');
+      d.textContent=shortK(v);
+      d.onclick=function(){ st.chip=v; sfx.click(); renderChips(); };
+      box.appendChild(d);
+    });
+  }
+
+  function renderBalance(){ $('bal').textContent = money(st.balance); }
+
+  function renderBets(){
+    var map={dragon:['myD','chipD'],tiger:['myT','chipT'],tie:['myTie','chipTie']};
+    Object.keys(map).forEach(function(z){
+      var amt=st.bets[z]||0;
+      $(map[z][0]).textContent = amt>0 ? money(amt) : '';
+      var cl=$(map[z][1]);
+      if(amt>0){ cl.textContent='▣'; cl.classList.remove('hidden'); } else { cl.classList.add('hidden'); }
+    });
+  }
+
+  function renderPools(){
+    $('poolD').textContent   = '🪙 '+shortK(st.pools.dragon);
+    $('poolT').textContent   = '🪙 '+shortK(st.pools.tiger);
+    $('poolTie').textContent = '🪙 '+shortK(st.pools.tie);
+  }
+
+  function renderRoad(hist){
+    var r=$('road'); r.innerHTML='';
+    (hist||[]).forEach(function(o){
+      var b=document.createElement('div');
+      b.className='bead '+o;
+      b.textContent = o==='dragon'?'D':o==='tiger'?'T':'='; // Dragon / Tiger / Tie
+      b.style.color = o==='tie'?'#062b1e':'#fff';
+      r.appendChild(b);
+    });
+    r.scrollLeft = r.scrollWidth;
+  }
+
+  function setRing(t){
+    var frac = Math.max(0,Math.min(1, t/BET_MAX));
+    $('ringFg').style.strokeDashoffset = (RING_LEN*(1-frac)).toFixed(1);
+    $('ringFg').style.stroke = t<=3 ? '#ff5630' : t<=6 ? '#ffd06b' : 'var(--gold)';
+    $('timer').textContent = t>0? t : '';
+  }
+
+  function setPhase(p){
+    st.phase=p;
+    var s=$('status'), z=$('zones');
+    if(p==='betting'){ s.textContent='PLACE YOUR BETS'; s.className='status open'; z.classList.remove('locked'); zonesDisabled(false); }
+    else if(p==='locked'){ s.textContent='BETS CLOSED'; s.className='status closed'; zonesDisabled(true); }
+    else if(p==='reveal'){ zonesDisabled(true); }
+  }
+  function zonesDisabled(v){
+    document.querySelectorAll('.zone').forEach(function(el){ el.classList.toggle('disabled',v); });
+  }
+
+  function resetCards(){
+    $('cardD').classList.remove('flip','win'); $('cardT').classList.remove('flip','win');
+    $('sideD').classList.remove('glow'); $('sideT').classList.remove('glow');
+    document.querySelectorAll('.zone').forEach(function(e){ e.classList.remove('won'); });
+  }
+
+  function showBanner(outcome){
+    var b=$('banner');
+    var txt = outcome==='dragon'?'DRAGON WINS':outcome==='tiger'?'TIGER WINS':'TIE';
+    var col = outcome==='dragon'?'#7fbcff':outcome==='tiger'?'#ff9173':'#6ce6b6';
+    b.textContent=txt; b.style.color=col; b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+  }
+  function floatWin(amount){
+    var f=document.createElement('div'); f.className='float go';
+    f.textContent='+ '+money(amount); document.body.appendChild(f);
+    setTimeout(function(){ f.remove(); },1600);
+  }
+
+  // ── websocket ──
+  var ws=null, pingT=null;
+  function wsUrl(){
+    var proto = location.protocol==='https:'?'wss:':'ws:';
+    return proto+'//'+location.host+'/api/game/dragontiger?token='+encodeURIComponent(token||'');
+  }
+  function connect(){
+    if(!token){ overlay('Please log in from the lobby to play.', true); return; }
+    try{ ws=new WebSocket(wsUrl()); }catch(e){ overlay('Connection failed.',true); return; }
+    ws.onopen=function(){ st.connected=true; pingT=setInterval(function(){ send('ping'); },20000); };
+    ws.onmessage=function(ev){ var m; try{ m=JSON.parse(ev.data); }catch(e){ return; } handle(m.act,m.data||{}); };
+    ws.onclose=function(ev){
+      clearInterval(pingT); st.connected=false;
+      if(ev.code===4001){ overlay('Session expired — open the game again from the lobby.',true); return; }
+      $('status').textContent='RECONNECTING…';
+      setTimeout(connect,1500);
+    };
+    ws.onerror=function(){ try{ws.close();}catch(e){} };
+  }
+  function send(act,data){ if(ws&&ws.readyState===1){ try{ ws.send(JSON.stringify({act:act,data:data||{}})); }catch(e){} } }
+
+  function overlay(text,keep){
+    var ov=$('overlay');
+    if(text){ ov.classList.remove('hidden'); $('ovText').textContent=text; ov.querySelector('.spin').style.display=keep?'none':''; }
+    else ov.classList.add('hidden');
+  }
+
+  // ── message handling ──
+  function handle(act,d){
+    switch(act){
+      case 'init':
+        st.cur=d.currency||'PKR'; st.sym=CUR[st.cur]||st.cur+' ';
+        st.balance=d.balance; st.bets=d.bets||{dragon:0,tiger:0,tie:0};
+        st.pools=d.pools||st.pools;
+        if(d.limits&&d.limits.chips){ st.chips=d.limits.chips; if(st.chips.indexOf(st.chip)<0) st.chip=st.chips[Math.min(2,st.chips.length-1)]; }
+        renderChips(); renderBalance(); renderBets(); renderPools(); renderRoad(d.history);
+        overlay('');
+        if(d.phase==='betting'){ BET_MAX=Math.max(BET_MAX,d.timeLeft||BET_MAX); resetCards(); setPhase('betting'); setRing(d.timeLeft||0); }
+        else { setPhase(d.phase||'locked');
+          if(d.cards){ revealCards(d.cards.dragon,d.cards.tiger,d.cards.outcome,false); } setRing(0); }
+        break;
+
+      case 'round':
+        resetCards();
+        st.bets={dragon:0,tiger:0,tie:0};
+        st.pools=d.pools||{dragon:0,tiger:0,tie:0};
+        BET_MAX = d.timeLeft||BET_MAX;
+        $('online').textContent=d.online||'—';
+        renderBets(); renderPools(); renderRoad(d.history);
+        setPhase('betting'); setRing(d.timeLeft);
+        break;
+
+      case 'tick':
+        st.timeLeft=d.timeLeft;
+        if(d.pools) st.pools=d.pools;
+        if(d.online!=null) $('online').textContent=d.online;
+        setRing(d.timeLeft); renderPools();
+        if(d.timeLeft<=5&&d.timeLeft>0) sfx.tick();
+        break;
+
+      case 'lock':
+        if((st.bets.dragon+st.bets.tiger+st.bets.tie)>0) st.lastBets={dragon:st.bets.dragon,tiger:st.bets.tiger,tie:st.bets.tie};
+        setPhase('locked'); setRing(0);
+        break;
+
+      case 'deal':
+        revealCards(d.dragon,d.tiger,d.outcome,true);
+        break;
+
+      case 'settle':
+        st.balance=d.balance; renderBalance();
+        var mine=(d.bets&&((d.bets.dragon||0)+(d.bets.tiger||0)+(d.bets.tie||0)))||0;
+        if(mine>0){
+          if(d.win>0){ sfx.win(); floatWin(d.win); toast('You won '+money(d.win)+'!'); }
+          else { sfx.lose(); }
+        }
+        // mark winning zone
+        var wz = d.outcome==='dragon'?'.zone.d':d.outcome==='tiger'?'.zone.t':'.zone.tie';
+        var ze=document.querySelector(wz); if(ze) ze.classList.add('won');
+        st.bets={dragon:0,tiger:0,tie:0}; renderBets();
+        break;
+
+      case 'road':
+        renderRoad(d.history);
+        break;
+
+      case 'bet_ok':
+        st.balance=d.balance; st.bets=d.bets||st.bets; if(d.pools) st.pools=d.pools;
+        renderBalance(); renderBets(); renderPools();
+        if(!d.undo) sfx.click();
+        break;
+
+      case 'bet_err':
+        var why=d.reason==='insufficient'?'Not enough balance':
+                d.reason==='closed'?'Betting is closed':
+                d.reason==='limit'?'Table limit reached':
+                d.reason==='nothing'?'Nothing to undo':'Bet not allowed';
+        toast(why);
+        break;
+
+      case 'pong': break;
+    }
+  }
+
+  function revealCards(dC,tC,outcome,animate){
+    cardFace($('frontD'),dC); cardFace($('frontT'),tC);
+    if(animate){
+      setTimeout(function(){ sfx.flip(); $('cardD').classList.add('flip'); },120);
+      setTimeout(function(){ sfx.flip(); $('cardT').classList.add('flip'); },520);
+      setTimeout(function(){ afterReveal(outcome); },1100);
+    } else {
+      $('cardD').classList.add('flip'); $('cardT').classList.add('flip'); afterReveal(outcome);
+    }
+  }
+  function afterReveal(outcome){
+    showBanner(outcome);
+    if(outcome==='dragon'){ $('cardD').classList.add('win'); $('sideD').classList.add('glow'); }
+    else if(outcome==='tiger'){ $('cardT').classList.add('win'); $('sideT').classList.add('glow'); }
+    else { $('cardD').classList.add('win'); $('cardT').classList.add('win'); }
+  }
+
+  // ── bet input ──
+  document.querySelectorAll('.zone').forEach(function(el){
+    el.addEventListener('click',function(){
+      if(st.phase!=='betting'){ toast('Betting is closed'); return; }
+      send('bet',{zone:el.dataset.zone,amount:st.chip});
+    });
+  });
+  $('undoBtn').onclick=function(){ if(st.phase==='betting') send('undo',{}); else toast('Betting is closed'); };
+  $('repeatBtn').onclick=function(){
+    if(st.phase!=='betting'){ toast('Wait for next round'); return; }
+    if(!st.lastBets){ toast('No previous bet'); return; }
+    ['dragon','tie','tiger'].forEach(function(z){
+      var a=st.lastBets[z]||0; if(a>0) send('bet',{zone:z,amount:a});
+    });
+  };
+
+  $('soundBtn').onclick=function(){ st.sound=!st.sound; $('soundBtn').textContent=st.sound?'🔊':'🔇'; };
+  $('backBtn').onclick=function(){ location.href='/'; };
+
+  // visibility resync
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden && st.connected) send('sync'); });
+
+  renderChips();
+  connect();
+})();
+</script>
+</body>
+</html>

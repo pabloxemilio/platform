@@ -1,0 +1,83 @@
+
+jinbi.png
+size: 762,270
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+sucai/jinbi/1_00
+  rotate: false
+  xy: 521, 143
+  size: 124, 125
+  orig: 130, 130
+  offset: 3, 3
+  index: -1
+sucai/jinbi/1_01
+  rotate: true
+  xy: 266, 29
+  size: 112, 125
+  orig: 130, 130
+  offset: 9, 3
+  index: -1
+sucai/jinbi/1_02
+  rotate: true
+  xy: 502, 2
+  size: 50, 125
+  orig: 130, 130
+  offset: 40, 3
+  index: -1
+sucai/jinbi/1_03
+  rotate: true
+  xy: 502, 54
+  size: 87, 125
+  orig: 130, 130
+  offset: 23, 3
+  index: -1
+sucai/jinbi/1_04
+  rotate: false
+  xy: 394, 143
+  size: 125, 125
+  orig: 130, 130
+  offset: 4, 3
+  index: -1
+sucai/jinbi/1_05
+  rotate: false
+  xy: 266, 143
+  size: 126, 125
+  orig: 130, 130
+  offset: 3, 3
+  index: -1
+sucai/jinbi/1_06
+  rotate: true
+  xy: 629, 54
+  size: 87, 125
+  orig: 130, 130
+  offset: 22, 3
+  index: -1
+sucai/jinbi/1_07
+  rotate: true
+  xy: 629, 2
+  size: 50, 125
+  orig: 130, 130
+  offset: 41, 3
+  index: -1
+sucai/jinbi/1_08
+  rotate: false
+  xy: 647, 143
+  size: 113, 125
+  orig: 130, 130
+  offset: 9, 3
+  index: -1
+sucai/yuanquan_03_148
+  rotate: false
+  xy: 2, 6
+  size: 262, 262
+  orig: 290, 286
+  offset: 17, 4
+  index: -1
+yuanhuan_00001
+  rotate: false
+  xy: 393, 35
+  size: 107, 106
+  orig: 109, 111
+  offset: 1, 1
+  index: -1

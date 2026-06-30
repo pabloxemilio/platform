@@ -1,0 +1,146 @@
+syntax = "proto3";
+package sevenup;
+
+message SevenupGameStage {
+  uint32 uid = 1;
+  int64 checkoutAmount = 2;
+}
+
+message PerCheckoutInfo {
+  uint32 uid = 1;
+  int64 checkoutAmount = 2;
+}
+
+message SevenupStageInfo {
+  int32 stage = 1;
+  int32 continueTime = 2;
+  string round_num = 3;
+  repeated int32 points = 4;
+  bool isDouble = 5;
+  repeated int32 doubles = 6;
+}
+
+message VipUserInfo {
+  uint32 seatIndex = 1;
+  string userinfo = 2;
+  int64 balance = 3;
+  int64 totalWin = 4;
+  int32 onlist = 5;
+}
+
+message RecommendChip {
+  int32 chip = 1;
+  int64 balance_min = 2;
+  int64 balance_max = 3;
+}
+
+message SevenupTableInfo {
+  int32 table_id = 1;
+  SevenupStageInfo stage_info = 2;
+  int32 user_count = 3;
+  int32 vip_seat_count = 4;
+  repeated VipUserInfo vipinfoList = 5;
+  repeated int64 betInfo = 6;
+  repeated int64 selfBet = 7;
+  repeated int64 betLimit = 8;
+  repeated int64 odds = 9;
+}
+
+message BetItem {
+  int32 zone = 1;
+  int64 amount = 2;
+  int32 seatIndex = 3;
+}
+
+message SevenupUserBetReq {
+  repeated BetItem betList = 1;
+}
+
+message SevenupUserBetResp {
+  int32 result = 1;
+  int64 balance = 2;
+  repeated int64 selfBet = 3;
+}
+
+message SevenupUserBetPush {
+  repeated int64 totalBet = 1;
+  repeated int64 selfBet = 2;
+  repeated BetItem betinfoList = 3;
+}
+
+message WinInfo {
+  int32 point1 = 1;
+  int32 point2 = 2;
+  bool isDouble = 3;
+}
+
+message SevenupHistoryLotteryReq {
+  int32 num = 1;
+}
+
+message SevenupHistoryLotteryResp {
+  int32 result = 1;
+  int32 handsNum = 2;
+  repeated WinInfo winInfoList = 3;
+  repeated int32 winRateList = 4;
+}
+
+message SevenupHistoryData {
+  repeated WinInfo winInfoList = 1;
+}
+
+message SevenupVipSeatInfoPush {
+  repeated VipUserInfo vipinfoList = 1;
+}
+
+message SevenupGetTableListReq {
+  int32 num = 1;
+}
+
+message SevenupTableListItem {
+  int32 table_id = 1;
+  int32 stage = 2;
+  int32 continueTime = 3;
+  int32 user_count = 4;
+  repeated WinInfo winInfoList = 5;
+}
+
+message SevenupGetTableListResp {
+  repeated SevenupTableListItem tableList = 1;
+}
+
+message SevenupCheckoutResp {
+  int32 downWin = 1;
+  int32 upWin = 2;
+  repeated int32 winZone = 3;
+  CheckoutItem selfWin = 4;
+  repeated CheckoutItem checklist = 5;
+}
+
+message CheckoutItem {
+  int32 seatIndex = 1;
+  repeated int64 winlist = 2;
+  int64 totalWin = 3;
+  int64 balance = 4;
+}
+
+message SevenupGetVipBetReq {
+  int32 seatIndex = 1;
+}
+
+message SevenupGetVipBetResp {
+  int32 seatIndex = 1;
+  repeated int32 betZone = 2;
+}
+
+message SevenupOperateReq {
+  int32 opType = 1;
+}
+
+message SevenupOperateResp {
+  int32 result = 1;
+  int32 opType = 2;
+  int64 balance = 3;
+  repeated int64 selfBet = 4;
+}
+

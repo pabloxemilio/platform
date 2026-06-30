@@ -171,14 +171,21 @@ function renderPagination(containerId, page, total, limit, onPage) {
   const el = document.getElementById(containerId);
   if (!el) return;
   const pages = Math.ceil(total / limit);
-  if (pages <= 1) { el.innerHTML = ''; return; }
-  let html = '';
-  if (page > 1)   html += `<button class="page-btn" onclick="(${onPage.toString()})(${page-1})">‹</button>`;
-  for (let p = Math.max(1,page-2); p <= Math.min(pages,page+2); p++) {
-    html += `<button class="page-btn${p===page?' active':''}" onclick="(${onPage.toString()})(${p})">${p}</button>`;
+  el.innerHTML = '';
+  if (pages <= 1) return;
+  // build real buttons + attach click handlers (do NOT stringify the callback into onclick)
+  const mkBtn = (label, target, active) => {
+    const b = document.createElement('button');
+    b.className = 'page-btn' + (active ? ' active' : '');
+    b.textContent = label;
+    b.addEventListener('click', () => onPage(target));
+    return b;
+  };
+  if (page > 1) el.appendChild(mkBtn('‹', page - 1, false));
+  for (let p = Math.max(1, page - 2); p <= Math.min(pages, page + 2); p++) {
+    el.appendChild(mkBtn(String(p), p, p === page));
   }
-  if (page < pages) html += `<button class="page-btn" onclick="(${onPage.toString()})(${page+1})">›</button>`;
-  el.innerHTML = html;
+  if (page < pages) el.appendChild(mkBtn('›', page + 1, false));
 }
 
 // ── Confirm dialog ──

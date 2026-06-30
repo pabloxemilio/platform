@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <!-- 7 Up 7 Down now uses the sprlbegaming client (/sprl7ud). Any stale link to
+       this old KB demo redirects there, carrying the platform token along. -->
+  <script>
+  (function(){
+    try{
+      var p = new URLSearchParams(location.search);
+      var tok = p.get("token") || "", jwt = "";
+      if(/^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\./.test(tok)) jwt = tok;            // raw JWT
+      else { try{ var dec = atob(decodeURIComponent(tok)); var m = dec.match(/token=([^&]+)/); if(m) jwt = m[1]; }catch(e){} }  // KB blob
+      if(!jwt){ var ag = p.get("agent"); if(ag){ try{ var u = atob(decodeURIComponent(ag)); var mm = u.match(/ptoken=([^&]+)/); if(mm) jwt = decodeURIComponent(mm[1]); }catch(e){} } }
+      location.replace('/sprl7ud/index.html' + (jwt ? '?token=' + encodeURIComponent(jwt) : ''));
+    }catch(e){ location.replace('/sprl7ud/index.html'); }
+  })();
+  </script>
+
+  <title>GameDemo|KOOLBET</title>
+  <link rel="icon" href="favicon_KB.ico" type="image/x-icon">
+
+  <!--http://www.html5rocks.com/en/mobile/mobifying/-->
+  <meta name="viewport"
+        content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1,minimal-ui=true"/>
+
+  <!--https://developer.apple.com/library/safari/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- force webkit on 360 -->
+  <meta name="renderer" content="webkit"/>
+  <meta name="force-rendering" content="webkit"/>
+  <!-- force edge on IE -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <meta name="msapplication-tap-highlight" content="no">
+
+  <!-- force full screen on some browser -->
+  <meta name="full-screen" content="yes"/>
+  <meta name="x5-fullscreen" content="true"/>
+  <meta name="360-fullscreen" content="true"/>
+
+  <!--fix fireball/issues/3568 -->
+  <!--<meta name="browsermode" content="application.2fadd.js">-->
+  <meta name="x5-page-mode" content="app">
+
+  <!--<link rel="apple-touch-icon" href=".png" />-->
+  <!--<link rel="apple-touch-icon-precomposed" href=".png" />-->
+
+  <link rel="stylesheet" type="text/css" href="style.f76d1.css"/>
+  <link rel="stylesheet" type="text/css" href="logo.115d6.css"/>
+</head>
+<body>
+  <div id="GameDiv" cc_exact_fit_screen="true">
+      <div id="Cocos3dGameContainer">
+        <canvas id="GameCanvas" oncontextmenu="event.preventDefault()" tabindex="99"></canvas>
+      </div>
+    </div>
+    </div>
+	
+    <div id="splashbg">
+
+    </div>
+
+   <div id="splashcc">
+		<div id="animation">
+
+		</div>	
+		
+		<div id="progressText" style="position: absolute; top: 220px;left: 0;right: 0;text-align: center; color: white; font-size: 40px; display: none;">
+		0%
+		</div>  
+    </div>	  
+<script type="text/javascript" super-html="true">
+  (function () {
+		var splashbg = document.getElementById('splashbg');
+		splashbg.style.display = 'block';
+		var splashcc = document.getElementById('splashcc');
+		splashcc.style.display = 'block';
+		var animation = document.getElementById('animation');
+		animation.style.display = 'block';
+	})();
+	var ccgameprogress = 0;
+	var ccgameloading = setInterval(()=>{
+		if(ccgameprogress >= 80){
+			ccgameprogress += 0.05;
+		}else{
+			ccgameprogress += 1;
+		}
+		if(ccgameprogress >= 90){
+			clearInterval(ccgameloading);
+		}
+		var progressText = document.getElementById('progressText');
+		progressText.innerHTML = `${Math.floor(ccgameprogress)}%`;
+	},50);
+	setTimeout(()=>{
+		var progressText = document.getElementById('progressText');
+		progressText.style.display = 'none';
+	}, 4000);
+	window.ccgameloading = ccgameloading;
+</script>	
+  
+
+<!-- Polyfills bundle. -->
+
+<script src="src/polyfills.bundle.346e4.js" charset="utf-8"> </script>
+
+
+<!-- SystemJS support. -->
+<script src="src/system.bundle.543e6.js" charset="utf-8"> </script>
+
+<!-- Import map -->
+<script src="src/import-map.c2c9f.json" type="systemjs-importmap" charset="utf-8"> </script>
+
+<script>
+    System.import('./index.18b0a.js').catch(function(err) { console.error(err); })
+</script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"41f10453655c4d75ac20931196132400","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

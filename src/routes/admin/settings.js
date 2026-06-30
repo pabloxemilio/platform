@@ -59,6 +59,8 @@ router.patch('/', adminAuth, async (req, res) => {
 
     // Apply the win-ratio change to the live game engines immediately.
     refreshGameSettings();
+    try { require('../../services/sevenupSettings').refreshSevenupSettings(); } catch {}
+    try { require('../../services/vortexSettings').refreshVortexSettings(); } catch {}
 
     res.json({ message: 'Settings updated successfully' });
   } catch (e) {

@@ -1,0 +1,83 @@
+
+jiazaiye_guangxiao_add.png
+size: 524,524
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+LIGHT
+  rotate: false
+  xy: 2, 205
+  size: 256, 216
+  orig: 256, 216
+  offset: 0, 0
+  index: -1
+dice_boli_00_00000
+  rotate: false
+  xy: 2, 21
+  size: 236, 182
+  orig: 256, 203
+  offset: 11, 13
+  index: -1
+dice_down
+  rotate: true
+  xy: 441, 235
+  size: 149, 68
+  orig: 149, 69
+  offset: 0, 0
+  index: -1
+dice_down_4
+  rotate: true
+  xy: 240, 2
+  size: 201, 91
+  orig: 201, 91
+  offset: 0, 0
+  index: -1
+diguang_00000
+  rotate: false
+  xy: 260, 221
+  size: 179, 200
+  orig: 192, 236
+  offset: 0, 13
+  index: -1
+gx_00
+  rotate: true
+  xy: 446, 3
+  size: 230, 50
+  orig: 230, 100
+  offset: 0, 25
+  index: -1
+huawen/hua_piaosan
+  rotate: false
+  xy: 2, 3
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+liuguang
+  rotate: false
+  xy: 2, 423
+  size: 446, 97
+  orig: 462, 232
+  offset: 0, 77
+  index: -1
+rdh_00
+  rotate: false
+  xy: 450, 386
+  size: 72, 134
+  orig: 100, 134
+  offset: 14, 0
+  index: -1
+saizi01_00000
+  rotate: true
+  xy: 333, 98
+  size: 121, 102
+  orig: 123, 142
+  offset: 2, 40
+  index: -1
+saizi02_00000
+  rotate: true
+  xy: 333, 2
+  size: 94, 111
+  orig: 105, 124
+  offset: 8, 12
+  index: -1

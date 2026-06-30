@@ -1,0 +1,167 @@
+
+baokai_bigwin_jpg.png
+size: 2001,774
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+sucai/big win_light_2
+  rotate: true
+  xy: 2, 163
+  size: 609, 508
+  orig: 645, 611
+  offset: 34, 50
+  index: -1
+sucai/def
+  rotate: false
+  xy: 1784, 59
+  size: 110, 110
+  orig: 128, 128
+  offset: 7, 9
+  index: -1
+sucai/dsg_1
+  rotate: false
+  xy: 1471, 316
+  size: 177, 178
+  orig: 191, 190
+  offset: 7, 6
+  index: -1
+sucai/hgr
+  rotate: false
+  xy: 512, 284
+  size: 458, 488
+  orig: 468, 501
+  offset: 3, 12
+  index: -1
+sucai/yanhualizi/gewq_00
+  rotate: false
+  xy: 512, 167
+  size: 163, 115
+  orig: 290, 211
+  offset: 62, 48
+  index: -1
+sucai/yanhualizi/gewq_01
+  rotate: false
+  xy: 1292, 297
+  size: 177, 121
+  orig: 290, 211
+  offset: 55, 48
+  index: -1
+sucai/yanhualizi/gewq_02
+  rotate: false
+  xy: 972, 289
+  size: 193, 129
+  orig: 290, 211
+  offset: 48, 46
+  index: -1
+sucai/yanhualizi/gewq_03
+  rotate: false
+  xy: 1784, 171
+  size: 206, 146
+  orig: 290, 211
+  offset: 42, 38
+  index: -1
+sucai/yanhualizi/gewq_04
+  rotate: true
+  xy: 1853, 553
+  size: 219, 146
+  orig: 290, 211
+  offset: 36, 42
+  index: -1
+sucai/yanhualizi/gewq_05
+  rotate: false
+  xy: 2, 4
+  size: 233, 157
+  orig: 290, 211
+  offset: 29, 36
+  index: -1
+sucai/yanhualizi/gewq_06
+  rotate: true
+  xy: 1685, 522
+  size: 250, 166
+  orig: 290, 211
+  offset: 21, 29
+  index: -1
+sucai/yanhualizi/gewq_07
+  rotate: false
+  xy: 1650, 319
+  size: 262, 175
+  orig: 290, 211
+  offset: 16, 22
+  index: -1
+sucai/yanhualizi/gewq_08
+  rotate: true
+  xy: 1324, 496
+  size: 276, 184
+  orig: 290, 211
+  offset: 9, 14
+  index: -1
+sucai/yanhualizi/gewq_09
+  rotate: true
+  xy: 777, 2
+  size: 280, 184
+  orig: 290, 211
+  offset: 7, 15
+  index: -1
+sucai/yanhualizi/gewq_10
+  rotate: true
+  xy: 963, 3
+  size: 279, 185
+  orig: 290, 211
+  offset: 8, 16
+  index: -1
+sucai/yanhualizi/gewq_11
+  rotate: true
+  xy: 1150, 9
+  size: 278, 185
+  orig: 290, 211
+  offset: 8, 16
+  index: -1
+sucai/yanhualizi/gewq_12
+  rotate: true
+  xy: 1337, 17
+  size: 278, 181
+  orig: 290, 211
+  offset: 8, 19
+  index: -1
+sucai/yanhualizi/gewq_13
+  rotate: true
+  xy: 1510, 496
+  size: 276, 173
+  orig: 290, 211
+  offset: 9, 25
+  index: -1
+sucai/yanhualizi/gewq_14
+  rotate: false
+  xy: 237, 7
+  size: 272, 154
+  orig: 290, 211
+  offset: 11, 40
+  index: -1
+sucai/yanhualizi/gewq_15
+  rotate: false
+  xy: 511, 14
+  size: 264, 147
+  orig: 290, 211
+  offset: 15, 42
+  index: -1
+sucai/yuanquan_01_148
+  rotate: true
+  xy: 972, 420
+  size: 352, 350
+  orig: 354, 352
+  offset: 1, 1
+  index: -1
+sucai/yuanquan_02_148
+  rotate: true
+  xy: 1167, 293
+  size: 125, 123
+  orig: 128, 126
+  offset: 2, 1
+  index: -1
+sucai/yuanquan_03_148
+  rotate: false
+  xy: 1520, 52
+  size: 262, 262
+  orig: 290, 286
+  offset: 17, 4
+  index: -1

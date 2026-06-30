@@ -1,0 +1,100 @@
+syntax = "proto3";
+package ticketmgr;
+
+
+enum TICKET_MSG_ID
+{
+    option allow_alias = true;
+
+    TICKET_CMD_NONE = 0;
+    TICKET_CMD_MIN = 70201;
+
+    USE_TICKET_REQ = 70201;
+    USE_TICKET_RESP = 70202;
+
+    QUERY_TICKET_REQ = 70203;
+    QUERY_TICKET_RESP = 70204;
+
+    QUERY_ITEMS_CONFIG_REQ = 70205;
+    QUERY_ITEMS_CONFIG_RESP = 70206;
+
+    QUERY_TICKET_NUM_REQ = 70207;
+    QUERY_TICKET_NUM_RESP = 70208;
+
+    USER_INFO_CMD_MAX = 70300;
+}
+
+//查询门票
+message QueryTicketReq
+{ 
+    uint32 uid = 1; 
+    int32 page = 2;
+    int32 num = 3;
+    int32 is_active = 4;  //0 非过期  1 过期
+    int32 label = 5;      // 门票标签 TicketLabel
+}
+
+//门票  过期和非过期同一个结构体
+message Ticket           
+{ 
+    int32 validity_days = 1; 
+    int32 count = 2;
+    int32 ticketsId = 3;
+    int64 active_times = 4;
+}
+
+//玩家请求门票信息
+message QueryTicketResp
+{   
+    int32 is_active = 1;
+    repeated Ticket ticketList = 2; 
+    int32 total_size = 3;
+    int32 page = 4;
+    int32 label = 5;
+}
+
+//玩家查询道具图片配置信息
+message QueryItemsConfigReq
+{ 
+    uint32 uid = 1; 
+    string version = 2;
+}
+
+message ItemsImgInfo
+{ 
+    int32 ticketsId = 1;
+    string img = 2;
+    string itemsName = 3;
+    int32 worth = 4;
+    string icon = 5;
+    string ticketMatchName = 6;
+    string icon_2 = 7;
+    int32 validity_days = 8;//有效期,-1是永久
+    int32 freeze_days = 9;
+    int32 type = 10; //道具类型
+}
+
+//玩家查询道具图片配置信息
+message QueryItemsConfigResp
+{ 
+    repeated ItemsImgInfo ItemsImgList = 1; 
+}
+
+//请求门票数量
+message QueryTicketNumReq
+{ 
+    uint32 uid = 1; 
+}
+
+message TicketNum           
+{ 
+    int32 ticketsId = 1;
+    int64 num = 2;
+    int64 totalNum = 3;
+}
+
+//玩家请求所有门票数量
+message QueryTicketNumResp
+{   
+    repeated TicketNum ticketnumList = 1; 
+}

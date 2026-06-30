@@ -58,6 +58,16 @@ router.get('/', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// GET /api/games/catalog — ALL games with their status (public), so the lobby can
+// hide tiles an admin has disabled (status != 'active').
+router.get('/catalog', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('games').select('name,status').order('sort_order');
+    if (error) throw error;
+    res.json({ games: data || [] });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // GET /api/games/wager-progress  — check wagering progress
 router.get('/wager-progress', auth, async (req, res) => {
   try {

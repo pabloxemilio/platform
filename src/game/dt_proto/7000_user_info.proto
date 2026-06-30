@@ -1,0 +1,117 @@
+syntax = "proto3";
+package userinfomgr;
+
+enum USER_INFO_MSG_ID
+{
+    USER_INFO_GET_AUTH_TOKEN_REQ = 70319;
+    USER_INFO_GET_AUTH_TOKEN_RESP = 70320;
+
+    USER_PHYSICAL_REWARD_LIST_REQ = 70322; //查询玩家实物奖励列表
+    USER_PHYSICAL_REWARD_LIST_RESP = 70323; //查询玩家实物奖励列表响应
+
+    USER_INFO_GET_USER_INFO_REQ = 70324;                  //用户信息请求
+    USER_INFO_GET_USER_INFO_RESP = 70325;                 //请求响应
+    USER_INFO_CHANGE_PUSH = 70326;                 //推送玩家余额变更
+}
+
+//道具类型
+enum ItemType
+{
+    ITYPE_NONE = 0;
+    ITYPE_CASH = 1; //现金
+    ITYPE_TICKET= 2; //门票
+    ITYPE_MATCH_FREE_NUM = 3; //免费赛次数
+    ITYPE_BONUS = 4; //彩金, 暂时不支持彩金道具，表示彩金使用 ITYPE_CASH + withdraw_limit_ratio > 0表示
+    ITYPE_PHYSICAL = 5; //实物
+}
+
+//奖励物品的发放状态
+enum RewardStatus
+{
+    RD_STATUS_PENDING = 0;      //待发放
+    RD_STATUS_PROCESSING = 1;   //发放中(暂无，保留)
+    RD_STATUS_SUCCESS = 2;      //已发放
+    RD_STATUS_FAILED = 3;       //发放失败 (暂无，保留)
+}
+
+//描述道具item
+message OneItem
+{
+    int64 item_id = 1;   //道具id
+    int64 item_num = 2;  //道具数量
+    int32 type = 3;       //道具类型 ItemType
+}
+
+
+//描述奖励的物品(item)
+message RewardItem
+{
+    OneItem item_info = 1;
+    RewardStatus status = 2;    //奖励物品的状态 0 未发放 1 发放中(保留，暂时没有) 2 已发放
+    int64 obtain_time = 3;      //奖励获得时间戳
+    int64 issue_time = 4;       //奖励实际发放/兑换时间戳, 0-表示还未发放/兑换
+}
+
+/* ----------------------查询用户鉴权token---------------------------- */
+//请求
+message AuthTokenReq
+{
+    string user_info = 1;       //客户端传入的userinfo
+    string trans = 2;           //透传字段-原值返回
+}
+
+//返回
+message AuthTokenResp
+{
+    int32 result = 1;           // 0表示正常，否则失败，3010表示功能未开放
+    string token = 2;           //透传字段-原值返回
+    string trans = 3;           //透传字段-原值返回
+}
+
+// 查询玩家实物奖励列表
+message UserPhysicalRewardListReq
+{
+    uint32 uid = 1; 
+    int32 page_size = 2;    //每一页的记录条数
+    int32 page_no = 3;		//页号（从0开始）
+}
+
+
+message UserPhysicalRewardListResp
+{
+    int32 result = 1; 	//错误码: 0 正常 否则错误
+    int32 page_no = 2;		//页号 从0开始
+    int32 total_size = 3;	//记录总长度
+    repeated RewardItem reward_list = 4;   //奖励列表
+}
+
+//玩家信息请求
+message UserInfoReq
+{
+    uint32 agency_id = 1;
+    string username = 2;
+    uint32 game = 3;	// require,游戏代码
+    bytes trans = 4;
+}
+
+message UserInfoResp
+{
+    int32 result = 1;
+    string nickname = 2;        //玩家在大厅中的昵称
+    int64 balance = 3;          //玩家余额
+    uint32 rechargecount = 4;   //充值次数
+    int64 totalrecharge = 5;    //玩家的充值金额
+    int64 reg_time 	= 6;        //注册时间
+    string device_id = 7;       // 设备id唯一
+    string login_ip = 8;        // 登录ip
+    bytes trans = 9;
+}
+
+message UserInfoChangePush
+{
+    int32 game_id = 1;			//通过什么游戏
+    int64 balance = 2;          //玩家最新余额
+}
+
+
+

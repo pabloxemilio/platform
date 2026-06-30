@@ -1,0 +1,227 @@
+syntax = "proto3";
+package taskmgr;
+
+import "agency_event_common.proto";
+
+enum TASK_MSG_ID
+{
+    option allow_alias = true;
+
+    TASK_CMD_NONE = 0;
+    TASK_CMD_MIN = 70001;
+    TASK_CMD_ACCEPT_REQ = 70001;        //创建任务实例, 由public/control服发送该请求创建玩家任务
+    TASK_CMD_ACCEPT_RESP = 70002;       //创建任务实例响应
+    TASK_CMD_LIST_REQ = 70003;          //玩家任务列表请求
+    TASK_CMD_LIST_RESP = 70004;         //玩家任务列表请求响应
+    TASK_CMD_DETAIL_REQ = 70005;        //玩家任务详情请求
+    TASK_CMD_DETAIL_RESP = 70006;       //玩家任务详情请求响应
+    TASK_CMD_REWARD_CLAIM_REQ = 70007;  //玩家领取奖励请求
+    TASK_CMD_REWARD_CLAIM_RESP = 70008; //玩家领取奖励请求响应
+    TASK_CMD_UNLOCKED_NOTICE = 70009;    // 已废弃
+    TASK_CMD_TASK_UPDATE_PUSH = 70010;  //玩家任务进度/状态更新推送, 玩家任务创建通知
+    TASK_CMD_SHARE_REQ = 70011;    //任务裂变分享请求
+    TASK_CMD_SHARE_RESP = 70012;  //任务裂变分享请求响应
+
+    //裂变通知
+    TASK_MSGID_INVITEE_NOTIFY = 70013;
+
+    TASK_CMD_MAX = 70020;
+
+    //裂变通知 match_user_api.proto
+    //MATCH_USER_MSGID_INVITEE_VALID_NOTIFY = 70020;
+    //充值通知 match_user_api.proto
+	//MATCH_USER_MSGID_USER_RECHARGE_NOTIFY = 70021;
+}
+
+//result 对应的错误码 与TaskManager.h:TaskErrorCode值保存一致
+enum task_ret_code_t{ 
+    TSK_ERR_NONE = 0;
+    TSK_ERR_REDIS_REQ_ERR = 701;             //redis连接异常/错误
+    //ERR_REDIS_REQ_NOT_FOUND = 702;           //任务不存在
+    //ERR_REDIS_REQ_EXIST_ALREADY = 703;       //任务已存在
+    //TSK_ERR_UNLOCKED_TASK_NOT_EXIST = 704;   //该任务没有解锁/触发, 玩家不能领取该任务
+    //TSK_ERR_TASK_UNLOCK_DUPLICATE = 705;     //任务重复解锁/触发
+    TSK_ERR_TASK_TEMPLATE_NOT_EXIST = 706;         //任务配置不存在
+    //TSK_ERR_TASK_NOT_EXIST = 707;                 //任务不存在
+    TSK_ERR_TASK_ACCEPT_DUPLICATE = 708;          //任务重复领取
+    TSK_ERR_TASK_INS_CREATE_FAILED = 709;         //任务实例创建失败
+    //TSK_ERR_TASK_DELETED_ALREADY = 710;           //任务已经过期被删除了
+    TSK_ERR_TASK_CLAIM_REWARD_DUPLICATE = 711;    //任务已经领奖
+    TSK_ERR_TASK_UNFINISH_CANT_CLAIM_REWARD = 712;    //任务未完成不能领奖
+}
+
+
+//任务类型 与 TaskManager.h:TaskType值保存一致
+enum task_type_t {
+    TSK_TYPE_UNKNOW = 0;
+    TSK_TYPE_SHUANGJU = 1;    //爽局任务 -- 神秘现金任务
+    TSK_TYPE_FREE_MATCH = 2;  //免费赛任务 -- 神秘限制任务
+    TSK_TYPE_POP = 3;           //浮窗小游戏任务
+}
+
+//任务奖励item
+message MRewardItem
+{
+    int64 item_id = 1;   //道具id
+    int64 item_num = 2;  //道具数量
+    int32 type = 3;       //道具类型： 1 金钱，2 门票，3 免费赛次数
+}
+
+//任务信息
+message MUserTaskInfo
+{ 
+    uint32 task_id = 1;                 //任务实例id
+    uint32 task_cid = 2;                //任务配置id
+    string task_name = 3;
+    int32 state = 4;                    //任务状态  1: 任务进行中 2: 任务已完成 
+    task_type_t task_type = 5;               //任务类型  
+    int64 deposit_progress = 6;         //充值进度值
+    int64 invite_progress = 7;          //裂变进度值
+    int64 deposit_goal = 8;             //充值目标值
+    int64 invite_goal = 9;              //裂变目标值
+    int64 reward_claimed_time = 10;      //奖励领取时间, 0表示未领取奖励
+    int64 task_rest_time = 11;          //任务的剩余时间, -1 表示不限时 0表示已过期
+    repeated MRewardItem reward_list = 12;    //任务的奖励
+    int32 free_match_times_limit = 13;     //免费赛任务类型: 触发任务的免费赛次数限制, 爽局任务则为0
+}
+
+//玩家领取任务请求 由public/control服发送该请求创建玩家任务
+message UserTaskAcceptReq
+{
+    int32 game_id = 1;      //游戏id
+    uint32 uid = 2;         //玩家uid
+    int32 agent_id = 3;     //玩家连接的agentid
+    int32 task_cid = 4;     //任务配置id
+    task_type_t task_type = 5;   //任务类型
+    string user_info = 6;
+    int32 free_match_times_limit = 7;     //免费赛任务类型: 触发任务的免费赛次数, 爽局任务则不用填
+}
+
+
+//玩家领取任务响应
+message UserTaskAcceptResp
+{
+    int32 result = 1;
+    MUserTaskInfo task_info = 2;
+}
+
+//玩家任务列表请求
+message UserTaskListReq{
+};
+
+//玩家任务列表响应
+message UserTaskListResp{
+    int32 result = 1;
+    repeated MUserTaskInfo task_list = 2;
+}
+
+//玩家任务详情请求
+message UserTaskDetailReq
+{
+    uint32 task_id = 1;
+}
+
+//玩家任务详情响应
+message UserTaskDetailResp
+{
+    int32 result = 1;
+    MUserTaskInfo task_info = 2;
+}
+
+//玩家领取奖励请求
+message UserTaskRewardClaimReq
+{
+    uint32 task_id = 1;
+    string user_info = 2;       //客户端传入的userinfo
+}
+
+//玩家领取奖励响应
+message UserTaskRewardClaimResp
+{
+    int32 result = 1;
+    uint32 task_id = 2;
+    int64 balance = 3;
+    repeated MRewardItem reward_list = 4; 
+}
+
+//任务解锁/触发 -- 废弃
+message UserTaskUnlockedNotice
+{
+    int32 game_id = 1;  //游戏id
+    int32 task_cid = 2;  //任务模板配置id
+    uint32 uid = 3;     //玩家uid
+    repeated MRewardItem reward_list = 4; //任务的奖励
+}
+
+//玩家任务更新推送
+message UserTaskUpdatePush
+{
+    MUserTaskInfo task_info = 1;
+}
+
+
+///////////////////SharePoster结构与 agency_event_api::SharePoster保持一致//////////////////////
+message Poster
+{
+    int32 id = 1;
+    string url = 2;
+}
+
+message SharePoster
+{
+    string title = 1;
+    string share_url = 2;
+    string telegram = 3;
+    string whatsapp = 4;
+    repeated Poster poster = 5;
+}
+
+//在SharePosterResp的基础上,合入了对应分享配置的内容
+message SharePosterMixed
+{
+    uint32 game = 1;
+    uint32 share_type = 2;
+    string invite_code = 3;
+    SharePoster data = 4;
+    int32 reward_cond = 5;  //派奖条件: 1 分享即派奖 2 注册即派奖  3 有效裂变派奖
+    int32 show_flags = 6;	//第0bit位表示是否显示下载图片, 
+                            //第1bit位表示是否显示复制链接, 
+                            //第2bit位表示是否显示二维码
+    repeated string download_pics = 7;   //分享的背景图  第一张是竖版  第二张是横板
+    uint32 sub_type = 8; //子類型
+}
+
+//玩家任务分享请求
+message UserTaskShareReq
+{
+    uint32 task_id = 1;
+    string user_info = 2;       //客户端传入的userinfo
+}
+
+//玩家任务分享请求响应
+message UserTaskShareResp
+{
+    int32 result = 1;
+    uint32 task_id = 2;
+    SharePoster data = 3;
+}
+
+//玩家任务分享请求响应 -- 新的
+message UserTaskShareNewResp
+{
+    int32 result = 1;
+    uint32 task_id = 2;
+    SharePoster data = 3;
+    SharePosterMixed mix_data = 4;  //新的客户端使用这里面的数据
+    int32 task_type = 5;            //任务类型: 1-爽局任务 2-免费赛限制任务
+}
+
+//裂变玩家通知
+message UserInviteePush
+{
+    uint32 task_id = 1;             //裂变任务id
+    string user_name = 2;           //裂变玩家
+    int32 is_valid = 3;               //0 未成为有效的裂变通知类型 1 有效的裂变通知类型
+    repeated int32 trigger_scen_list = 4;   //触发场景 3 赛事列表 4 赛事中
+    int32 reward_cond = 5;              //派奖条件: 1 分享即派奖 2 注册即派奖  3 有效裂变派奖
+}

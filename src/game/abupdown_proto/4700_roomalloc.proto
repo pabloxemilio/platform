@@ -1,0 +1,166 @@
+syntax = "proto3";
+package roomalloc;
+
+enum ROOMALLOC_CMD
+{
+    ROOMALLOC_CMD_NONE = 0x0;
+    ROOMALLOC_CMD_ALLOC_TABLE_REQ = 4702;
+    ROOMALLOC_CMD_ALLOC_TABLE_RESP = 4703;
+    ROOMALLOC_CMD_LEVEL_CONFIG_REQ = 4704;     // 玩家获取游戏场次信息
+    ROOMALLOC_CMD_LEVEL_CONFIG_RESP = 4705;     // 玩家获取游戏场次信息
+  
+    ROOMALLOC_CMD_GAME_CONFIG_RESP = 4706;     // 玩家获取游戏信息
+    ROOMALLOC_CMD_GAME_QUICK_MATCH_REQ = 4707;     // 玩家请求速配
+    ROOMALLOC_CMD_GAME_CONFIG_PUSH_REQ = 4708;     // 推送请求
+    ROOMALLOC_CMD_MATCH_STAET_PUSH= 4709;     // 推送请求
+
+    ROOMALLOC_CMD_GAME_QUICK_MATCH_RESP = 4710;     // 玩家请求速配结果返回
+}
+
+message AllocTableReq
+{
+    uint32 uid     = 1;
+    int32 game_id  = 2;
+    int64 alloc_param = 3; //>=0则是level, rummy -1 换桌, rummy -2 是离开
+    int32 except_tid  = 4; //换桌 
+    int32 target_tid  = 5; //指定桌子进入
+    string userinfo = 6;//昵称,头像等等,字符串拼接和解析由cocos客户端自己做主,server只是透传给桌上其他玩家
+    int32 alloc_type = 7; //配桌类型，0:默认从大厅的配桌，1:从浮窗请求过来的配桌
+    int32 seat_count = 8;// rummy特有的，桌子座位数。
+    int32 recommend_page_from = 9;
+    int32 retain_page_from = 10;
+    int32 retain_scene = 11;
+    bool is_quick_alloc = 12; 
+    bool in_alloc = 13; 
+}
+message QuickMatcheReq
+{
+    uint32 uid     = 1;
+    int32 game_id  = 2;
+    int64 money = 3;
+    string userinfo = 4;
+}
+
+message QuickMatcheResp
+{
+    uint32 uid     = 1;
+    int32 game_id  = 2;
+    int32 result = 3;   // 1-成功
+    LevelConfig level_config = 4;
+}
+
+message AllocTableResp
+{
+    int32 result   = 1;//0为成功, 1或以上对应不同错误码
+    int64 alloc_param = 2;//>=0则是正常请求配桌, rummy -1 换桌, rummy -2 是离开
+    int32 game_id  = 3;//游戏id 
+    bool in_alloc = 4;
+}
+
+message GameLevelConfigReq
+{
+    int32 game_id = 1;                 
+	int32 agency_id = 2;
+    int32 push_num = 3;
+}
+
+message GameLevelConfigPushReq
+{
+    uint32 uid     = 1;
+    int32 game_id  = 2;
+    int32 push_num = 3;
+    int32 agency_id = 4;
+}
+
+
+message GameConfigReq
+{
+    int32 game_id = 1;                 // 
+}
+
+message GameConfig 
+{
+    int32 game_id = 1;
+    int32 show_id = 2;  // 展示ID
+    bool is_hot = 3;    // hot 标签
+    bool is_new = 4;    // new 标签
+    int32 status = 5;   // 是否维护
+}
+
+message LevelQueueInfo 
+{
+    int32 cur_num = 1;
+    int32 max_num = 2;
+}
+
+message LevelConfig 
+{
+    int32 level = 1;
+    int64 base_ante = 2;
+    int64 entry_min = 3;
+    int64 entry_max = 4;   //-1表示 无限
+    string title = 5;
+    int64 recommend_min = 6;
+    int64 recommend_max = 7; //-1表示 无限
+    int64 bet_min = 8;
+    int64 bet_max = 9;     //-1表示 无限
+    int64 pay_max = 10;    //-1表示 无限
+    repeated int64 quick_ante = 11;
+    bool is_open_jackpot = 12;    // 是否开启jackpot
+    int32 room_tab = 13;  // 房间类型 0普通 1单人模式
+    string extra_json = 14; // 扩展字段
+    repeated int32 svid_list = 15; //场次对应的roomserver，svid列表
+    bool is_human_alloc = 16;    // 是否真人匹配
+    LevelQueueInfo queue_info = 17;    // 匹配队列状态
+    int32 seat_count = 18;
+    int32 round = 19;
+    bool is_quick_alloc = 20;    // 是否显示速配状态
+    int32 robot_fill_time = 21;
+    int32 top_open = 22; //置顶开关
+    bool  is_show2to6 = 23; // 2-6展示开关
+}
+
+message AllocState
+{
+    bool in_alloc  = 1;
+    int32 seat_count = 2;
+}
+
+
+message GameLevelConfigResp
+{
+    int32 game_id = 1;
+    int32 auto_alloc = 2;  // 自动配桌 0 关闭 1 开启
+    repeated LevelConfig level_config = 3;   // 场次配置
+    repeated GameConfig game_config = 4;   // 游戏配置
+    AllocState alloc_state = 5; // 匹配状态
+    int32 push_num = 6;
+}
+
+message AllocTablePush
+{
+    int32 table_id = 1;
+    int32 game_id = 2;
+    int32 svid = 3;
+    bool in_table = 4;  //目前是否已经在桌子中
+    int32 level_id = 5;
+}
+
+message QueueChangePush
+{
+    int32 num= 1;
+    int32 time = 2;
+}
+
+
+message GetGameRuleReq
+{
+    string key  = 1;
+    string lang = 2;
+}
+
+message GetGameRuleResp
+{
+    string key = 1;
+    string rules  = 2; //规则json，客户端跟php定义
+}

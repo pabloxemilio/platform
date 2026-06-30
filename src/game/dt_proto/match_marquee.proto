@@ -1,0 +1,74 @@
+syntax = "proto3";
+package match_marquee;
+
+
+enum MSGID
+{
+    MSG_API_MSGID_NONE = 0;
+
+    //客户端连接上跑马灯服务并保活
+    MSG_MARQUEE_KEEPALIVE_REQ = 12301;
+
+    //喜报推送给客户端
+    MSG_GOOD_NEW_PUSH = 12302;
+
+    //服务端上报喜报给跑马灯服务
+    MSG_REPORT_GOOD_NEW_REQ = 12303;
+
+    MSG_API_MSGID_MAX = 12399;
+}
+
+//页签
+enum PAGE_TAG
+{
+    PAGE_TAG_NONE = 0;
+    PAGE_TAG_MATCH_RUMMY = 1;   //rummy赛事大厅
+    PAGE_TAG_CASH_RUMMY = 2;    //cash rummy
+}
+
+//喜报类型
+enum GOOD_NEW_TYPE
+{
+    GOOD_NEW_TYPE_NONE = 0;
+    GOOD_NEW_TYPE_ONE = 1;       //个人喜报
+    GOOD_NEW_TYPE_SET = 2;       //集中喜报
+}
+
+//客户端连接上跑马灯服务并保活
+message MarqueeKeepaliveReq
+{
+    uint32 uid = 1;
+    PAGE_TAG page_tag = 2;
+}
+
+//喜报推送给客户端
+message GoodNewPush
+{
+    repeated GoodNewInfo good_new_list = 1;
+}
+
+message Reward
+{
+    uint32 type = 1;    //道具类型
+    uint32 id = 2;      //道具id
+    int64 num =3;       //道具数量
+}
+
+//喜报信息
+message GoodNewInfo
+{
+    GOOD_NEW_TYPE good_new_type = 1;    //喜报类型
+    repeated uint32 uid_list = 2;       //个人喜报数组只有一个uid
+    repeated Reward reward_list = 3;    //奖励
+    int64 reward_time = 4;              //发奖时间戳
+    string name = 5;                    //名称
+    int64 reward_worth = 6;             //奖励总价值
+}
+
+//服务端上报喜报给跑马灯服务
+message ReportGoodNewReq
+{
+    repeated GoodNewInfo good_new_list = 1;
+    bool end = 2;   //一场比赛全部上报完了
+    string id = 3;  //赛事就说赛事实例id
+}

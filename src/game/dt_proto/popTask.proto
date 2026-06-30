@@ -1,0 +1,146 @@
+syntax = "proto3";
+package poptask;
+
+
+enum MSGID
+{
+    MSG_NULL = 0;
+
+	MSG_GET_USER_POP_CONF_REQ = 70102; //获取浮窗&用户爽局相关配置
+	
+	MSG_GET_USER_POP_CONF_RESP = 70103; 
+	
+	MSG_SET_USER_EASY_INFO_REQ = 70104; //发送用户爽局模式，结果数据（输了不用发，每赢一局才发）
+	
+	MSG_GET_USER_EASY_INFO_REQ = 70105; //获取用户最新宝箱列表数据
+	
+	MSG_USER_EASY_INFO_RESP = 70106; //返回用户最新的宝箱列表数据，奖励领取相关状态信息
+	
+	MSG_USER_GET_REWARD_REQ = 70107; //用户领取/放弃奖励
+	
+	MSG_USER_GET_REWARD_RESP = 70108; 
+	MSG_RECHARGE_PROGRESS_PUSH = 70110; //充值进度变更推送
+}
+
+//---------------------------浮窗游戏任务相关结构定义-------------------------------//
+//获取浮窗&用户爽局任务相关配置
+message GetUserPopConfReq
+{
+    uint32 uid     = 1;
+	string userinfo = 2; //用户登录携带参数信息
+}
+
+message Pair {
+    int64 first = 1;
+    int64 second = 2;
+}
+
+
+//用户爽局任务模式状态
+enum EASY_MODE_STATE
+{
+    EASY_STATE_ING = 0; //未完成
+	EASY_STATE_UNREWARD = 1; //已完成，但未领取奖励
+	EASY_STATE_HALFFINISH = 2; //中途终止
+    EASY_STATE_GIVEUP = 3; //放弃奖励
+	EASY_STATE_REWARD = 4; //已领取奖励
+}
+
+//爽局相关配置信息
+message EasyModConf
+{
+    int32 game_id = 1; //游戏id
+    int32 level_id = 2; //场次Id
+    repeated int32 bet_multiple = 3; //各个下注区域返奖对于的倍率
+    repeated int64 quick_ante = 4; //快速下注筹码（值已*1000处理）
+	int64 virtual_money = 5; //虚拟资产
+	int32 win_times = 6; //最高胜利次数
+	int32 charge_rate = 7; //获胜资产与充值金额比例（1：X）。值已*10000处理
+	repeated Pair recomd_grade = 8; //推荐筹码
+}
+
+
+//配置和浮窗详情
+message GetUserPopConfResp
+{
+	bool is_show_pop_game = 1;  //是否展示浮窗游戏入口
+    bool is_open_easy_mod = 2; //是否开启爽局模式
+	int32 game_id = 3; //浮窗游戏的gameId（目前固定204。后期根据配置来）
+    EASY_MODE_STATE user_easy_mod_status = 4; //爽局状态
+	int32 had_round_num = 5; //用户已完成了多少局。为0时，表示用户可以进行首局
+	EasyModConf easy_mode_info = 6; //爽局相关配置
+	bool is_user_can_in_easy_game = 7; //当前用户是否能够进入爽局模式（未进行充值）
+	int32 result = 8; // 结果，0：成功，其他表示失败，
+}
+
+
+//设置玩家胜利后的对局信息
+message SetUserEasyInfoReq
+{
+    uint32 uid     = 1;
+	int64 win_money = 2; // 对局结束后的总赢
+    string userinfo = 3; //用户登录携带参数信息
+}
+
+//获取玩家已完成的爽局对局信息
+message GetUserEasyInfoReq
+{
+    uint32 uid     = 1;
+}
+
+//爽局相关配置信息
+message EasyRoundInfo
+{
+    int32 round_no = 1; //第几局
+	int64 win_money = 2; //盈利多少钱
+	int64 need_charge_money = 3; //需要充值的金额，值已*1000处理
+	bool is_select = 4; //是否选择
+}
+
+//返回玩家胜利后的对局信息列表
+message UserPopConfResp
+{
+    uint32 uid     = 1;
+	repeated EasyRoundInfo easy_round_info = 2; //已完成的爽局信息
+	bool is_can_charge_reward = 3; // 是否可以领取爽局充值任务（首局，或者胜利次数达到限制。可以领取奖励）
+	bool is_giveUp_first_round = 4; //是否已放弃首局就充值领奖。如果已放弃。才能继续后面的局数
+	int64 charge_money = 5; //已充值金额
+	int32 result = 6; // 结果，0：成功，其他表示失败，
+
+}
+
+message UserEasyInfoResp
+{
+    uint32 uid     = 1;
+	repeated EasyRoundInfo easy_round_info = 2; //已完成的爽局信息
+	bool is_can_charge_reward = 3; // 是否可以领取爽局充值任务（首局，或者胜利次数达到限制。可以领取奖励）
+	bool is_giveUp_first_round = 4; //是否已放弃首局就充值领奖。如果已放弃。才能继续后面的局数
+	int64 charge_money = 5; //已充值金额
+	int32 result = 6; // 结果，0：成功，其他表示失败，
+}
+
+
+//领取/放弃充值任务
+message UserGetRewardReq
+{
+    uint32 uid     = 1;
+	int32 action_type = 2; // 1：放弃奖励，2：领取奖励
+	int32 round_no = 3; //第几局
+	int64 win_money = 4; //盈利多少钱（宝箱返利值）
+	string userinfo = 5; //用户登录携带参数信息
+}
+//领取/放弃充值任务返回
+message UserGetRewardResp
+{
+    uint32 uid     = 1;
+	int32 result = 2; // 结果，0：成功，其他表示失败，
+	int64 balance = 3; //用户最新的余额
+}
+
+//推送用户充值进度
+message UserRechargeProgressPush
+{
+    uint32 uid     = 1;
+	int64 charge_money = 2; //累计充值金额
+}
+

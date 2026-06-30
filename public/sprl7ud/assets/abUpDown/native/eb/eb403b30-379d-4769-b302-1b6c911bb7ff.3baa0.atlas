@@ -1,0 +1,69 @@
+
+jiazaiye_UI_dongxiao.png
+size: 880,264
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+16x_1000
+  rotate: false
+  xy: 400, 3
+  size: 271, 258
+  orig: 281, 270
+  offset: 5, 6
+  index: -1
+dice_kou_00000
+  rotate: false
+  xy: 2, 43
+  size: 396, 218
+  orig: 403, 229
+  offset: 3, 8
+  index: -1
+huawen/dice_down_huawen_0
+  rotate: true
+  xy: 168, 5
+  size: 36, 45
+  orig: 82, 76
+  offset: 26, 17
+  index: -1
+huawen/dice_down_huawen_1
+  rotate: false
+  xy: 98, 2
+  size: 68, 39
+  orig: 110, 71
+  offset: 24, 19
+  index: -1
+huawen/dice_down_huawen_2
+  rotate: false
+  xy: 2, 12
+  size: 94, 29
+  orig: 129, 51
+  offset: 17, 9
+  index: -1
+saizi01_00000
+  rotate: true
+  xy: 673, 14
+  size: 121, 102
+  orig: 123, 142
+  offset: 2, 40
+  index: -1
+saizi02_00000
+  rotate: false
+  xy: 778, 150
+  size: 94, 111
+  orig: 105, 124
+  offset: 8, 12
+  index: -1
+saizi_1
+  rotate: false
+  xy: 777, 21
+  size: 100, 114
+  orig: 100, 115
+  offset: 0, 0
+  index: -1
+saizi_2
+  rotate: true
+  xy: 673, 137
+  size: 124, 103
+  orig: 125, 105
+  offset: 1, 1
+  index: -1

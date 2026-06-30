@@ -40,6 +40,79 @@ sql/07_currency.sql      ← adds the per-user `currency` column
 
 ---
 
+## 🐲 Dragon vs Tiger (live table)
+
+A platform-native **Dragon vs Tiger** game, wired to the same wallet and launched
+from the lobby (the **Dragon Tiger** tile) just like Aviator / Chicken Road.
+
+- Served at `/dragontiger.html`; real-time loop in the **same server**
+  (WebSocket `/api/game/dragontiger`) — no second process.
+- Shared round for everyone: 15s betting window → cards flip → settlement.
+  Three zones: **Dragon 1:1 · Tie 8:1 · Tiger 1:1**. On a tie, Dragon/Tiger bets
+  lose only half (the standard rule → **~96.3% RTP**, verified by simulation).
+- **Wallet-wired**: each bet **debits** the player's wallet, wins **credit** it,
+  undo refunds; every round is logged to `game_sessions` + counts toward wagering.
+- Honours the admin **win-ratio** lever (`gameSettings.winRatio`) and per-round
+  **max-win cap** (`capWin`) — same controls the other games use.
+- Files added: `public/dragontiger.html`, `public/dragontiger/art/*`,
+  `src/game/dragontiger.js`. Lobby tile (id 11) now launches it.
+
+---
+
+## 🎲 7 Up 7 Down (live dice)
+
+A platform-native **7 Up 7 Down** dice game, wired to the same wallet and launched
+from the lobby (the **7 Up 7 Down** tile).
+
+- Served at `/sevenupdown.html`; real-time loop in the **same server**
+  (WebSocket `/api/game/sevenupdown`). 15s betting → two dice roll → settlement.
+- Bet the **sum** of two dice: **7 Down (2–6) 2.3x · Lucky 7 (=7) 5.7x · 7 Up (8–12) 2.3x**.
+  Fair dice → **~95.8% RTP** (verified by simulation).
+- **Wallet-wired**: bets debit, wins credit, undo refunds; rounds logged to
+  `game_sessions` and counted toward wagering.
+- Honours the admin **win-ratio** lever and per-round **max-win cap**.
+- Files added: `public/sevenupdown.html`, `src/game/sevenupdown.js`.
+  Lobby tile (id 14) launches it.
+
+---
+
+## 🌀 Vortex (crash / cash-out)
+
+A platform-native **Vortex** crash game, wired to the same wallet and launched
+from the lobby (the **Vortex** tile).
+
+- Served at `/vortex.html`; real-time loop in the **same server**
+  (WebSocket `/api/game/vortex`). 6s betting → the vortex spins and the
+  coefficient climbs from 1.00x → **cash out before it collapses**.
+- Optional **auto-cash-out** target; **cancel** during betting; live cash-out.
+  Provably-fair single-draw crash curve → **~97% RTP** at any target (verified).
+- **Wallet-wired**: bet debits, cash-out credits, cancel refunds; rounds logged
+  to `game_sessions` and counted toward wagering. Admin **win-ratio** + **max-win cap**.
+- Files added: `public/vortex.html`, `public/vortex/art/*`, `src/game/vortex.js`.
+  Lobby tile (id 15) launches it.
+- Note: cash-out confirmation does a wallet DB round-trip (like the other games),
+  so under DB latency it confirms a moment after the click; the multiplier used is
+  the server's value at the time the request is processed.
+
+---
+
+## 💣 Mines (Spribe-style)
+
+A platform-native **Mines** game, wired to the same wallet and launched from the
+lobby (the **Mines** tile).
+
+- Served at `/mines.html`; per-player game in the **same server**
+  (WebSocket `/api/game/mines`). 5×5 grid (25 tiles), **1–24 mines** (default 3).
+  Reveal gems to grow the multiplier, **cash out** before you hit a mine.
+- Multipliers use the exact Spribe formula `RTP × C(25,k) / C(25−M,k)` (floored,
+  so the house is never overpaid) → effective **~97% RTP for any strategy**
+  (it follows the admin **win-ratio** lever; verified by ledger reconciliation).
+- **Wallet-wired**: bet debits on start, cash-out credits; every game logged to
+  `game_sessions` and counted toward wagering. Honours the per-round **max-win cap**.
+- Files added: `public/mines.html`, `src/game/mines.js`. Lobby tile (id 4) launches it.
+
+---
+
 ## 🚀 Quick Start (Local)
 
 ### Step 1 — Set up Supabase
