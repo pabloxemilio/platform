@@ -139,9 +139,6 @@ require('./src/game/abupdown').attach(server);
 require('./src/game/sprl7ud').attach(server);
 
 const PORT = process.env.PORT || 3000;
-// Real mirrored Vortex client host (own port → no path collisions, proxies to live backend)
-const VORTEX_REAL_PORT = process.env.VORTEX_REAL_PORT || (Number(PORT) + 9);
-try { require('./src/game/vortexReal').start(VORTEX_REAL_PORT); } catch (e) { console.warn('vortexReal host failed:', e.message); }
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 AVAITOR Casino API running on port ${PORT}`);
@@ -149,8 +146,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`🎮 Aviator game: http://localhost:${PORT}/aviator.html`);
   console.log(`🐲 Dragon Tiger: http://localhost:${PORT}/dragontiger.html`);
   console.log(`🎲 7 Up 7 Down: http://localhost:${PORT}/sevenupdown.html`);
-  console.log(`🌀 Vortex (mine): http://localhost:${PORT}/vortex.html`);
-  console.log(`🌀 Vortex (REAL): http://localhost:${VORTEX_REAL_PORT}/`);
+  console.log(`🌀 Vortex:        http://localhost:${PORT}/vortex.html`);
   console.log(`💣 Mines:        http://localhost:${PORT}/mines.html`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
 });

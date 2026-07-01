@@ -8,7 +8,6 @@ const GAMES = [
   { id: 13, name: 'Chicken Road',   provider: 'InOut',     thumb: 'images/mines_game.png',      badge: 'hot',     rtp: '95.5%', category: ['crash','hot'] },
   { id: 14, name: '7 Up 7 Down',    provider: 'KBP',       thumb: 'images/dice_game.png',       badge: 'live',    rtp: '95.8%', category: ['live','hot','popular'] },
   { id: 15, name: 'Vortex',         provider: 'Turbo',     thumb: 'vortex/art/logo.webp',       badge: 'hot',     rtp: '97%',   category: ['crash','hot','new'] },
-  { id: 16, name: 'Vortex Classic', provider: 'AVAITOR',   thumb: 'vortex/art/logo.webp',       badge: 'new',     rtp: '97%',   category: ['crash','new'] },
   { id: 2,  name: 'Fortune Slots',  provider: 'JILI',      thumb: 'images/slots_game.png',      badge: 'popular', rtp: '96.5%', category: ['slots','popular'] },
   { id: 3,  name: 'Live Roulette',  provider: 'Evolution', thumb: 'images/live_casino_game.png',badge: 'live',    rtp: '97.3%', category: ['live','popular'] },
   { id: 4,  name: 'Mines',          provider: 'Spribe',    thumb: 'images/mines_game.png',      badge: 'hot',     rtp: '97%',   category: ['crash','hot'] },
@@ -354,19 +353,13 @@ function launchSevenUpDownNative() {
   window.location.href = '/sevenupdown.html?token=' + encodeURIComponent(token) + '&cur=' + encodeURIComponent(currentCurrency());
 }
 function launchVortex() {
-  // REAL pixel-perfect Turbo Games Vortex client (mirrored + served on host port+9),
-  // own engine wired to the player's Supabase wallet + currency + admin RTP.
-  const token = (typeof getToken === 'function') ? getToken() : null;
-  if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
-  var p = (parseInt(location.port, 10) || 3000) + 9;
-  window.location.href = location.protocol + '//' + location.hostname + ':' + p + '/?cid=turbogames&sub_partner_id=turbogames&locale=en&token=' + encodeURIComponent(token);
-}
-function launchVortexClassic() {
-  // self-contained smooth Vortex (same domain), own engine + wallet + admin RTP, no external deps.
+  // Self-contained Vortex, served same-origin on the main server (WS at /api/game/vortex),
+  // wired to the player's wallet + currency + admin RTP — opens in-platform like Aviator.
   const token = (typeof getToken === 'function') ? getToken() : null;
   if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
   window.location.href = '/vortex.html?token=' + encodeURIComponent(token) + '&cur=' + encodeURIComponent(currentCurrency());
 }
+const launchVortexClassic = launchVortex;   // legacy alias — both use the same working client
 function launchMines() {
   const token = (typeof getToken === 'function') ? getToken() : null;
   if (!token) { openModal('loginModal'); showToast('Login to play!', 'warning'); return; }
