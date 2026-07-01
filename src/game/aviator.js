@@ -78,7 +78,7 @@ function pickCrash() {
   // Classic provably-fair crash curve with a SINGLE uniform draw: this makes the
   // effective RTP exactly `rtp` for any cash-out target (instant busts emerge
   // naturally when the curve lands below the 1.01 minimum).
-  const rtp = winRatio(0.97);
+  const rtp = winRatio(0.97, 'aviator');
   const x = rtp / (1 - Math.random());
   if (x < 1.01) return 1.00;                       // natural instant bust
   return Math.min(Math.round(x * 100) / 100, 100);

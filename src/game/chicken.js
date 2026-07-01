@@ -42,7 +42,7 @@ const limitsFor = (cur) => LIMITS[cur] || LIMITS.USD;
 // (default 0.955) cleanly tunes how often a player loses on the very first step.
 function rollCollisions(diff) {
   const c = COEFFS[diff] || COEFFS.EASY;
-  const rtp = winRatio(RTP);
+  const rtp = winRatio(RTP, 'chicken');
   const cols = [];
   for (let n = 0; n < c.length; n++) {
     const survival = n === 0 ? rtp / parseFloat(c[0]) : parseFloat(c[n - 1]) / parseFloat(c[n]);
